@@ -17,17 +17,14 @@ declare(strict_types=1);
 
 namespace Passbolt\DirectorySync\Test\TestCase\Controller;
 
+use App\Test\Factory\UserFactory;
 use App\Utility\UuidFactory;
 use Cake\ORM\TableRegistry;
 use Passbolt\DirectorySync\Test\Utility\DirectorySyncDeprecatedIntegrationTestCase;
 
 class DirectoryIgnoreDeleteControllerTest extends DirectorySyncDeprecatedIntegrationTestCase
 {
-    public array $fixtures = [
-        'app.Base/Users', 'app.Base/Groups', 'app.Base/Secrets', 'app.Base/Roles',
-        'app.Alt0/GroupsUsers', 'app.Alt0/Permissions',
-        'app.Base/Favorites',
-    ];
+    public array $fixtures = [];
 
     /**
      * @group DirectorySync
@@ -37,13 +34,13 @@ class DirectoryIgnoreDeleteControllerTest extends DirectorySyncDeprecatedIntegra
      */
     public function testDirectorySyncControllerIgnoreDeleteSuccess()
     {
-        $this->authenticateAs('admin');
-        $recordId = UuidFactory::uuid('user.id.ada');
-        $this->postJson("/directorysync/ignore/users/$recordId.json?api-version=2");
-        $this->deleteJson("/directorysync/ignore/users/$recordId.json?api-version=2");
+        $this->logInAsAdmin();
+        $user = UserFactory::make()->persist();
+        $this->postJson("/directorysync/ignore/users/{$user->get('id')}.json?api-version=2");
+        $this->deleteJson("/directorysync/ignore/users/{$user->get('id')}.json?api-version=2");
         $this->assertSuccess();
         $DirectoryIgnore = TableRegistry::getTableLocator()->get('Passbolt/DirectorySync.DirectoryIgnore');
-        $deletedIgnore = $DirectoryIgnore->find('all')->where(['id' => $recordId])->first();
+        $deletedIgnore = $DirectoryIgnore->find('all')->where(['id' => $user->get('id')])->first();
         $this->assertempty($deletedIgnore);
     }
 
@@ -55,9 +52,9 @@ class DirectoryIgnoreDeleteControllerTest extends DirectorySyncDeprecatedIntegra
      */
     public function testDirectorySyncControllerIgnoreDeleteErrorNotValidId()
     {
-        $this->authenticateAs('admin');
-        $recordId = 'invalid-id';
-        $this->deleteJson("/directorysync/ignore/users/$recordId.json");
+        $this->logInAsAdmin();
+        $userId = 'invalid-id';
+        $this->deleteJson("/directorysync/ignore/users/$userId.json");
         $this->assertError(400);
     }
 
@@ -69,9 +66,9 @@ class DirectoryIgnoreDeleteControllerTest extends DirectorySyncDeprecatedIntegra
      */
     public function testDirectorySyncControllerIgnoreDeleteErrorNotExist()
     {
-        $this->authenticateAs('admin');
-        $recordId = UuidFactory::uuid();
-        $this->deleteJson("/directorysync/ignore/users/$recordId.json");
+        $this->logInAsAdmin();
+        $userId = UuidFactory::uuid();
+        $this->deleteJson("/directorysync/ignore/users/$userId.json");
         $this->assertError(404);
     }
 
@@ -83,11 +80,11 @@ class DirectoryIgnoreDeleteControllerTest extends DirectorySyncDeprecatedIntegra
      */
     public function testDirectorySyncControllerIgnoreDeleteNotExistAlreadyDeleted()
     {
-        $this->authenticateAs('admin');
-        $recordId = UuidFactory::uuid('user.id.ada');
-        $this->postJson("/directorysync/ignore/users/$recordId.json?api-version=2");
-        $this->deleteJson("/directorysync/ignore/users/$recordId.json?api-version=2");
-        $this->deleteJson("/directorysync/ignore/users/$recordId.json?api-version=2");
+        $this->logInAsAdmin();
+        $user = UserFactory::make()->persist();
+        $this->postJson("/directorysync/ignore/users/{$user->get('id')}.json?api-version=2");
+        $this->deleteJson("/directorysync/ignore/users/{$user->get('id')}.json?api-version=2");
+        $this->deleteJson("/directorysync/ignore/users/{$user->get('id')}.json?api-version=2");
         $this->assertError(404);
     }
 
@@ -99,9 +96,9 @@ class DirectoryIgnoreDeleteControllerTest extends DirectorySyncDeprecatedIntegra
      */
     public function testDirectorySyncControllerIgnoreDeleteErrorWrongModel()
     {
-        $this->authenticateAs('admin');
-        $recordId = UuidFactory::uuid('user.id.ada');
-        $this->deleteJson("/directorysync/ignore/biloute/$recordId.json");
+        $this->logInAsAdmin();
+        $user = UserFactory::make()->persist();
+        $this->deleteJson("/directorysync/ignore/biloute/{$user->get('id')}.json");
         $this->assertError(400);
     }
 
@@ -113,9 +110,9 @@ class DirectoryIgnoreDeleteControllerTest extends DirectorySyncDeprecatedIntegra
      */
     public function testDirectorySyncControllerIgnoreDeleteErrorNotExistModel()
     {
-        $this->authenticateAs('admin');
-        $recordId = UuidFactory::uuid('user.id.ada');
-        $this->deleteJson("/directorysync/ignore/groups/$recordId.json");
+        $this->logInAsAdmin();
+        $user = UserFactory::make()->persist();
+        $this->deleteJson("/directorysync/ignore/groups/{$user->get('id')}.json");
         $this->assertError(404);
     }
 
@@ -127,8 +124,8 @@ class DirectoryIgnoreDeleteControllerTest extends DirectorySyncDeprecatedIntegra
      */
     public function testDirectorySyncControllerIgnoreDeleteErrorNotAuthenticated()
     {
-        $recordId = UuidFactory::uuid('user.id.ada');
-        $this->deleteJson("/directorysync/ignore/users/$recordId.json?api-version=2");
+        $user = UserFactory::make()->persist();
+        $this->deleteJson("/directorysync/ignore/users/{$user->get('id')}.json?api-version=2");
         $this->assertAuthenticationError();
     }
 }
