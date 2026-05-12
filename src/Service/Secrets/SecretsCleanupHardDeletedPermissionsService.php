@@ -95,6 +95,7 @@ class SecretsCleanupHardDeletedPermissionsService
             ->groupBy(['resource_id', 'user_id']);
 
         // Use a "LEFT JOIN" instead of a "NOT IN" for performance reason.
+        /** @psalm-suppress ImplicitToStringCast */
         return $this->Secrets->find()
             ->leftJoin(['ExpectedSecrets' => $userExpectedSecretsQuery], [
                 'ExpectedSecrets.resource_id' => new IdentifierExpression('Secrets.resource_id'),

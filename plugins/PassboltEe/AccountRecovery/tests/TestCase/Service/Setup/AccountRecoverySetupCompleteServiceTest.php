@@ -172,6 +172,7 @@ class AccountRecoverySetupCompleteServiceTest extends AccountRecoveryTestCase
         $this->assertSame(1, AccountRecoveryUserSettingFactory::count());
 
         $table = TableRegistry::getTableLocator()->get('Passbolt/AccountRecovery.AccountRecoveryUserSettings');
+        /** @var \Passbolt\AccountRecovery\Model\Entity\AccountRecoveryUserSetting $q */
         $q = $table->find()->contain(['Users'])->all()->first();
         $this->assertTrue($q->user->active);
         $this->assertTrue(isset($q->created));

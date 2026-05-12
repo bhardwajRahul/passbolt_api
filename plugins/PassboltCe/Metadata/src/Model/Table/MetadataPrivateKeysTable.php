@@ -172,6 +172,7 @@ class MetadataPrivateKeysTable extends Table implements TableCleanupProviderInte
                 $query->newExpr()->isNotNull($this->aliasField('user_id')), // Do not remove metadata server key
             ]);
 
+        /** @psalm-suppress InvalidArgument */
         return $this->cleanupHardDeleted('Users', $dryRun, $query);
     }
 
@@ -194,6 +195,7 @@ class MetadataPrivateKeysTable extends Table implements TableCleanupProviderInte
                 $query->newExpr()->isNotNull($this->aliasField('user_id')), // Do not remove metadata server key
             ]);
 
+        /** @psalm-suppress InvalidArgument */
         return $this->cleanupSoftDeleted('Users', $dryRun, $query);
     }
 

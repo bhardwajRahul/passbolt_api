@@ -145,7 +145,7 @@ class MissingMetadataKeyIdsContainListener implements EventListenerInterface
                 }
                 if ($entity->get('active')) {
                     // get missing metadata keys
-                    $userMetadataKeysIds = Hash::extract($entity, 'metadata_private_keys.{n}.metadata_key_id');
+                    $userMetadataKeysIds = Hash::extract($entity->toArray(), 'metadata_private_keys.{n}.metadata_key_id');
                     if (empty($userMetadataKeysIds)) {
                         $missingUserMetadataKeysIds = $metadataKeysIds;
                     } else {
