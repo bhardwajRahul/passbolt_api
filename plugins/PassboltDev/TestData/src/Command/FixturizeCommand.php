@@ -80,12 +80,12 @@ class FixturizeCommand extends PassboltCommand
      */
     protected function insertTask(DataCommand $command): void
     {
-        if (method_exists($command, 'beforeExecute')) {
-            $command->beforeExecute();
+        if (method_exists($command, 'beforeDataExecute')) {
+            $command->beforeDataExecute();
         }
         $this->executeCommand($command);
-        if (method_exists($command, 'afterExecute')) {
-            $command->afterExecute();
+        if (method_exists($command, 'afterDataExecute')) {
+            $command->afterDataExecute();
         }
     }
 

@@ -42,6 +42,7 @@ class MetadataKeyHealthcheckService extends AbstractHealthcheckService
     public function check(): array
     {
         $metadataKeysQuery = TableRegistry::getTableLocator()->get('Passbolt/Metadata.MetadataKeys')->find();
+        /** @var array<\Passbolt\Metadata\Model\Entity\MetadataKey> $records */
         $records = $metadataKeysQuery
             ->contain(['MetadataPrivateKeys'])
             ->where([$metadataKeysQuery->newExpr()->isNull('MetadataKeys.deleted')])

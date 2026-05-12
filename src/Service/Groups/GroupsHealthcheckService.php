@@ -50,6 +50,7 @@ class GroupsHealthcheckService extends AbstractHealthcheckService
      */
     public function check(): array
     {
+        /** @var array<\App\Model\Entity\Group> $records */
         $records = $this->table->find()->all();
 
         foreach ($records as $record) {

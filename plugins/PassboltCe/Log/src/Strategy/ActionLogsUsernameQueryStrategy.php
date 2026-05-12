@@ -209,6 +209,7 @@ class ActionLogsUsernameQueryStrategy extends ActionLogsAbstractQueryStrategy
         $resourcesTable = $this->fetchTable('Resources');
 
         // Fetch the entities history for the action log
+        /** @var array<\Passbolt\Log\Model\Entity\EntityHistory> $entitiesHistory */
         $entitiesHistory = $entitiesHistoryTable->find()
             ->where(['action_log_id' => $actionLogId, 'foreign_model' => 'PermissionsHistory'])
             ->all();

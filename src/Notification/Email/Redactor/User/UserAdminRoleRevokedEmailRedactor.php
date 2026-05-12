@@ -90,6 +90,7 @@ class UserAdminRoleRevokedEmailRedactor implements SubscribedEmailRedactorInterf
 
         /** @var \App\Model\Table\UsersTable $usersTable */
         $usersTable = $this->fetchTable('Users');
+        /** @var array<\App\Model\Entity\User> $recipients */
         $recipients = $usersTable
             ->findAdmins()
             ->find('notDisabled')

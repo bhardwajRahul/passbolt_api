@@ -98,13 +98,16 @@ class ShareMetadataKeyCommand extends PassboltCommand
     {
         $metadataKeysQuery = TableRegistry::getTableLocator()->get('Passbolt/Metadata.MetadataKeys')->find();
 
-        return $metadataKeysQuery
+        /** @var array<\Passbolt\Metadata\Model\Entity\MetadataKey> $metadataKeys */
+        $metadataKeys = $metadataKeysQuery
             ->contain(['MetadataPrivateKeys' => function (Query $query) {
                 // get server key data along with the metadata key
                 return $query->where([$query->newExpr()->isNull('user_id')]);
             }])
             ->where([$metadataKeysQuery->newExpr()->isNull('deleted')])
             ->toArray();
+
+        return $metadataKeys;
     }
 
     /**
