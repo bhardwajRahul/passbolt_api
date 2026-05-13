@@ -39,7 +39,8 @@ class TaggableBehavior extends Behavior
                 'through' => 'Passbolt/Tags.ResourcesTags',
                 'className' => 'Passbolt/Tags.Tags',
                 'propertyName' => 'tags',
-            ])->setSource($this->table());
+                'sourceTable' => $this->table(),
+            ]);
 
         $this->table()->hasMany('ResourcesTags', [
             'className' => 'Passbolt/Tags.ResourcesTags',
