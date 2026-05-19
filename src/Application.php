@@ -42,6 +42,8 @@ use App\Notification\NotificationSettings\CoreNotificationSettingsDefinition;
 use App\Service\Avatars\AvatarsConfigurationService;
 use App\Service\Cookie\AbstractSecureCookieService;
 use App\Service\Cookie\DefaultSecureCookieService;
+use App\Service\HealthcheckStatus\DefaultHealthcheckStatusService;
+use App\Service\HealthcheckStatus\HealthcheckStatusServiceInterface;
 use App\Service\Subscriptions\DefaultSubscriptionCheckInCommandService;
 use App\Service\Subscriptions\EditionManager;
 use App\Service\Subscriptions\SubscriptionCheckInCommandServiceInterface;
@@ -327,6 +329,7 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
             DefaultSubscriptionCheckInCommandService::class
         );
         $container->addServiceProvider(new HealthcheckServiceProvider());
+        $container->add(HealthcheckStatusServiceInterface::class, DefaultHealthcheckStatusService::class);
     }
 
     /**
