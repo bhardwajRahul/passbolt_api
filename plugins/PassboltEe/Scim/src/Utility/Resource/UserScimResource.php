@@ -223,10 +223,12 @@ class UserScimResource implements ScimResourceInterface
         if (!Validation::uuid($internalId)) {
             throw new BadRequestException(__('The user identifier should be a valid UUID.'));
         }
-        $this->userEntity = $this->Users
+        /** @var \App\Model\Entity\User|null $userEntity */
+        $userEntity = $this->Users
             ->findForScim([$this->Users->aliasField('id') => $internalId], findDeleted: true)
             ->contain(['Profiles', 'ScimEntries'])
             ->first();
+        $this->userEntity = $userEntity;
         if (!$this->userEntity) {
             throw new ResourceNotFoundException(
                 sprintf('The %s resource with id `%s` was not found', $this->getType(), $internalId)
@@ -451,11 +453,14 @@ class UserScimResource implements ScimResourceInterface
             return null;
         }
 
-        return $this->Users
+        /** @var \App\Model\Entity\User|null $user */
+        $user = $this->Users
             ->find()
             ->contain(['Roles'])
             ->where([$this->Users->aliasField('id') => $scimConfig['scim_user_id']])
             ->first();
+
+        return $user;
     }
 
     /**

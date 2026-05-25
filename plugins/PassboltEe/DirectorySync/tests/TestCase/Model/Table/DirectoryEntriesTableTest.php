@@ -76,6 +76,7 @@ class DirectoryEntriesTableTest extends TestCase
         $this->assertSame(Alias::MODEL_USERS, $result->foreign_model);
         $this->assertNull($result->foreign_key);
         // Assert database entry
+        /** @var \Passbolt\DirectorySync\Model\Entity\DirectoryEntry $persisted */
         $persisted = DirectoryEntryFactory::find()->where(['id' => $result->id])->firstOrFail();
         $this->assertSame($data['directory_name'], $persisted->directory_name);
     }
@@ -91,6 +92,7 @@ class DirectoryEntriesTableTest extends TestCase
             'id' => $entry->id,
             'directory_name' => 'cn=Ada,dc=passbolt,dc=com',
         ];
+        /** @var \Passbolt\DirectorySync\Model\Entity\DirectoryEntry $directoryEntry */
         $directoryEntry = DirectoryEntryFactory::find()->where(['id' => $entry->id])->firstOrFail();
         $modifiedBefore = $directoryEntry->modified;
 
@@ -124,6 +126,7 @@ class DirectoryEntriesTableTest extends TestCase
         $this->assertInstanceOf(User::class, $associated);
         $this->assertSame($entry->foreign_key, $associated->id);
         // Assert database entry
+        /** @var \Passbolt\DirectorySync\Model\Entity\DirectoryEntry $persisted */
         $persisted = DirectoryEntryFactory::find()->where(['id' => $entry->id])->firstOrFail();
         $this->assertSame($newName, $persisted->directory_name);
     }
@@ -143,6 +146,7 @@ class DirectoryEntriesTableTest extends TestCase
         $result = $this->DirectoryEntries->updateOrCreate($data, Alias::MODEL_USERS);
 
         $this->assertInstanceOf(DirectoryEntry::class, $result);
+        /** @var \Passbolt\DirectorySync\Model\Entity\DirectoryEntry $persisted */
         $persisted = DirectoryEntryFactory::find()->where(['id' => $entry->id])->firstOrFail();
         $this->assertSame('cn=Ada,dc=passbolt,dc=com', $persisted->directory_name);
     }
@@ -170,6 +174,7 @@ class DirectoryEntriesTableTest extends TestCase
         $this->assertInstanceOf(DirectoryEntry::class, $result);
         $this->assertSame(DirectoryEntriesTable::DN_MAX_LENGTH - 1, mb_strlen($result->directory_name, 'UTF-8'));
         // Assert db entries
+        /** @var \Passbolt\DirectorySync\Model\Entity\DirectoryEntry $persisted */
         $persisted = DirectoryEntryFactory::find()->where(['id' => $entry->id])->firstOrFail();
         $this->assertSame(DirectoryEntriesTable::DN_MAX_LENGTH - 1, mb_strlen($persisted->directory_name, 'UTF-8'));
         $this->assertSame(mb_substr($longName, 0, DirectoryEntriesTable::DN_MAX_LENGTH - 1, 'UTF-8'), $persisted->directory_name);
@@ -194,6 +199,7 @@ class DirectoryEntriesTableTest extends TestCase
         $this->assertInstanceOf(DirectoryEntry::class, $result);
         $this->assertSame($newName, $result->directory_name);
         $this->assertNull($result->getAssociatedEntity());
+        /** @var \Passbolt\DirectorySync\Model\Entity\DirectoryEntry $persisted */
         $persisted = DirectoryEntryFactory::find()->where(['id' => $entry->id])->firstOrFail();
         $this->assertSame($newName, $persisted->directory_name);
     }
@@ -270,6 +276,7 @@ class DirectoryEntriesTableTest extends TestCase
             // Expected: MySQL rejected the invalid UTF-8 byte; transaction was rolled back.
         }
 
+        /** @var \Passbolt\DirectorySync\Model\Entity\DirectoryEntry $persisted */
         $persisted = DirectoryEntryFactory::find()->where(['id' => $entry->id])->firstOrFail();
         $this->assertSame('cn=Original,dc=passbolt,dc=com', $persisted->directory_name);
     }

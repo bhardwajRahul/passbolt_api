@@ -69,9 +69,12 @@ class SetUserIdentityInRequestMiddleware implements MiddlewareInterface
             return null;
         }
 
-        return TableRegistry::getTableLocator()->get('Users')
+        /** @var \App\Model\Entity\User|null $user */
+        $user = TableRegistry::getTableLocator()->get('Users')
             ->find('authIdentifier')
             ->where(['Users.id' => $userId])
             ->first();
+
+        return $user;
     }
 }

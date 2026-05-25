@@ -89,6 +89,7 @@ class FoldersShareServiceTest extends FoldersTestCase
      */
     private function getPermissionId(string $folderId, string $aroForeignKeyId): string
     {
+        /** @var \App\Model\Entity\Permission $permission */
         $permission = $this->Permissions
             ->find()
             ->where([

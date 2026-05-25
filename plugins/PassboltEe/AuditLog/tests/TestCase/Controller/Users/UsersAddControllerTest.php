@@ -52,6 +52,7 @@ class UsersAddControllerTest extends LogIntegrationTestCase
         $this->postJson('/users.json', $data);
         $this->assertResponseSuccess();
 
+        /** @var \App\Model\Entity\User $user */
         $user = UserFactory::find()->contain('Profiles')->where(compact('username'))->firstOrFail();
 
         $this->assertActionLogsCount(1);

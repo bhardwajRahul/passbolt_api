@@ -50,6 +50,7 @@ class ScimUsersTableTest extends AppTestCase
         /** @var \App\Model\Entity\User $user */
         $user = UserFactory::make()->user()->persist();
 
+        /** @var \App\Model\Entity\User|null $result */
         $result = $this->ScimUsers
             ->findByEmailForScim($user->username)
             ->first();
@@ -104,6 +105,7 @@ class ScimUsersTableTest extends AppTestCase
         /** @var \App\Model\Entity\User $user */
         $user = UserFactory::make()->user()->persist();
 
+        /** @var \App\Model\Entity\User|null $result */
         $result = $this->ScimUsers
             ->findForScim([$this->ScimUsers->aliasField('id') => $user->id])
             ->first();
@@ -129,6 +131,7 @@ class ScimUsersTableTest extends AppTestCase
         /** @var \App\Model\Entity\User $user */
         $user = UserFactory::make()->user()->deleted()->persist();
 
+        /** @var \App\Model\Entity\User|null $result */
         $result = $this->ScimUsers
             ->findForScim(
                 [$this->ScimUsers->aliasField('id') => $user->id],

@@ -100,6 +100,7 @@ class UserAdminRoleRevokedEmailRedactor implements SubscribedEmailRedactorInterf
             ->toArray();
         $operator = $usersTable->findFirstForEmail($uac->getId());
         // Get fresh copy of user now to get the updated details (especially role)
+        /** @var \App\Model\Entity\User $user */
         $user = $usersTable->find()->contain(['Roles', 'Profiles'])->where(['Users.id' => $user->id])->firstOrFail();
 
         foreach ($recipients as $admin) {
