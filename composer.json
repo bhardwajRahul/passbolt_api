@@ -144,7 +144,8 @@
             "Passbolt\\Metadata\\": "./plugins/PassboltCe/Metadata/src",
             "Passbolt\\UserKeyPolicies\\": "./plugins/PassboltCe/UserKeyPolicies/src",
             "Passbolt\\ExportPolicies\\": "./plugins/PassboltCe/ExportPolicies/src",
-            "Passbolt\\Scim\\": "./plugins/PassboltEe/Scim/src"
+            "Passbolt\\Scim\\": "./plugins/PassboltEe/Scim/src",
+            "Passbolt\\Edition\\": "./plugins/PassboltCe/Edition/src"
         }
     },
     "autoload-dev": {
@@ -189,7 +190,8 @@
             "Passbolt\\Metadata\\Test\\": "./plugins/PassboltCe/Metadata/tests",
             "Passbolt\\UserKeyPolicies\\Test\\": "./plugins/PassboltCe/UserKeyPolicies/tests",
             "Passbolt\\ExportPolicies\\Test\\": "./plugins/PassboltCe/ExportPolicies/tests",
-            "Passbolt\\Scim\\Test\\": "./plugins/PassboltEe/Scim/tests"
+            "Passbolt\\Scim\\Test\\": "./plugins/PassboltEe/Scim/tests",
+            "Passbolt\\Edition\\Test\\": "./plugins/PassboltCe/Edition/tests"
         }
     },
     "scripts": {
