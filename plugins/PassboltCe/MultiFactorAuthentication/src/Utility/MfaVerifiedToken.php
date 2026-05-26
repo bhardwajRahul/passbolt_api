@@ -140,6 +140,7 @@ class MfaVerifiedToken
     public static function setAllInactive(UserAccessControl $uac): void
     {
         $AuthenticationTokens = TableRegistry::getTableLocator()->get('AuthenticationTokens');
+        /** @var array<\App\Model\Entity\AuthenticationToken> $mfaTokens */
         $mfaTokens = $AuthenticationTokens->find()
             ->where(['user_id' => $uac->getId(), 'type' => AuthenticationToken::TYPE_MFA])
             ->all();

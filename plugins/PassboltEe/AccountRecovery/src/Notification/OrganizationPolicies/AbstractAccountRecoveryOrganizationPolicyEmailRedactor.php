@@ -91,8 +91,10 @@ abstract class AbstractAccountRecoveryOrganizationPolicyEmailRedactor implements
             return $emailCollection;
         }
 
+        /** @var \App\Model\Entity\User|null $user */
         $user = $admins->firstMatch(['id' => $uac->getId()]);
 
+        /** @var \App\Model\Entity\User $admin */
         foreach ($admins as $admin) {
             $emailCollection->addEmail($this->makeAdminEmail($admin, $user, $policy));
         }

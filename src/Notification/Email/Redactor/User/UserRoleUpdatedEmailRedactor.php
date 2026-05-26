@@ -87,6 +87,7 @@ class UserRoleUpdatedEmailRedactor implements SubscribedEmailRedactorInterface
         /** @var \App\Model\Table\UsersTable $usersTable */
         $usersTable = $this->fetchTable('Users');
 
+        /** @var \App\Model\Entity\User $recipient */
         $recipient = $usersTable
             ->find('locale')
             ->contain([

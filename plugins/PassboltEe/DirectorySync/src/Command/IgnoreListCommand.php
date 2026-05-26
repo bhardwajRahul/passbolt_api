@@ -58,6 +58,7 @@ class IgnoreListCommand extends DirectorySyncCommand
         parent::execute($args, $io);
 
         // Output some data as a table.
+        /** @var array<\Passbolt\DirectorySync\Model\Entity\DirectoryIgnore> $di */
         $di = $this->DirectoryIgnore->find()
             ->select()
             ->contain(['Users', 'Groups', 'DirectoryEntries'])

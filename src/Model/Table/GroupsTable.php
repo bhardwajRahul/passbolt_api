@@ -393,6 +393,7 @@ class GroupsTable extends Table implements TableCleanupProviderInterface
             ->whereNull('GroupsUsers.id')
             ->where([$this->aliasField('deleted') => 0]);
 
+        /** @psalm-suppress InvalidArgument */
         return $this->cleanupHardDeleted('GroupsUsers', $dryRun, $query);
     }
 

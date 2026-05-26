@@ -256,6 +256,7 @@ class FoldersDeleteService
         // Soft-delete resources individually to preserve afterSoftDelete event chain
         // which cleans up each resource's folder relations.
         if (!empty($deletableResourceIds)) {
+            /** @var array<\App\Model\Entity\Resource> $resources */
             $resources = $this->resourcesTable->find()
                 ->select(['Resources.id', 'Resources.resource_type_id', 'ResourceTypes.id', 'ResourceTypes.deleted'])
                 ->contain(['ResourceTypes'])

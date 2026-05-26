@@ -79,7 +79,9 @@ class RbacsUpdateControllerTest extends RbacsIntegrationTestCase
     public function testRbacsUpdateController_Success(): void
     {
         $this->setupDefaultRbacs();
+        /** @var \Passbolt\Rbacs\Model\Entity\Rbac $uiActionRbac */
         $uiActionRbac = RbacFactory::find()->where(['foreign_model' => Rbac::FOREIGN_MODEL_UI_ACTION])->firstOrFail();
+        /** @var \Passbolt\Rbacs\Model\Entity\Rbac $actionRbac */
         $actionRbac = RbacFactory::find()->where(['foreign_model' => Rbac::FOREIGN_MODEL_ACTION])->firstOrFail();
 
         $this->logInAsAdmin();
