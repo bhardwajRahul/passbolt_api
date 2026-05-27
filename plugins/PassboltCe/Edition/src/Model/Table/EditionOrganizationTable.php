@@ -16,6 +16,7 @@ declare(strict_types=1);
  */
 namespace Passbolt\Edition\Model\Table;
 
+use App\Model\Entity\OrganizationSetting;
 use App\Model\Table\OrganizationSettingsTable;
 use App\Utility\UuidFactory;
 use ArrayObject;
@@ -48,6 +49,21 @@ class EditionOrganizationTable extends OrganizationSettingsTable
      * @var string
      */
     public const PROPERTY_NAME = 'edition';
+
+    /**
+     * Reuses the core `OrganizationSetting` entity. Without this override
+     * CakePHP would fall back to `Cake\ORM\Entity` (no `EditionOrganization`
+     * entity exists in this plugin namespace), which violates the parent
+     * `createOrUpdateSetting()` return type contract.
+     *
+     * @param array $config Table config.
+     * @return void
+     */
+    public function initialize(array $config): void
+    {
+        parent::initialize($config);
+        $this->setEntityClass(OrganizationSetting::class);
+    }
 
     /**
      * Scopes every query on this table to the single `edition` row.
