@@ -21,6 +21,7 @@ use App\Service\Subscriptions\EditionManager;
 use Cake\Core\Configure;
 use Cake\Http\Exception\InternalErrorException;
 use Cake\TestSuite\TestCase;
+use Passbolt\Edition\Model\Dto\EditionDto;
 use Passbolt\Ee\EeSolutionBootstrapper;
 use RuntimeException;
 
@@ -53,38 +54,38 @@ class EditionManagerTest extends TestCase
 
     public function testEditionManager_Boot_Ce(): void
     {
-        Configure::write('passbolt.edition', EditionManager::EDITION_CE);
+        Configure::write('passbolt.edition', EditionDto::EDITION_CE);
         $this->sut->boot();
 
-        $this->assertSame(EditionManager::EDITION_CE, $this->sut->getEdition());
+        $this->assertSame(EditionDto::EDITION_CE, $this->sut->getEdition());
         $this->assertFalse($this->sut->isPro());
         $this->assertSame(BaseSolutionBootstrapper::class, $this->sut->getSolutionBootstrapperClass());
     }
 
     public function testEditionManager_Boot_Pro(): void
     {
-        Configure::write('passbolt.edition', EditionManager::EDITION_PRO);
+        Configure::write('passbolt.edition', EditionDto::EDITION_PRO);
         $this->sut = new EditionManager();
         $this->sut->boot();
 
-        $this->assertSame(EditionManager::EDITION_PRO, $this->sut->getEdition());
+        $this->assertSame(EditionDto::EDITION_PRO, $this->sut->getEdition());
         $this->assertTrue($this->sut->isPro());
         $this->assertSame(EeSolutionBootstrapper::class, $this->sut->getSolutionBootstrapperClass());
     }
 
     public function testEditionManager_Boot_Idempotent(): void
     {
-        Configure::write('passbolt.edition', EditionManager::EDITION_CE);
+        Configure::write('passbolt.edition', EditionDto::EDITION_CE);
         $this->sut = new EditionManager();
         $this->sut->boot();
 
-        $this->assertSame(EditionManager::EDITION_CE, $this->sut->getEdition());
+        $this->assertSame(EditionDto::EDITION_CE, $this->sut->getEdition());
 
         // Change config after boot — second boot should be a no-op
-        Configure::write('passbolt.edition', EditionManager::EDITION_PRO);
+        Configure::write('passbolt.edition', EditionDto::EDITION_PRO);
         $this->sut->boot();
 
-        $this->assertSame(EditionManager::EDITION_CE, $this->sut->getEdition());
+        $this->assertSame(EditionDto::EDITION_CE, $this->sut->getEdition());
         $this->assertFalse($this->sut->isPro());
         $this->assertSame(BaseSolutionBootstrapper::class, $this->sut->getSolutionBootstrapperClass());
     }
@@ -112,7 +113,7 @@ class EditionManagerTest extends TestCase
     {
         $this->sut = new EditionManager();
 
-        $this->assertSame(EditionManager::EDITION_CE, $this->sut->getEdition());
+        $this->assertSame(EditionDto::EDITION_CE, $this->sut->getEdition());
         $this->assertFalse($this->sut->isPro());
         $this->assertNull($this->sut->getSolutionBootstrapperClass());
     }
