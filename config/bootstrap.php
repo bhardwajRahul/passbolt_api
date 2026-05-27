@@ -32,7 +32,7 @@ require CORE_PATH . 'config' . DS . 'bootstrap.php';
 
 use App\Mailer\Transport\DebugTransport;
 use App\Mailer\Transport\SmtpTransport;
-use App\Service\Subscriptions\EditionManager;
+use Passbolt\Edition\Model\Dto\EditionDto;
 use Cake\Cache\Cache;
 use Cake\Database\Type\JsonType;
 use Cake\Database\TypeFactory;
@@ -67,7 +67,7 @@ try {
     Configure::load('app', 'default', false);
     Configure::load('default', 'default', false); // passbolt default config
     Configure::load('version', 'default', true);
-    if (Configure::read('passbolt.edition') === EditionManager::EDITION_PRO) {
+    if (Configure::read('passbolt.edition') === EditionDto::EDITION_PRO) {
         Configure::load('pro', 'default', true); // pro default config
     }
 
