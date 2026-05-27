@@ -20,19 +20,17 @@ namespace App\Service\Subscriptions;
 use App\BaseSolutionBootstrapper;
 use Cake\Core\Configure;
 use Cake\Http\Exception\InternalErrorException;
+use Passbolt\Edition\Model\Dto\EditionDto;
 use Passbolt\Ee\EeSolutionBootstrapper;
 
 class EditionManager
 {
     private bool $booted = false;
 
-    public const EDITION_CE = 'ce';
-    public const EDITION_PRO = 'pro';
-
     /**
      * @var string
      */
-    private string $edition = self::EDITION_CE;
+    private string $edition = EditionDto::EDITION_CE;
 
     private ?string $solutionBootstrapperClass = null;
 
@@ -40,8 +38,8 @@ class EditionManager
      * @var array<string, class-string>
      */
     private array $editionBootstrapperMapping = [
-        self::EDITION_CE => BaseSolutionBootstrapper::class,
-        self::EDITION_PRO => EeSolutionBootstrapper::class,
+        EditionDto::EDITION_CE => BaseSolutionBootstrapper::class,
+        EditionDto::EDITION_PRO => EeSolutionBootstrapper::class,
     ];
 
     /**
@@ -78,7 +76,7 @@ class EditionManager
      */
     public function isPro(): bool
     {
-        return $this->edition === self::EDITION_PRO;
+        return $this->edition === EditionDto::EDITION_PRO;
     }
 
     /**
