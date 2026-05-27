@@ -204,8 +204,8 @@
         "install-dev": [
             "@composer install",
             "npm install",
-            "./node_modules/.bin/grunt appjs-update",
-            "./node_modules/.bin/grunt styleguide-update"
+            "npm run copy:dependencies",
+            "npm run copy:styleguide"
         ],
         "stan": "phpstan analyse --memory-limit=-1",
         "psalm": "psalm.phar",
