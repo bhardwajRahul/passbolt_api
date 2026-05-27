@@ -15,7 +15,7 @@ declare(strict_types=1);
  * @since         5.12.0
  */
 
-namespace App\Service\Subscriptions;
+namespace Passbolt\Edition\Service;
 
 use App\BaseSolutionBootstrapper;
 use Cake\Core\Configure;

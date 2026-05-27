@@ -14,19 +14,19 @@ declare(strict_types=1);
  * @link          https://www.passbolt.com Passbolt(tm)
  * @since         5.12.0
  */
-namespace App\Test\TestCase\Service\Subscriptions;
+namespace Passbolt\Edition\Test\TestCase\Service;
 
 use App\BaseSolutionBootstrapper;
-use App\Service\Subscriptions\EditionManager;
 use Cake\Core\Configure;
 use Cake\Http\Exception\InternalErrorException;
 use Cake\TestSuite\TestCase;
 use Passbolt\Edition\Model\Dto\EditionDto;
+use Passbolt\Edition\Service\EditionManager;
 use Passbolt\Ee\EeSolutionBootstrapper;
 use RuntimeException;
 
 /**
- * @covers \App\Service\Subscriptions\EditionManager
+ * @covers \Passbolt\Edition\Service\EditionManager
  */
 class EditionManagerTest extends TestCase
 {
