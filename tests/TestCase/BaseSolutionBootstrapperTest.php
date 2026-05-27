@@ -17,11 +17,11 @@ declare(strict_types=1);
 namespace App\Test\TestCase;
 
 use App\BaseSolutionBootstrapper;
-use App\Service\Subscriptions\EditionManager;
 use App\Test\Lib\SolutionBootstrapperTestCase;
 use Cake\Core\Configure;
 use Cake\Core\PluginCollection;
 use Cake\Http\Exception\InternalErrorException;
+use Passbolt\Edition\Model\Dto\EditionDto;
 use Passbolt\JwtAuthentication\JwtAuthenticationPlugin;
 use Passbolt\Mobile\MobilePlugin;
 use Passbolt\PasswordExpiry\PasswordExpiryPlugin;
@@ -74,7 +74,7 @@ class BaseSolutionBootstrapperTest extends SolutionBootstrapperTestCase
      */
     public function setUp(): void
     {
-        Configure::write('passbolt.edition', EditionManager::EDITION_CE);
+        Configure::write('passbolt.edition', EditionDto::EDITION_CE);
         $this->sut = new BaseSolutionBootstrapper();
         parent::setUp();
     }
