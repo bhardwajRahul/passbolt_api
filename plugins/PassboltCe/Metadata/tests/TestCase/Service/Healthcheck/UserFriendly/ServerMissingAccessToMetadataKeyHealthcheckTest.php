@@ -20,7 +20,10 @@ use App\Service\Healthcheck\HealthcheckServiceCollector;
 use App\Test\Factory\UserFactory;
 use App\Test\Lib\AppTestCaseV5;
 use App\Utility\OpenPGP\OpenPGPBackendFactory;
+use Cake\Database\Exception\MissingConnectionException;
 use Cake\I18n\DateTime;
+use Cake\ORM\Table;
+use Cake\ORM\TableRegistry;
 use Passbolt\Metadata\Service\Healthcheck\UserFriendly\ServerMissingAccessToMetadataKeyHealthcheck;
 use Passbolt\Metadata\Test\Factory\MetadataKeyFactory;
 use Passbolt\Metadata\Test\Factory\MetadataKeysSettingsFactory;
@@ -127,6 +130,32 @@ class ServerMissingAccessToMetadataKeyHealthcheckTest extends AppTestCaseV5
         $this->sut->check();
 
         $this->assertFalse($this->sut->isPassed());
+    }
+
+    public function testServeMissingAccessToMetadataKeyHealthcheck_Fail_WhenDatabaseUnreachable(): void
+    {
+        MetadataTypesSettingsFactory::make()->v5()->persist();
+        MetadataKeysSettingsFactory::make()->disableUsageOfPersonalKeys()->persist();
+        $tableLocator = TableRegistry::getTableLocator();
+        $alias = 'Passbolt/Metadata.MetadataKeys';
+        $tableLocator->remove($alias);
+        $mockTable = $this->getMockBuilder(Table::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['find'])
+            ->getMock();
+        $mockTable->method('find')->willThrowException(
+            new MissingConnectionException(['driver' => 'Mysql', 'reason' => 'unreachable'])
+        );
+        $tableLocator->set($alias, $mockTable);
+
+        try {
+            $this->sut->check();
+        } finally {
+            $tableLocator->remove($alias);
+        }
+
+        $this->assertFalse($this->sut->isPassed());
+        $this->assertFalse($this->sut->isSkipped());
     }
 
     public function testServeMissingAccessToMetadataKeyHealthcheck_Fail_ExpiredKey(): void
