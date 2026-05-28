@@ -218,6 +218,7 @@ class WebInstallerTest extends WebInstallerIntegrationTestCase
 
     public function testWebInstallerPersistEditionFlag_SetsCe_WhenSubscriptionKeyEmpty()
     {
+        /** @var \App\Model\Entity\User $user */
         $user = UserFactory::make()->admin()->persist();
         $this->enableFeaturePlugin(SubscriptionPlugin::class);
         $webInstaller = new WebInstaller(null);
@@ -232,6 +233,7 @@ class WebInstallerTest extends WebInstallerIntegrationTestCase
 
     public function testWebInstallerPersistEditionFlag_SetsCe_WhenSubscriptionPluginDisabled()
     {
+        /** @var \App\Model\Entity\User $user */
         $user = UserFactory::make()->admin()->persist();
         $this->disableFeaturePlugin(SubscriptionPlugin::class);
         $webInstaller = new WebInstaller(null);
