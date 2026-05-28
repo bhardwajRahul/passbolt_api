@@ -27,7 +27,6 @@ use App\Service\Healthcheck\Ssl\IsRequestHttpsSslHealthcheck;
 use Cake\Collection\Collection;
 use Cake\Collection\CollectionInterface;
 use Cake\Routing\Router;
-use Passbolt\Subscription\SubscriptionPlugin;
 
 class SystemCheckController extends WebInstallerController
 {
@@ -69,11 +68,7 @@ class SystemCheckController extends WebInstallerController
             return $result->domain() === HealthcheckServiceCollector::DOMAIN_GPG;
         });
 
-        if ($this->isFeaturePluginEnabled(SubscriptionPlugin::class)) {
-            $nextStepUrl = Router::url('/install/subscription', true);
-        } else {
-            $nextStepUrl = Router::url('/install/database', true);
-        }
+        $nextStepUrl = Router::url('/install/database', true);
 
         $this->webInstaller->setSettingsAndSave('initialized', true);
         $this->set(compact(

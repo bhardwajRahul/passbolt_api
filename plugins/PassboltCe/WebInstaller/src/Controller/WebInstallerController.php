@@ -18,7 +18,6 @@ namespace Passbolt\WebInstaller\Controller;
 
 use App\Utility\Application\FeaturePluginAwareTrait;
 use Cake\Controller\Controller;
-use Cake\Core\Configure;
 use Cake\Event\EventInterface;
 use Cake\Http\Response;
 use Cake\Routing\Router;
@@ -112,15 +111,11 @@ class WebInstallerController extends Controller
      */
     protected function getNavigationSections(): array
     {
-        $pluginEeEnabled = !empty(Configure::read('passbolt.plugins.ee'));
         $hasAdmin = $this->webInstaller->getSettings('hasAdmin');
         $hasSmtpSettings = $this->webInstaller->getSettings('hasSmtpSettings');
         $sections = [];
 
         $sections['system_check'] = __('System check');
-        if ($pluginEeEnabled) {
-            $sections['subscription_key'] = __('Subscription key');
-        }
         $sections['database'] = __('Database');
         $sections['server_keys'] = __('Server keys');
         $sections['options'] = __('Options');
@@ -130,6 +125,10 @@ class WebInstallerController extends Controller
         if (!$hasAdmin) {
             $sections['first_user'] = __('First user');
         }
+        // Subscription is the last step before installation and is
+        // shown on every edition — CE installs can still enter a key here to
+        // upgrade in one go, or skip the step.
+        $sections['subscription_key'] = __('Subscription key');
         $sections['installation'] = __('Installation');
         $sections['end'] = __('That\'s it!');
 

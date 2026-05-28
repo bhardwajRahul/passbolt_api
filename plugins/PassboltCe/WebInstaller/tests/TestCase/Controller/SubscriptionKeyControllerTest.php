@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace Passbolt\WebInstaller\Test\TestCase\Controller;
 
 use Cake\Core\Configure;
+use Passbolt\Subscription\SubscriptionPlugin;
 use Passbolt\WebInstaller\Test\Lib\WebInstallerIntegrationTestCase;
 use RuntimeException;
 
@@ -58,7 +59,7 @@ class SubscriptionKeyControllerTest extends WebInstallerIntegrationTestCase
             ];
             $this->post('/install/subscription', $postData);
             $this->assertResponseCode(302);
-            $this->assertRedirectContains('/install/database');
+            $this->assertRedirectContains('/install/installation');
             $this->assertSession($postData, 'webinstaller.subscription');
         }
         $this->assertTrue(true);
@@ -84,7 +85,30 @@ class SubscriptionKeyControllerTest extends WebInstallerIntegrationTestCase
         $this->post('/install/subscription', ['skip' => '1']);
 
         $this->assertResponseCode(302);
-        $this->assertRedirectContains('/install/database');
+        $this->assertRedirectContains('/install/installation');
+        $this->assertSession(['subscription_key' => null], 'webinstaller.subscription');
+    }
+
+    public function testWebInstallerSubscriptionKey_GetRendersWhenSubscriptionPluginDisabled()
+    {
+        // The page is shown on every edition (WP 7.4) so a CE operator can
+        // still enter a key here to upgrade in one go, or skip.
+        $this->disableFeaturePlugin(SubscriptionPlugin::class);
+
+        $this->get('/install/subscription');
+
+        $this->assertResponseOk();
+        $this->assertStringContainsString('Passbolt Pro activation.', $this->_getBodyAsString());
+    }
+
+    public function testWebInstallerSubscriptionKey_PostSkipForwardsWhenSubscriptionPluginDisabled()
+    {
+        $this->disableFeaturePlugin(SubscriptionPlugin::class);
+
+        $this->post('/install/subscription', ['skip' => '1']);
+
+        $this->assertResponseCode(302);
+        $this->assertRedirectContains('/install/installation');
         $this->assertSession(['subscription_key' => null], 'webinstaller.subscription');
     }
 
