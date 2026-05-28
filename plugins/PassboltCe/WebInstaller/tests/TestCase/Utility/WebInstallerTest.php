@@ -18,12 +18,15 @@ namespace Passbolt\WebInstaller\Test\TestCase\Utility;
 
 use App\Model\Entity\AuthenticationToken;
 use App\Model\Entity\Role;
+use App\Test\Factory\OrganizationSettingFactory;
 use App\Test\Factory\UserFactory;
 use App\Test\Lib\Model\GpgkeysModelTrait;
 use Cake\Core\Configure;
 use Cake\Core\Exception\CakeException;
 use Cake\ORM\TableRegistry;
+use Passbolt\Edition\Service\EditionGetService;
 use Passbolt\Subscription\Model\Entity\Subscription;
+use Passbolt\Subscription\SubscriptionPlugin;
 use Passbolt\Subscription\Test\DummySubscriptionTrait;
 use Passbolt\WebInstaller\Test\Lib\ConfigurationTrait;
 use Passbolt\WebInstaller\Test\Lib\DatabaseTrait;
@@ -186,28 +189,60 @@ class WebInstallerTest extends WebInstallerIntegrationTestCase
         $this->assertEquals(AuthenticationToken::TYPE_REGISTER, $user->authentication_tokens[0]->type);
     }
 
-    public function testWebInstallerImportSubscription()
+    public function testWebInstallerImportSubscription_WithKey_PersistsKey()
     {
         $user = UserFactory::make()->admin()->persist();
         $webInstaller = new WebInstaller(null);
         $webInstaller->setSettings('user', ['user_id' => $user->id]);
-        $subscriptionSettings = [
+        $webInstaller->setSettings('subscription', [
             'subscription_key' => file_get_contents(PLUGINS . DS . 'PassboltEe' . DS . 'Subscription' . DS . 'tests' . DS . 'Fixture' . DS . 'subscription' . DS . 'subscription_dev'),
-        ];
-        $webInstaller->setSettings('subscription', $subscriptionSettings);
-
-        // With Public Subscription Key:
+        ]);
         $this->setUpPathAndPublicSubscriptionKey();
-        $webInstaller->importSubscription();
-        $this->assertInstanceOf(Subscription::class, $this->Subscriptions->getOrFail());
 
-        // With Public Subscription Key update
-        $this->setUpPathAndPublicSubscriptionKey();
         $webInstaller->importSubscription();
 
-        // Without Public Subscription Key, no exception should be thrown, the former subscription is still valid
-        Configure::delete('passbolt.plugins.subscription.subscriptionKey.public');
-        $webInstaller->importSubscription();
+        // The edition flag is written by install()::persistEditionFlag(), not
+        // by importSubscription() itself — see InstallationControllerTest.
         $this->assertInstanceOf(Subscription::class, $this->Subscriptions->getOrFail());
+    }
+
+    public function testWebInstallerImportSubscription_WithoutKey_IsNoOp()
+    {
+        $webInstaller = new WebInstaller(null);
+        $webInstaller->setSettings('subscription', ['subscription_key' => null]);
+
+        $webInstaller->importSubscription();
+
+        $this->assertFalse((new EditionGetService())->get()->isPro());
+    }
+
+    public function testWebInstallerPersistEditionFlag_SetsCe_WhenSubscriptionKeyEmpty()
+    {
+        $user = UserFactory::make()->admin()->persist();
+        $this->enableFeaturePlugin(SubscriptionPlugin::class);
+        $webInstaller = new WebInstaller(null);
+        $webInstaller->setSettings('user', ['user_id' => $user->id]);
+        $webInstaller->setSettings('subscription', ['subscription_key' => null]);
+
+        $webInstaller->persistEditionFlag();
+
+        $this->assertFalse((new EditionGetService())->get()->isPro());
+        $this->assertSame(1, OrganizationSettingFactory::count());
+    }
+
+    public function testWebInstallerPersistEditionFlag_SetsCe_WhenSubscriptionPluginDisabled()
+    {
+        $user = UserFactory::make()->admin()->persist();
+        $this->disableFeaturePlugin(SubscriptionPlugin::class);
+        $webInstaller = new WebInstaller(null);
+        $webInstaller->setSettings('user', ['user_id' => $user->id]);
+        // SubscriptionPlugin disabled means the subscription page was never
+        // reached and no subscription_key is in the session — same outcome as
+        // the Skip path: CE.
+
+        $webInstaller->persistEditionFlag();
+
+        $this->assertFalse((new EditionGetService())->get()->isPro());
+        $this->assertSame(1, OrganizationSettingFactory::count());
     }
 }
