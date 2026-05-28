@@ -20,7 +20,14 @@ namespace Passbolt\Edition\Service;
 use App\BaseSolutionBootstrapper;
 use App\Utility\Application\FeaturePluginAwareTrait;
 use Cake\Core\Configure;
+use Cake\Database\Exception\DatabaseException;
+use Cake\Database\Exception\MissingConnectionException;
+use Cake\Database\Exception\MissingDriverException;
+use Cake\Database\Exception\MissingExtensionException;
+use Cake\Database\Exception\QueryException;
+use Cake\Datasource\Exception\MissingDatasourceConfigException;
 use Cake\Http\Exception\InternalErrorException;
+use Cake\Log\Log;
 use Passbolt\Edition\Model\Dto\EditionDto;
 use Passbolt\Ee\EeSolutionBootstrapper;
 
@@ -29,6 +36,8 @@ class EditionManager
     use FeaturePluginAwareTrait;
 
     private bool $booted = false;
+
+    private static ?EditionManager $instance = null;
 
     /**
      * @var string
@@ -46,12 +55,11 @@ class EditionManager
     ];
 
     /**
-     * Boot edition manager to determine instance's feature capabilities.
+     * Boot edition manager: resolve the edition and write it to Configure.
      * Called once from Application::bootstrap().
      *
-     * For cloud, overwrite this to hard-code it to set 'cloud' edition.
-     *
      * @return void
+     * @throws \Cake\Http\Exception\InternalErrorException When bootstrapper for edition not found.
      */
     public function boot(): void
     {
@@ -59,13 +67,41 @@ class EditionManager
             return;
         }
 
-        $this->edition = Configure::readOrFail('passbolt.edition');
+        $this->edition = $this->resolveEdition();
+        Configure::write('passbolt.edition', $this->edition);
 
         $this->disableProPluginsIfNotPro();
 
         $this->setSolutionBootstrapperClass();
 
         $this->booted = true;
+    }
+
+    /**
+     * Resolve the edition by reading from the DB via EditionGetService.
+     *
+     * @return string
+     */
+    protected function resolveEdition(): string
+    {
+        try {
+            return (new EditionGetService())->get()->getEdition();
+        } catch (
+            DatabaseException
+            | MissingConnectionException
+            | MissingDatasourceConfigException
+            | MissingDriverException
+            | MissingExtensionException
+            | QueryException $e
+        ) {
+            $msg = 'EditionManager: DB unavailable during boot, falling back to CE.';
+            if (Configure::read('debug')) {
+                $msg .= ' ' . $e->getMessage();
+            }
+            Log::error($msg);
+
+            return EditionDto::EDITION_CE;
+        }
     }
 
     /**
@@ -132,5 +168,27 @@ class EditionManager
         }
 
         $this->solutionBootstrapperClass = $this->editionBootstrapperMapping[$this->edition];
+    }
+
+    /**
+     * Returns the singleton EditionManager. Constructs a default instance on first call.
+     *
+     * @return self
+     */
+    public static function getInstance(): self
+    {
+        return self::$instance ??= new self();
+    }
+
+    /**
+     * Overrides the singleton instance.
+     * Pass null to clear the singleton so the next `getInstance()` rebuilds it.
+     *
+     * @param \Passbolt\Edition\Service\EditionManager|null $instance Instance to install, or null to clear.
+     * @return void
+     */
+    public static function setInstance(?EditionManager $instance): void
+    {
+        self::$instance = $instance;
     }
 }

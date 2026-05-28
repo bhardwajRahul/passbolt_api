@@ -203,7 +203,7 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
      */
     private function initEdition(): void
     {
-        $this->editionManager = new EditionManager();
+        $this->editionManager = EditionManager::getInstance();
         $this->editionManager->boot();
     }
 

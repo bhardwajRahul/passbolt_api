@@ -23,6 +23,7 @@ use Cake\Core\Configure;
 use Cake\Core\PluginCollection;
 use Cake\TestSuite\IntegrationTestTrait;
 use Passbolt\Edition\Model\Dto\EditionDto;
+use Passbolt\Edition\Test\Factory\EditionOrganizationSettingFactory;
 use Passbolt\PasswordExpiry\PasswordExpiryPlugin;
 use Passbolt\PasswordExpiryPolicies\PasswordExpiryPoliciesPlugin;
 use Passbolt\PasswordPoliciesUpdate\PasswordPoliciesUpdatePlugin;
@@ -88,6 +89,10 @@ class EeSolutionBootstrapperTest extends SolutionBootstrapperTestCase
     {
         parent::setUp();
         Configure::write('passbolt.edition', EditionDto::EDITION_PRO);
+        // Set edition to pro by default
+        EditionOrganizationSettingFactory::make()
+            ->setField('value', EditionDto::EDITION_PRO)
+            ->persist();
     }
 
     public function testEeSolutionBootstrapper_Application_Bootstrap(): void
