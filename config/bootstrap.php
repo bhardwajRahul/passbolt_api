@@ -67,10 +67,7 @@ try {
     Configure::load('app', 'default', false);
     Configure::load('default', 'default', false); // passbolt default config
     Configure::load('version', 'default', true);
-    if (Configure::read('passbolt.edition') === EditionDto::EDITION_PRO) {
-        Configure::load('pro', 'default', true); // pro default config
-    }
-
+    Configure::load('pro', 'default', true); // pro defaults — plugins are disabled runtime by EditionManager when in CE mode
     Configure::load('audit_logs', 'default', true); // audit logs config
     if (\file_exists(CONFIG . DS . 'passbolt.php')) {
         Configure::load('passbolt', 'default', true); // merge with default config
