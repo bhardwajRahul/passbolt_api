@@ -16,9 +16,7 @@ use Passbolt\Edition\Model\Dto\EditionDto;
 
 require dirname(__DIR__) . '/vendor/autoload.php';
 require dirname(__DIR__) . '/config/bootstrap.php';
-// Enforcing the edition to PRO to homogenize the code on the CE edition
 Configure::write('passbolt.edition', EditionDto::EDITION_PRO);
-Configure::load('pro', 'default', true); // pro default config
 
 $_SERVER['PHP_SELF'] = '/';
 

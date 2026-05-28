@@ -74,9 +74,9 @@ class BaseSolutionBootstrapperTest extends SolutionBootstrapperTestCase
      */
     public function setUp(): void
     {
+        parent::setUp();
         Configure::write('passbolt.edition', EditionDto::EDITION_CE);
         $this->sut = new BaseSolutionBootstrapper();
-        parent::setUp();
     }
 
     public function testBaseSolutionBootstrapper_Application_Bootstrap(): void

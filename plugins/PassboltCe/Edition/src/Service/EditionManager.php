@@ -18,6 +18,7 @@ declare(strict_types=1);
 namespace Passbolt\Edition\Service;
 
 use App\BaseSolutionBootstrapper;
+use App\Utility\Application\FeaturePluginAwareTrait;
 use Cake\Core\Configure;
 use Cake\Http\Exception\InternalErrorException;
 use Passbolt\Edition\Model\Dto\EditionDto;
@@ -25,6 +26,8 @@ use Passbolt\Ee\EeSolutionBootstrapper;
 
 class EditionManager
 {
+    use FeaturePluginAwareTrait;
+
     private bool $booted = false;
 
     /**
@@ -58,9 +61,40 @@ class EditionManager
 
         $this->edition = Configure::readOrFail('passbolt.edition');
 
+        $this->disableProPluginsIfNotPro();
+
         $this->setSolutionBootstrapperClass();
 
         $this->booted = true;
+    }
+
+    /**
+     * Disable each PRO-only plugin if edition is CE.
+     *
+     * Each plugin is listed explicitly — when a new PRO plugin is introduced,
+     * add a line here and a matching assertion in EditionManagerTest.
+     *
+     * @return void
+     */
+    private function disableProPluginsIfNotPro(): void
+    {
+        if ($this->edition === EditionDto::EDITION_PRO) {
+            return;
+        }
+
+        $this->disableFeaturePlugin('AccountRecovery');
+        $this->disableFeaturePlugin('AuditLog');
+        $this->disableFeaturePlugin('DirectorySync');
+        $this->disableFeaturePlugin('Ee');
+        $this->disableFeaturePlugin('MfaPolicies');
+        $this->disableFeaturePlugin('PasswordExpiryPolicies');
+        $this->disableFeaturePlugin('PasswordPoliciesUpdate');
+        $this->disableFeaturePlugin('Scim');
+        $this->disableFeaturePlugin('Sso');
+        $this->disableFeaturePlugin('SsoRecover');
+        $this->disableFeaturePlugin('Subscription');
+        $this->disableFeaturePlugin('Tags');
+        $this->disableFeaturePlugin('UserPassphrasePolicies');
     }
 
     /**

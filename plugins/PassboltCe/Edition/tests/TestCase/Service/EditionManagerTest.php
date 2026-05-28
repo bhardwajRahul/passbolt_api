@@ -117,4 +117,57 @@ class EditionManagerTest extends TestCase
         $this->assertFalse($this->sut->isPro());
         $this->assertNull($this->sut->getSolutionBootstrapperClass());
     }
+
+    public function testEditionManager_Boot_CeEdition_ProPluginsAreDisabled(): void
+    {
+        Configure::write('passbolt.edition', EditionDto::EDITION_CE);
+        // Simulate pro.php having been loaded already (config/bootstrap.php does this now)
+        Configure::write('passbolt.plugins.sso.enabled', true);
+        Configure::write('passbolt.plugins.accountRecovery.enabled', true);
+
+        $this->sut->boot();
+
+        $this->assertFalse(Configure::read('passbolt.plugins.sso.enabled'));
+        $this->assertFalse(Configure::read('passbolt.plugins.accountRecovery.enabled'));
+    }
+
+    public function testEditionManager_Boot_ProEdition_ProPluginsEnabled(): void
+    {
+        Configure::write('passbolt.edition', EditionDto::EDITION_PRO);
+        Configure::write('passbolt.plugins.sso.enabled', true);
+        Configure::write('passbolt.plugins.accountRecovery.enabled', true);
+
+        $this->sut->boot();
+
+        $this->assertTrue(Configure::read('passbolt.plugins.sso.enabled'));
+        $this->assertTrue(Configure::read('passbolt.plugins.accountRecovery.enabled'));
+    }
+
+    public function testEditionManager_Boot_CeEdition_EveryProPluginMentionedInConfigAreDisabled(): void
+    {
+        Configure::write('passbolt.edition', EditionDto::EDITION_CE);
+        // Simulate config/bootstrap.php having loaded pro.php (which it now does unconditionally).
+        Configure::load('pro', 'default', true);
+
+        $this->sut->boot();
+
+        // Discover every `passbolt.plugins.X.enabled` key declared in pro.php and
+        // assert each is `false` after EditionManager has disabled it.
+        $pro = include CONFIG . 'pro.php';
+        $plugins = $pro['passbolt']['plugins'] ?? [];
+        $found = false;
+        foreach ($plugins as $name => $config) {
+            if (!is_array($config) || !array_key_exists('enabled', $config)) {
+                continue;
+            }
+            $found = true;
+            $this->assertFalse(
+                Configure::read("passbolt.plugins.{$name}.enabled"),
+                "PRO plugin '{$name}' should be disabled on CE edition but is not. " .
+                "Did you forget to add \$this->disableFeaturePlugin('{$name}') " .
+                'in EditionManager::disableProPluginsIfNotPro()?'
+            );
+        }
+        $this->assertTrue($found, 'No PRO plugin .enabled keys found in pro.php — test wiring broken.');
+    }
 }
