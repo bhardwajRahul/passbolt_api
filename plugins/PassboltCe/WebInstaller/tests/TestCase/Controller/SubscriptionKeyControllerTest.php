@@ -79,6 +79,15 @@ class SubscriptionKeyControllerTest extends WebInstallerIntegrationTestCase
         $this->assertTrue(true);
     }
 
+    public function testWebInstallerSubscriptionKey_PostSkip_ForwardsWithNullKey()
+    {
+        $this->post('/install/subscription', ['skip' => '1']);
+
+        $this->assertResponseCode(302);
+        $this->assertRedirectContains('/install/database');
+        $this->assertSession(['subscription_key' => null], 'webinstaller.subscription');
+    }
+
     public function testWebInstallerSubscriptionKeyPostError_SubscriptionKeyExpired()
     {
         if ($this->checkPluginSubscriptionExists()) {

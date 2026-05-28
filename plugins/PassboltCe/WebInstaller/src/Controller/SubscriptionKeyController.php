@@ -58,6 +58,17 @@ class SubscriptionKeyController extends WebInstallerController
     protected function indexPost()
     {
         $data = $this->request->getData();
+
+        // Skip button: persist an empty subscription and advance without
+        // validating a key. WebInstaller::importSubscription() then no-ops
+        // on the null subscription_key (the install completes as CE).
+        if ($this->request->getData('skip')) {
+            $this->webInstaller->setSettingsAndSave('subscription', ['subscription_key' => null]);
+            $this->goToNextStep();
+
+            return;
+        }
+
         try {
             $this->validateData($data);
         } catch (Exception $e) {
