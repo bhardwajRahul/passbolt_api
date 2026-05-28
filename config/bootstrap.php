@@ -32,7 +32,6 @@ require CORE_PATH . 'config' . DS . 'bootstrap.php';
 
 use App\Mailer\Transport\DebugTransport;
 use App\Mailer\Transport\SmtpTransport;
-use Passbolt\Edition\Model\Dto\EditionDto;
 use Cake\Cache\Cache;
 use Cake\Database\Type\JsonType;
 use Cake\Database\TypeFactory;
@@ -243,9 +242,6 @@ TypeFactory::map('time', StringType::class);
 $uid = posix_getuid();
 $user = posix_getpwuid($uid);
 define('PROCESS_USER', $user['name']);
-
-// Are we running passbolt pro?
-define('PASSBOLT_PRO', Configure::read('passbolt.edition') === 'pro');
 
 /**
  * Set email queue plugin serialization type to JSON.
