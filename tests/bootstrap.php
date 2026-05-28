@@ -8,15 +8,15 @@ declare(strict_types=1);
  * unit tests in this file.
  */
 
-use Cake\Core\Configure;
 use Cake\Datasource\ConnectionManager;
 use Cake\TestSuite\ConnectionHelper;
 use Migrations\TestSuite\Migrator;
-use Passbolt\Edition\Model\Dto\EditionDto;
+use Passbolt\Edition\Service\EditionManager;
+use Passbolt\Edition\Test\Lib\TestingEditionManager;
 
 require dirname(__DIR__) . '/vendor/autoload.php';
 require dirname(__DIR__) . '/config/bootstrap.php';
-Configure::write('passbolt.edition', EditionDto::EDITION_PRO);
+EditionManager::setInstance(new TestingEditionManager());
 
 $_SERVER['PHP_SELF'] = '/';
 
