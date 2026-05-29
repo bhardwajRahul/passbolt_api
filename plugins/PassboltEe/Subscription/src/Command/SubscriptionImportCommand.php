@@ -17,9 +17,14 @@ declare(strict_types=1);
 namespace Passbolt\Subscription\Command;
 
 use App\Command\PassboltCommand;
+use App\Model\Entity\Role;
+use App\Utility\UserAccessControl;
 use Cake\Console\Arguments;
 use Cake\Console\ConsoleIo;
 use Cake\Console\ConsoleOptionParser;
+use Cake\Core\Exception\CakeException;
+use Cake\ORM\Locator\LocatorAwareTrait;
+use Passbolt\Edition\Service\EditionSetService;
 use Passbolt\Subscription\Error\Exception\Subscriptions\SubscriptionException;
 use Passbolt\Subscription\Service\Subscriptions\SubscriptionKeyGetService;
 use Passbolt\Subscription\Service\Subscriptions\SubscriptionKeyImportService;
@@ -29,6 +34,8 @@ use Passbolt\Subscription\Service\Subscriptions\SubscriptionKeyImportService;
  */
 class SubscriptionImportCommand extends PassboltCommand
 {
+    use LocatorAwareTrait;
+
     /**
      * @inheritDoc
      */
@@ -64,23 +71,44 @@ class SubscriptionImportCommand extends PassboltCommand
     public function execute(Arguments $args, ConsoleIo $io): ?int
     {
         parent::execute($args, $io);
-        $importService = new SubscriptionKeyImportService();
 
+        $text = $args->getOption('text');
+        $file = $args->getOption('file');
+        $useText = !empty($text);
+
+        if ($useText && !is_string($text)) {
+            $this->error(__('The subscription key text is not valid.'), $io);
+            $this->abort();
+        }
+        if (!$useText && (empty($file) || !is_string($file))) {
+            $this->error(__('The subscription key file is invalid.'), $io);
+            $this->abort();
+        }
+
+        $uac = $this->buildAdminUac();
         try {
-            if ($args->getOption('text')) {
-                $text = $args->getOption('text');
-                if (!is_string($text)) {
-                    throw new SubscriptionException(__('The subscription key text is not valid.'));
+            /** @var \Passbolt\Edition\Model\Table\EditionOrganizationTable $editionTable */
+            $editionTable = $this->fetchTable('Passbolt/Edition.EditionOrganization');
+            $editionTable->getConnection()->transactional(
+                function () use ($useText, $text, $file, $uac): void {
+                    // Save subscription key
+                    $importService = new SubscriptionKeyImportService();
+                    if ($useText) {
+                        /** @var string $text */
+                        $importService->import($text, $uac);
+                    } else {
+                        /** @var string $file */
+                        $importService->importFromFile($file, $uac);
+                    }
+
+                    // Set edition to PRO in the DB
+                    (new EditionSetService())->setToPro($uac);
                 }
-                $importService->import($text);
-            } else {
-                $file = $args->getOption('file');
-                if (empty($file) || !is_string($file)) {
-                    throw new SubscriptionException(__('The subscription key file is invalid.'));
-                }
-                $importService->importFromFile($file);
-            }
+            );
         } catch (SubscriptionException $e) {
+            $this->error($e->getMessage(), $io);
+            $this->abort();
+        } catch (CakeException $e) {
             $this->error($e->getMessage(), $io);
             $this->abort();
         }
@@ -88,5 +116,21 @@ class SubscriptionImportCommand extends PassboltCommand
         $this->success(__('The subscription key was successfully imported in the database.'), $io);
 
         return $this->successCode();
+    }
+
+    /**
+     * @return \App\Utility\UserAccessControl
+     * @throws \Passbolt\Subscription\Error\Exception\Subscriptions\SubscriptionException If no active admin exists.
+     */
+    private function buildAdminUac(): UserAccessControl
+    {
+        /** @var \App\Model\Table\UsersTable $usersTable */
+        $usersTable = $this->fetchTable('Users');
+        $firstAdmin = $usersTable->findFirstAdmin();
+        if ($firstAdmin === null) {
+            throw new SubscriptionException(__('No active admins were found.'));
+        }
+
+        return new UserAccessControl(Role::ADMIN, $firstAdmin->id);
     }
 }

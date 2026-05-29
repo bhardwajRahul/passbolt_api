@@ -16,31 +16,22 @@ declare(strict_types=1);
  */
 namespace Passbolt\Subscription\Service\Subscriptions;
 
-use App\Model\Entity\Role;
-use App\Model\Table\UsersTable;
 use App\Utility\UserAccessControl;
-use Cake\ORM\Locator\LocatorAwareTrait;
 use Passbolt\Subscription\Error\Exception\Subscriptions\SubscriptionException;
 use Passbolt\Subscription\Model\Dto\SubscriptionKeyDto;
 
 /**
- * Class SubscriptionKeyImportService
+ * Persists a subscription key supplied via file or text.
  */
 class SubscriptionKeyImportService
 {
-    use LocatorAwareTrait;
-
     /**
-     * @var \App\Model\Table\UsersTable
-     */
-    protected UsersTable $Users;
-
-    /**
-     * @param string $fileName filename to import
+     * @param string $fileName Path to a file containing the subscription key.
+     * @param \App\Utility\UserAccessControl $uac UAC object.
      * @return \Passbolt\Subscription\Model\Dto\SubscriptionKeyDto
-     * @throws \Passbolt\Subscription\Error\Exception\Subscriptions\SubscriptionException if the submitted file or the contained subscription is not valid
+     * @throws \Passbolt\Subscription\Error\Exception\Subscriptions\SubscriptionException If the file or the contained subscription is not valid.
      */
-    public function importFromFile(string $fileName): SubscriptionKeyDto
+    public function importFromFile(string $fileName, UserAccessControl $uac): SubscriptionKeyDto
     {
         if (!file_exists($fileName)) {
             throw new SubscriptionException(__('The file {0} could not be found.', $fileName));
@@ -53,26 +44,17 @@ class SubscriptionKeyImportService
             throw new SubscriptionException(__('The file {0} could not be read.', $fileName));
         }
 
-        return $this->import($subscription);
+        return $this->import($subscription, $uac);
     }
 
     /**
-     * @param string|null $subscription subscription to import
+     * @param string|null $subscription Raw subscription key payload (Base64).
+     * @param \App\Utility\UserAccessControl $uac UAC object.
      * @return \Passbolt\Subscription\Model\Dto\SubscriptionKeyDto
-     * @throws \Passbolt\Subscription\Error\Exception\Subscriptions\SubscriptionException if the submitted file or the contained subscription is not valid
+     * @throws \Passbolt\Subscription\Error\Exception\Subscriptions\SubscriptionException If the subscription is not valid.
      */
-    public function import(?string $subscription): SubscriptionKeyDto
+    public function import(?string $subscription, UserAccessControl $uac): SubscriptionKeyDto
     {
-        /** @var \App\Model\Table\UsersTable $usersTable */
-        $usersTable = $this->fetchTable('Users');
-        $firstAdmin = $usersTable->findFirstAdmin();
-        if ($firstAdmin === null) {
-            throw new SubscriptionException(__('No active admins were found.'));
-        }
-
-        $saveService = new SubscriptionKeySaveService();
-        $uac = new UserAccessControl(Role::ADMIN, $firstAdmin->id);
-
-        return $saveService->save($subscription, $uac);
+        return (new SubscriptionKeySaveService())->save($subscription, $uac);
     }
 }
