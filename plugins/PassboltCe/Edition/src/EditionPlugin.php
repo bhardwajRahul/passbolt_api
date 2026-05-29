@@ -19,6 +19,7 @@ namespace Passbolt\Edition;
 use Cake\Core\BasePlugin;
 use Cake\Core\ContainerInterface;
 use Cake\Core\PluginApplicationInterface;
+use Passbolt\Edition\Notification\Email\EditionRedactorPool;
 
 class EditionPlugin extends BasePlugin
 {
@@ -28,6 +29,7 @@ class EditionPlugin extends BasePlugin
     public function bootstrap(PluginApplicationInterface $app): void
     {
         parent::bootstrap($app);
+        $this->registerListeners($app);
     }
 
     /**
@@ -36,5 +38,14 @@ class EditionPlugin extends BasePlugin
     public function services(ContainerInterface $container): void
     {
         parent::services($container);
+    }
+
+    /**
+     * @param \Cake\Core\PluginApplicationInterface $app App.
+     * @return void
+     */
+    private function registerListeners(PluginApplicationInterface $app): void
+    {
+        $app->getEventManager()->on(new EditionRedactorPool());
     }
 }
