@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace Passbolt\Subscription\Service\Subscriptions;
 
 use App\Utility\UserAccessControl;
+use Cake\Datasource\EntityInterface;
 use Cake\Http\Exception\ForbiddenException;
 use Cake\ORM\Locator\LocatorAwareTrait;
 
@@ -44,8 +45,9 @@ class SubscriptionKeyDeleteService
 
         /** @var \Passbolt\Subscription\Model\Table\SubscriptionsTable $Subscriptions */
         $Subscriptions = $this->fetchTable('Passbolt/Subscription.Subscriptions');
-        $Subscriptions->deleteAll([
-            'property_id' => $Subscriptions->getPropertyId(),
-        ]);
+        $row = $Subscriptions->find()->first();
+        if ($row instanceof EntityInterface) {
+            $Subscriptions->deleteOrFail($row);
+        }
     }
 }

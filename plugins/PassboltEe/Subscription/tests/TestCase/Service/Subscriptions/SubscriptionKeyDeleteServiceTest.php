@@ -20,10 +20,12 @@ namespace Passbolt\Subscription\Test\TestCase\Service\Subscriptions;
 use App\Test\Factory\OrganizationSettingFactory;
 use App\Test\Lib\Utility\UserAccessControlTrait;
 use Cake\Http\Exception\ForbiddenException;
+use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
 use CakephpTestSuiteLight\Fixture\TruncateDirtyTables;
 use Passbolt\Subscription\Service\Subscriptions\SubscriptionKeyDeleteService;
 use Passbolt\Subscription\Test\SubscriptionFactory;
+use PDOException;
 
 /**
  * @covers \Passbolt\Subscription\Service\Subscriptions\SubscriptionKeyDeleteService
@@ -72,5 +74,22 @@ class SubscriptionKeyDeleteServiceTest extends TestCase
 
         $this->assertSame(1, OrganizationSettingFactory::count());
         $this->assertSame('unrelated', OrganizationSettingFactory::firstOrFail()->get('property'));
+    }
+
+    public function testSubscriptionKeyDeleteService_Delete_PropagatesDbFailureAndPreservesRow(): void
+    {
+        SubscriptionFactory::make()->persist();
+
+        $Subscriptions = TableRegistry::getTableLocator()->get('Passbolt/Subscription.Subscriptions');
+        $Subscriptions->getEventManager()->on('Model.beforeDelete', function (): void {
+            throw new PDOException('Simulated DB-level delete failure.');
+        });
+
+        $this->expectException(PDOException::class);
+        try {
+            (new SubscriptionKeyDeleteService())->delete($this->mockAdminAccessControl());
+        } finally {
+            $this->assertSame(1, SubscriptionFactory::count());
+        }
     }
 }
