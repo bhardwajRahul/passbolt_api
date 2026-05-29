@@ -27,6 +27,7 @@ class EditionRedactorPool extends AbstractSubscribedEmailRedactorPool
     {
         return [
             new EditionDowngradeEmailRedactor(),
+            new EditionUpgradeEmailRedactor(),
         ];
     }
 }
