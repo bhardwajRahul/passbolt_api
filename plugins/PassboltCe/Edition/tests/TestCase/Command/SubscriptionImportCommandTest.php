@@ -14,27 +14,30 @@ declare(strict_types=1);
  * @link          https://www.passbolt.com Passbolt(tm)
  * @since         3.2.0
  */
-namespace Passbolt\Subscription\Test\TestCase\Command;
+namespace Passbolt\Edition\Test\TestCase\Command;
 
 use App\Test\Factory\UserFactory;
 use App\Test\Lib\AppTestCase;
 use Cake\Console\TestSuite\ConsoleIntegrationTestTrait;
+use Cake\Core\Exception\CakeException;
 use Cake\ORM\Locator\LocatorAwareTrait;
-use CakephpTestSuiteLight\Fixture\TruncateDirtyTables;
+use Cake\ORM\TableRegistry;
+use Passbolt\Edition\Model\Dto\EditionDto;
+use Passbolt\Edition\Model\Table\EditionOrganizationTable;
+use Passbolt\Edition\Test\Factory\EditionOrganizationSettingFactory;
 use Passbolt\Subscription\Error\Exception\Subscriptions\SubscriptionRecordNotFoundException;
 use Passbolt\Subscription\Model\Entity\Subscription;
 use Passbolt\Subscription\Service\Subscriptions\SubscriptionKeyGetService;
 use Passbolt\Subscription\Test\DummySubscriptionTrait;
 
 /**
- * @uses \Passbolt\Subscription\Command\SubscriptionCheckCommand
+ * @uses \Passbolt\Edition\Command\SubscriptionImportCommand
  */
 class SubscriptionImportCommandTest extends AppTestCase
 {
     use ConsoleIntegrationTestTrait;
     use DummySubscriptionTrait;
     use LocatorAwareTrait;
-    use TruncateDirtyTables;
 
     /**
      * @var \Passbolt\Subscription\Model\Table\SubscriptionsTable
@@ -42,22 +45,21 @@ class SubscriptionImportCommandTest extends AppTestCase
     protected $Subscriptions;
 
     /**
-     * setUp method
-     *
-     * @return void
+     * @var \Passbolt\Edition\Model\Table\EditionOrganizationTable
      */
+    protected EditionOrganizationTable $EditionOrganization;
+
     public function setUp(): void
     {
         parent::setUp();
         $this->setUpPathAndPublicSubscriptionKey();
         $this->Subscriptions = $this->fetchTable('Passbolt/Subscription.Subscriptions');
-        $this->enableFeaturePlugin('Subscription');
+        /** @var \Passbolt\Edition\Model\Table\EditionOrganizationTable $editionTable */
+        $editionTable = $this->fetchTable('Passbolt/Edition.EditionOrganization');
+        $this->EditionOrganization = $editionTable;
     }
 
-    /**
-     * Basic help test
-     */
-    public function testSubscriptionImportCommandHelp()
+    public function testSubscriptionImportCommandHelp(): void
     {
         $this->exec('passbolt subscription_import -h');
         $this->assertExitSuccess();
@@ -65,10 +67,7 @@ class SubscriptionImportCommandTest extends AppTestCase
         $this->assertOutputContains('cake passbolt subscription_import');
     }
 
-    /**
-     * Basic test on existing legacy subscription file
-     */
-    public function testSubscriptionImportCommand_Success_On_Default_File()
+    public function testSubscriptionImportCommand_Success_On_Default_File(): void
     {
         UserFactory::make()->admin()->persist();
 
@@ -85,12 +84,10 @@ class SubscriptionImportCommandTest extends AppTestCase
         $this->assertExitSuccess();
         $this->assertOutputContains('successfully imported in the database.');
         $this->assertInstanceOf(Subscription::class, $this->Subscriptions->getOrFail());
+        $this->assertEditionIs(EditionDto::EDITION_PRO);
     }
 
-    /**
-     * Basic test on valid subscription file
-     */
-    public function testSubscriptionImportCommand_Success_On_Valid_File()
+    public function testSubscriptionImportCommand_Success_On_Valid_File(): void
     {
         UserFactory::make()->admin()->persist();
         $file = $this->getValidSubscriptionFileName();
@@ -99,12 +96,10 @@ class SubscriptionImportCommandTest extends AppTestCase
         $this->assertOutputContains('successfully imported in the database.');
 
         $this->assertInstanceOf(Subscription::class, $this->Subscriptions->getOrFail());
+        $this->assertEditionIs(EditionDto::EDITION_PRO);
     }
 
-    /**
-     * Basic test on valid subscription file with existing key
-     */
-    public function testSubscriptionImportCommand_Success_On_Valid_File_With_Existing_Key()
+    public function testSubscriptionImportCommand_Success_On_Valid_File_With_Existing_Key(): void
     {
         $this->persistExpiredSubscription();
 
@@ -115,12 +110,43 @@ class SubscriptionImportCommandTest extends AppTestCase
         $this->assertOutputContains('successfully imported in the database.');
 
         $this->assertInstanceOf(Subscription::class, $this->Subscriptions->getOrFail());
+        $this->assertEditionIs(EditionDto::EDITION_PRO);
     }
 
-    /**
-     * Basic test on non valid subscription file
-     */
-    public function testSubscriptionImportCommand_Error_On_Non_Valid_Subscription_File()
+    public function testSubscriptionImportCommand_Success_AlreadyPro(): void
+    {
+        UserFactory::make()->admin()->persist();
+        EditionOrganizationSettingFactory::make()->setField('value', EditionDto::EDITION_PRO)->persist();
+
+        $file = $this->getValidSubscriptionFileName();
+        $this->exec('passbolt subscription_import -f ' . $file);
+
+        $this->assertExitSuccess();
+        $this->assertOutputContains('successfully imported in the database.');
+        $this->assertInstanceOf(Subscription::class, $this->Subscriptions->getOrFail());
+        $this->assertEditionIs(EditionDto::EDITION_PRO);
+    }
+
+    public function testSubscriptionImportCommand_Error_RollbackKeyOnEditionFailure(): void
+    {
+        UserFactory::make()->admin()->persist();
+
+        $editionTable = TableRegistry::getTableLocator()->get('Passbolt/Edition.EditionOrganization');
+        $editionTable->getEventManager()->on('Model.beforeSave', function (): void {
+            throw new CakeException('Simulated setToPro failure.');
+        });
+
+        $file = $this->getValidSubscriptionFileName();
+        $this->exec('passbolt subscription_import -f ' . $file);
+
+        $this->assertExitError();
+        $this->assertEditionRowAbsent();
+        // assert subscription key didn't save
+        $this->expectException(SubscriptionRecordNotFoundException::class);
+        $this->Subscriptions->getOrFail();
+    }
+
+    public function testSubscriptionImportCommand_Error_On_Non_Valid_Subscription_File(): void
     {
         UserFactory::make()->admin()->persist();
         $file = $this->getExpiredSubscriptionFileName();
@@ -128,14 +154,12 @@ class SubscriptionImportCommandTest extends AppTestCase
         $this->assertExitError();
         $this->assertOutputContains('The subscription is expired.');
 
+        $this->assertEditionRowAbsent();
         $this->expectException(SubscriptionRecordNotFoundException::class);
         $this->Subscriptions->getOrFail();
     }
 
-    /**
-     * Basic test on non existing subscription file
-     */
-    public function testSubscriptionImportCommand_Error_On_Non_Existent_Subscription_File()
+    public function testSubscriptionImportCommand_Error_On_Non_Existent_Subscription_File(): void
     {
         UserFactory::make()->admin()->persist();
         $file = 'blah';
@@ -143,14 +167,12 @@ class SubscriptionImportCommandTest extends AppTestCase
         $this->assertExitError();
         $this->assertOutputContains("The file {$file} could not be found.");
 
+        $this->assertEditionRowAbsent();
         $this->expectException(SubscriptionRecordNotFoundException::class);
         $this->Subscriptions->getOrFail();
     }
 
-    /**
-     * Basic test on expired subscription
-     */
-    public function testSubscriptionImportCommand_Success_On_Valid_Subscription_Text()
+    public function testSubscriptionImportCommand_Success_On_Valid_Subscription_Text(): void
     {
         UserFactory::make()->admin()->persist();
         $text = $this->getValidSubscriptionKey();
@@ -159,12 +181,10 @@ class SubscriptionImportCommandTest extends AppTestCase
         $this->assertOutputContains('successfully imported');
 
         $this->assertInstanceOf(Subscription::class, $this->Subscriptions->getOrFail());
+        $this->assertEditionIs(EditionDto::EDITION_PRO);
     }
 
-    /**
-     * Basic test on expired subscription
-     */
-    public function testSubscriptionImportCommand_Error_On_Non_Valid_Subscription_Text()
+    public function testSubscriptionImportCommand_Error_On_Non_Valid_Subscription_Text(): void
     {
         UserFactory::make()->admin()->persist();
         $text = $this->getExpiredSubscriptionKey();
@@ -172,21 +192,36 @@ class SubscriptionImportCommandTest extends AppTestCase
         $this->assertExitError();
         $this->assertOutputContains('The subscription is expired.');
 
+        $this->assertEditionRowAbsent();
         $this->expectException(SubscriptionRecordNotFoundException::class);
         $this->Subscriptions->getOrFail();
     }
 
-    /**
-     * Basic test on invalid subscription
-     */
-    public function testSubscriptionImportCommand_Error_On_Non_Existent_Subscription_Text()
+    public function testSubscriptionImportCommand_Error_On_Non_Existent_Subscription_Text(): void
     {
         UserFactory::make()->admin()->persist();
         $text = '🔥';
         $this->exec('passbolt subscription_import -t ' . $text);
         $this->assertExitError();
 
+        $this->assertEditionRowAbsent();
         $this->expectException(SubscriptionRecordNotFoundException::class);
         $this->Subscriptions->getOrFail();
+    }
+
+    private function assertEditionIs(string $expected): void
+    {
+        $row = $this->EditionOrganization->find()
+            ->where(['property' => EditionOrganizationTable::PROPERTY_NAME])
+            ->firstOrFail();
+        $this->assertSame($expected, $row->get('value'));
+    }
+
+    private function assertEditionRowAbsent(): void
+    {
+        $row = $this->EditionOrganization->find()
+            ->where(['property' => EditionOrganizationTable::PROPERTY_NAME])
+            ->first();
+        $this->assertNull($row, 'Expected no edition row to be persisted, but one was found.');
     }
 }
