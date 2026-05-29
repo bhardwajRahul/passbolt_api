@@ -19,4 +19,12 @@ use Cake\Routing\RouteBuilder;
 
 $routes->plugin('Passbolt/Edition', ['path' => '/edition'], function (RouteBuilder $routes): void {
     $routes->setExtensions(['json']);
+
+    /**
+     * @uses \Passbolt\Edition\Controller\EditionSubscriptionsCreateController::create()
+     */
+    $routes->connect('/subscription/key', [
+        'controller' => 'EditionSubscriptionsCreate',
+        'action' => 'create',
+    ])->setMethods(['POST']);
 });

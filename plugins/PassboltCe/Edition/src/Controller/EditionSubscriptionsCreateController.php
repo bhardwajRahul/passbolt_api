@@ -12,42 +12,43 @@ declare(strict_types=1);
  * @copyright     Copyright (c) Passbolt SA (https://www.passbolt.com)
  * @license       https://opensource.org/licenses/AGPL-3.0 AGPL License
  * @link          https://www.passbolt.com Passbolt(tm)
- * @since         3.1.0
+ * @since         5.13.0
  */
-namespace Passbolt\Subscription\Controller\Subscriptions;
+namespace Passbolt\Edition\Controller;
 
 use App\Controller\AppController;
 use App\Error\Exception\PaymentRequiredException;
-use App\Model\Entity\Role;
 use Cake\Http\Exception\BadRequestException;
-use Cake\Http\Exception\ForbiddenException;
+use Cake\Http\Exception\ConflictException;
+use Cake\ORM\Locator\LocatorAwareTrait;
+use Passbolt\Edition\Service\EditionGetService;
+use Passbolt\Edition\Service\EditionUpgradeService;
 use Passbolt\Subscription\Error\Exception\Subscriptions\SubscriptionException;
 use Passbolt\Subscription\Error\Exception\Subscriptions\SubscriptionSignatureException;
-use Passbolt\Subscription\Service\Subscriptions\SubscriptionKeySaveService;
 
 /**
- * Class SubscriptionsCreateController
- *
- * @property  \Passbolt\Subscription\Model\Table\SubscriptionsTable $Subscriptions
+ * The in-product upgrade entry point.
  */
-class SubscriptionsCreateController extends AppController
+class EditionSubscriptionsCreateController extends AppController
 {
+    use LocatorAwareTrait;
+
     /**
      * @return void
      */
-    public function create()
+    public function create(): void
     {
-        if ($this->User->role() !== Role::ADMIN) {
-            throw new ForbiddenException(__('You are not allowed to access this location.'));
-        }
-        $keyString = $this->getRequest()->getData('data', '');
-        if (empty($keyString)) {
+        $this->User->assertIsAdmin();
+
+        $keyString = $this->getRequest()->getData('data');
+        if (!is_string($keyString) || trim($keyString) === '') {
             throw new BadRequestException(__('Subscription key data is required.'));
         }
 
+        $this->assertNotAlreadyPro();
+
         try {
-            $service = new SubscriptionKeySaveService();
-            $keyDto = $service->save($keyString, $this->User->getAccessControl());
+            $keyDto = (new EditionUpgradeService())->upgrade($keyString, $this->User->getAccessControl());
         } catch (SubscriptionSignatureException $e) {
             throw new BadRequestException($e->getMessage());
         } catch (SubscriptionException $e) {
@@ -55,5 +56,24 @@ class SubscriptionsCreateController extends AppController
         }
 
         $this->success(__('The subscription was created.'), $keyDto->toArray());
+    }
+
+    /**
+     * Rejects with HTTP 409 if the instance is already on PRO or already has a
+     * persisted subscription row.
+     *
+     * @return void
+     * @throws \Cake\Http\Exception\ConflictException
+     */
+    private function assertNotAlreadyPro(): void
+    {
+        if ((new EditionGetService())->get()->isPro()) {
+            throw new ConflictException(__('The instance is already on PRO.'));
+        }
+
+        $subscriptions = $this->fetchTable('Passbolt/Subscription.Subscriptions');
+        if ($subscriptions->find()->count() > 0) {
+            throw new ConflictException(__('A subscription key is already present.'));
+        }
     }
 }
