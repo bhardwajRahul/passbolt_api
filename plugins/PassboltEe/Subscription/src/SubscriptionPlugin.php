@@ -18,9 +18,7 @@ namespace Passbolt\Subscription;
 
 use App\Service\Healthcheck\HealthcheckServiceCollector;
 use App\Service\Subscriptions\SubscriptionCheckInCommandServiceInterface;
-use Cake\Console\CommandCollection;
 use Cake\Core\BasePlugin;
-use Passbolt\Subscription\Command\SubscriptionImportCommand;
 use Passbolt\Subscription\Service\Healthcheck\Application\SubscriptionKeyApplicationHealthcheck;
 use Passbolt\Subscription\Service\Subscriptions\EeSubscriptionCheckInCommandService;
 use Passbolt\Subscription\Service\Subscriptions\SubscriptionKeyGetService;
@@ -28,16 +26,6 @@ use Psr\Container\ContainerInterface;
 
 class SubscriptionPlugin extends BasePlugin
 {
-    /**
-     * @inheritDoc
-     */
-    public function console($commands): CommandCollection
-    {
-        $commands->add('passbolt subscription_import', SubscriptionImportCommand::class);
-
-        return $commands;
-    }
-
     /**
      * @inheritDoc
      */

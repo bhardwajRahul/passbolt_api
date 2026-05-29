@@ -14,7 +14,7 @@ declare(strict_types=1);
  * @link          https://www.passbolt.com Passbolt(tm)
  * @since         3.2.0
  */
-namespace Passbolt\Subscription\Test\TestCase\Command;
+namespace Passbolt\Edition\Test\TestCase\Command;
 
 use App\Test\Factory\UserFactory;
 use App\Test\Lib\AppTestCase;
@@ -22,7 +22,6 @@ use Cake\Console\TestSuite\ConsoleIntegrationTestTrait;
 use Cake\Core\Exception\CakeException;
 use Cake\ORM\Locator\LocatorAwareTrait;
 use Cake\ORM\TableRegistry;
-use CakephpTestSuiteLight\Fixture\TruncateDirtyTables;
 use Passbolt\Edition\Model\Dto\EditionDto;
 use Passbolt\Edition\Model\Table\EditionOrganizationTable;
 use Passbolt\Edition\Test\Factory\EditionOrganizationSettingFactory;
@@ -32,14 +31,13 @@ use Passbolt\Subscription\Service\Subscriptions\SubscriptionKeyGetService;
 use Passbolt\Subscription\Test\DummySubscriptionTrait;
 
 /**
- * @uses \Passbolt\Subscription\Command\SubscriptionImportCommand
+ * @uses \Passbolt\Edition\Command\SubscriptionImportCommand
  */
 class SubscriptionImportCommandTest extends AppTestCase
 {
     use ConsoleIntegrationTestTrait;
     use DummySubscriptionTrait;
     use LocatorAwareTrait;
-    use TruncateDirtyTables;
 
     /**
      * @var \Passbolt\Subscription\Model\Table\SubscriptionsTable
@@ -59,7 +57,6 @@ class SubscriptionImportCommandTest extends AppTestCase
         /** @var \Passbolt\Edition\Model\Table\EditionOrganizationTable $editionTable */
         $editionTable = $this->fetchTable('Passbolt/Edition.EditionOrganization');
         $this->EditionOrganization = $editionTable;
-        $this->enableFeaturePlugin('Subscription');
     }
 
     public function testSubscriptionImportCommandHelp(): void
