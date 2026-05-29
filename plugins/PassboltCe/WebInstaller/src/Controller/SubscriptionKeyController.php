@@ -30,9 +30,28 @@ class SubscriptionKeyController extends WebInstallerController
     public function initialize(): void
     {
         parent::initialize();
-        $this->stepInfo['previous'] = '/install';
-        $this->stepInfo['next'] = '/install/database';
+        // Subscription is the last step before installation. The
+        // previous step depends on which optional steps were present.
+        $this->stepInfo['previous'] = $this->getPrevious();
+        $this->stepInfo['next'] = '/install/installation';
         $this->stepInfo['template'] = 'Pages/subscription_key';
+    }
+
+    /**
+     * The step preceding subscription matches the step that previously led
+     * straight to installation: account_creation (when no admin), email
+     * (when no SMTP settings), or otherwise options.
+     */
+    protected function getPrevious(): string
+    {
+        if (!$this->webInstaller->getSettings('hasAdmin')) {
+            return '/install/account_creation';
+        }
+        if (!$this->webInstaller->getSettings('hasSmtpSettings')) {
+            return '/install/email';
+        }
+
+        return '/install/options';
     }
 
     /**
