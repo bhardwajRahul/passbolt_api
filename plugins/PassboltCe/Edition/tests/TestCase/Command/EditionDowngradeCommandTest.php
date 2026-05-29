@@ -1,0 +1,147 @@
+<?php
+declare(strict_types=1);
+
+/**
+ * Passbolt ~ Open source password manager for teams
+ * Copyright (c) Passbolt SA (https://www.passbolt.com)
+ *
+ * Licensed under GNU Affero General Public License version 3 of the or any later version.
+ * For full copyright and license information, please see the LICENSE.txt
+ * Redistributions of files must retain the above copyright notice.
+ *
+ * @copyright     Copyright (c) Passbolt SA (https://www.passbolt.com)
+ * @license       https://opensource.org/licenses/AGPL-3.0 AGPL License
+ * @link          https://www.passbolt.com Passbolt(tm)
+ * @since         5.13.0
+ */
+namespace Passbolt\Edition\Test\TestCase\Command;
+
+use App\Test\Factory\UserFactory;
+use App\Test\Lib\Utility\UserAccessControlTrait;
+use Cake\Console\TestSuite\ConsoleIntegrationTestTrait;
+use Cake\ORM\Locator\LocatorAwareTrait;
+use Cake\TestSuite\TestCase;
+use CakephpTestSuiteLight\Fixture\TruncateDirtyTables;
+use Passbolt\Edition\Service\EditionGetService;
+use Passbolt\Edition\Service\EditionSetService;
+use Passbolt\MfaPolicies\Test\Factory\MfaPoliciesSettingFactory;
+use Passbolt\Subscription\Test\SubscriptionFactory;
+
+/**
+ * @covers \Passbolt\Edition\Command\EditionDowngradeCommand
+ */
+class EditionDowngradeCommandTest extends TestCase
+{
+    use ConsoleIntegrationTestTrait;
+    use LocatorAwareTrait;
+    use TruncateDirtyTables;
+    use UserAccessControlTrait;
+
+    public function testEditionDowngradeCommand_Success(): void
+    {
+        /** @var \App\Model\Entity\User $admin */
+        [$admin] = UserFactory::make(5)->admin()->active()->persist();
+        SubscriptionFactory::make()->persist();
+        MfaPoliciesSettingFactory::make()->persist();
+        (new EditionSetService())->setToPro($this->mockAdminAccessControl());
+
+        $this->exec("passbolt edition_downgrade -u {$admin->username}", ['y']);
+
+        $this->assertExitSuccess();
+        $this->assertOutputContains('Passbolt was downgraded to the CE edition.');
+        $this->assertSame(0, $this->fetchTable('Passbolt/Subscription.Subscriptions')->find()->count());
+        $this->assertSame(0, $this->fetchTable('Passbolt/MfaPolicies.MfaPoliciesSettings')->find()->count());
+        $this->assertFalse((new EditionGetService())->get()->isPro());
+        // The edition row's modified_by must point at the admin resolved from
+        // --username, not at the mock UAC used in the setToPro seed above.
+        $editionRow = $this->fetchTable('Passbolt/Edition.EditionOrganization')->find()->firstOrFail();
+        $this->assertSame($admin->id, $editionRow->get('modified_by'));
+    }
+
+    public function testEditionDowngradeCommand_AbortsCleanly_WhenAlreadyOnCe(): void
+    {
+        // Edition flag absent → defaults to CE. The conflict from the service
+        // is caught and turned into a successful exit so re-runs don't fail.
+        /** @var \App\Model\Entity\User $admin */
+        $admin = UserFactory::make()->admin()->active()->persist();
+
+        $this->exec("passbolt edition_downgrade -u {$admin->username}", ['y']);
+
+        $this->assertExitSuccess();
+        $this->assertErrorContains('The instance is already on CE.');
+    }
+
+    public function testEditionDowngradeCommand_AbortsWhenUserDeclinesConfirmation(): void
+    {
+        /** @var \App\Model\Entity\User $admin */
+        $admin = UserFactory::make()->admin()->active()->persist();
+        SubscriptionFactory::make()->persist();
+        MfaPoliciesSettingFactory::make()->persist();
+        (new EditionSetService())->setToPro($this->mockAdminAccessControl());
+
+        $this->exec("passbolt edition_downgrade -u {$admin->username}", ['n']);
+
+        $this->assertExitSuccess();
+        $this->assertOutputContains('Aborting...');
+        // Data and edition flag are untouched.
+        $this->assertSame(1, $this->fetchTable('Passbolt/Subscription.Subscriptions')->find()->count());
+        $this->assertSame(1, $this->fetchTable('Passbolt/MfaPolicies.MfaPoliciesSettings')->find()->count());
+        $this->assertTrue((new EditionGetService())->get()->isPro());
+    }
+
+    public function testEditionDowngradeCommand_Error_MissingUsernameOption(): void
+    {
+        $this->exec('passbolt edition_downgrade');
+
+        $this->assertExitError();
+    }
+
+    public function testEditionDowngradeCommand_Error_InvalidEmailFormat(): void
+    {
+        $this->exec('passbolt edition_downgrade -u not-an-email');
+
+        $this->assertExitError();
+        $this->assertErrorContains('The username should be a valid email.');
+    }
+
+    public function testEditionDowngradeCommand_Error_UserNotFound(): void
+    {
+        $this->exec('passbolt edition_downgrade -u ghost@passbolt.com');
+
+        $this->assertExitError();
+        $this->assertErrorContains('No active admins were found.');
+    }
+
+    public function testEditionDowngradeCommand_Error_UserIsNotAdmin(): void
+    {
+        /** @var \App\Model\Entity\User $user */
+        $user = UserFactory::make()->user()->active()->persist();
+
+        $this->exec("passbolt edition_downgrade -u {$user->username}");
+
+        $this->assertExitError();
+        $this->assertErrorContains('No active admins were found.');
+    }
+
+    public function testEditionDowngradeCommand_Error_UserIsDisabled(): void
+    {
+        /** @var \App\Model\Entity\User $admin */
+        $admin = UserFactory::make()->admin()->active()->disabled()->persist();
+
+        $this->exec("passbolt edition_downgrade -u {$admin->username}");
+
+        $this->assertExitError();
+        $this->assertErrorContains('No active admins were found.');
+    }
+
+    public function testEditionDowngradeCommand_Error_UserIsDeleted(): void
+    {
+        /** @var \App\Model\Entity\User $admin */
+        $admin = UserFactory::make()->admin()->active()->setField('deleted', true)->persist();
+
+        $this->exec("passbolt edition_downgrade -u {$admin->username}");
+
+        $this->assertExitError();
+        $this->assertErrorContains('No active admins were found.');
+    }
+}
