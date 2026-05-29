@@ -16,13 +16,11 @@ declare(strict_types=1);
  */
 namespace Passbolt\Edition\Service;
 
-use App\Model\Entity\Role;
-use App\Utility\UserAccessControl;
 use Cake\Datasource\EntityInterface;
 use Cake\ORM\Locator\LocatorAwareTrait;
 use Passbolt\Edition\Model\Dto\EditionDto;
+use Passbolt\Subscription\Error\Exception\Subscriptions\SubscriptionRecordNotFoundException;
 use Passbolt\Subscription\Service\Subscriptions\SubscriptionKeyGetService;
-use Throwable;
 
 class PopulateEditionService
 {
@@ -53,18 +51,57 @@ class PopulateEditionService
     }
 
     /**
-     * PRO if a valid subscription key is present, CE otherwise.
+     * PRO if a subscription key is present (in DB or on disk), CE otherwise.
      *
      * @return string
      */
     private function detectEdition(): string
     {
-        try {
-            (new SubscriptionKeyGetService())->get(new UserAccessControl(Role::ADMIN));
-
+        if ($this->hasKeyInDatabase() || $this->hasKeyOnDisk()) {
             return EditionDto::EDITION_PRO;
-        } catch (Throwable $e) {
-            return EditionDto::EDITION_CE;
         }
+
+        return EditionDto::EDITION_CE;
+    }
+
+    /**
+     * @return bool
+     */
+    private function hasKeyInDatabase(): bool
+    {
+        /** @var \Passbolt\Subscription\Model\Table\SubscriptionsTable $subscriptionsTable */
+        $subscriptionsTable = $this->fetchTable('Passbolt/Subscription.Subscriptions');
+
+        try {
+            $row = $subscriptionsTable->getOrFail();
+        } catch (SubscriptionRecordNotFoundException $e) {
+            return false;
+        }
+
+        $value = $row instanceof EntityInterface ? $row->get('value') : ($row['value'] ?? null);
+
+        return is_string($value) && trim($value) !== '';
+    }
+
+    /**
+     * @return bool
+     */
+    private function hasKeyOnDisk(): bool
+    {
+        $paths = [
+            SubscriptionKeyGetService::SUBSCRIPTION_FILE,
+            SubscriptionKeyGetService::LEGACY_SUBSCRIPTION_FILE,
+        ];
+        foreach ($paths as $path) {
+            if (!is_readable($path)) {
+                continue;
+            }
+            $contents = file_get_contents($path);
+            if (is_string($contents) && trim($contents) !== '') {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

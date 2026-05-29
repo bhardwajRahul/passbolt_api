@@ -82,6 +82,35 @@ class PopulateEditionServiceTest extends AppTestCaseV5
         $this->assertSame(EditionDto::EDITION_PRO, $editionRow->get('value'));
     }
 
+    /**
+     * Test scenario where passbolt.plugins.subscription.subscriptionKey.public configuration isn't present.
+     *
+     * @return void
+     */
+    public function testPopulateEditionService_Pro_KeyInFileWithoutPublicKeyConfig(): void
+    {
+        file_put_contents(SubscriptionKeyGetService::SUBSCRIPTION_FILE, 'arbitrary-non-empty-key-bytes');
+
+        $this->sut->populate();
+
+        $editionRow = EditionOrganizationSettingFactory::firstOrFail(
+            ['property' => EditionOrganizationTable::PROPERTY_NAME]
+        );
+        $this->assertSame(EditionDto::EDITION_PRO, $editionRow->get('value'));
+    }
+
+    public function testPopulateEditionService_CE_EmptyKeyFile(): void
+    {
+        file_put_contents(SubscriptionKeyGetService::SUBSCRIPTION_FILE, '   ');
+
+        $this->sut->populate();
+
+        $editionRow = EditionOrganizationSettingFactory::firstOrFail(
+            ['property' => EditionOrganizationTable::PROPERTY_NAME]
+        );
+        $this->assertSame(EditionDto::EDITION_CE, $editionRow->get('value'));
+    }
+
     public function testPopulateEditionService_ExistingRowUnchanged(): void
     {
         EditionOrganizationSettingFactory::make()
