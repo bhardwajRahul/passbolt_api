@@ -29,10 +29,11 @@ use Passbolt\Edition\Service\EditionManager;
  */
 class TestingEditionManager extends EditionManager
 {
-    protected function resolveEdition(): string
+    protected function resolveEditionDto(): EditionDto
     {
         $value = Configure::read('passbolt.edition');
+        $edition = is_string($value) ? $value : EditionDto::EDITION_PRO;
 
-        return is_string($value) ? $value : EditionDto::EDITION_PRO;
+        return new EditionDto($edition);
     }
 }

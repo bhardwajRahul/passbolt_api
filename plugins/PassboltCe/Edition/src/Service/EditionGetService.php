@@ -16,7 +16,7 @@ declare(strict_types=1);
  */
 namespace Passbolt\Edition\Service;
 
-use Cake\Datasource\EntityInterface;
+use App\Model\Entity\OrganizationSetting;
 use Cake\ORM\Locator\LocatorAwareTrait;
 use Passbolt\Edition\Model\Dto\EditionDto;
 
@@ -38,8 +38,7 @@ final class EditionGetService
         $editionOrganizationTable = $this->fetchTable('Passbolt/Edition.EditionOrganization');
 
         $row = $editionOrganizationTable->find()->first();
-        $value = $row instanceof EntityInterface ? $row->get('value') : null;
 
-        return EditionDto::fromString($value);
+        return EditionDto::fromOrgSettingRow($row instanceof OrganizationSetting ? $row : null);
     }
 }

@@ -16,6 +16,9 @@ declare(strict_types=1);
  */
 namespace Passbolt\Edition\Model\Dto;
 
+use App\Model\Entity\OrganizationSetting;
+use Cake\I18n\DateTime;
+
 /**
  * Immutable value object representing the runtime edition flag served by
  * the application. The only accepted values are `EditionDto::EDITION_CE`
@@ -53,25 +56,61 @@ final class EditionDto
     public readonly string $edition;
 
     /**
+     * Timestamp of the last edition change (CE → PRO or PRO → CE), or `null`
+     * when the edition has never been modified since creation. Populated when
+     * the underlying `organization_settings.edition` row has been touched
+     * since creation (`modified` differs from `created`). The initial insert
+     * — when `created == modified` — is excluded.
+     */
+    public readonly ?DateTime $lastEditionChangeDateTime;
+
+    /**
      * @param string $edition Raw edition value. Sanitised to
      *   {@see self::EDITION_CE} when not in {@see self::VALID_EDITIONS}.
+     * @param \Cake\I18n\DateTime|null $lastEditionChangeDateTime Last edition
+     *   change timestamp. `null` when the row was never touched after insert.
      */
-    public function __construct(string $edition)
+    public function __construct(string $edition, ?DateTime $lastEditionChangeDateTime = null)
     {
         $this->edition = self::sanitise($edition);
+        $this->lastEditionChangeDateTime = $lastEditionChangeDateTime;
     }
 
     /**
-     * Builds a DTO from an untrusted string (e.g. a value loaded straight
-     * from `organization_settings.value`).
+     * Builds a DTO from the `organization_settings.edition` row, detecting
+     * the last-edition-change timestamp from the row's `created` / `modified`
+     * columns.
      *
-     * @param string|null $value Raw value, possibly `null` when the row is
-     *   missing.
+     * Detection fires whenever `created` and `modified` differ, regardless of
+     * the current value: a touched row reflects an edition change (either
+     * direction). The comparison is done at second precision (`getTimestamp()`)
+     * so millisecond drift between two TimestampBehavior touches on the same
+     * insert is ignored.
+     *
+     * @param \App\Model\Entity\OrganizationSetting|null $row Edition row, or `null`
+     *   when no row exists.
      * @return self
      */
-    public static function fromString(?string $value): self
+    public static function fromOrgSettingRow(?OrganizationSetting $row): self
     {
-        return new self($value ?? self::EDITION_CE);
+        if ($row === null) {
+            return new self(self::EDITION_CE);
+        }
+
+        $value = (string)$row->get('value');
+
+        $lastChangeAt = null;
+        $created = $row->get('created');
+        $modified = $row->get('modified');
+        if (
+            $created instanceof DateTime
+            && $modified instanceof DateTime
+            && $created->getTimestamp() !== $modified->getTimestamp()
+        ) {
+            $lastChangeAt = $modified;
+        }
+
+        return new self($value, $lastChangeAt);
     }
 
     /**
@@ -82,6 +121,16 @@ final class EditionDto
     public function getEdition(): string
     {
         return $this->edition;
+    }
+
+    /**
+     * @return \Cake\I18n\DateTime|null Timestamp of the last edition change
+     *   (CE → PRO or PRO → CE), or `null` when the edition has never been
+     *   modified since creation.
+     */
+    public function getLastEditionChangeDateTime(): ?DateTime
+    {
+        return $this->lastEditionChangeDateTime;
     }
 
     /**
@@ -101,11 +150,14 @@ final class EditionDto
     }
 
     /**
-     * @return array{edition: string}
+     * @return array{edition: string, lastEditionChangeDateTime: string|null}
      */
     public function toArray(): array
     {
-        return ['edition' => $this->edition];
+        return [
+            'edition' => $this->edition,
+            'lastEditionChangeDateTime' => $this->lastEditionChangeDateTime?->toAtomString(),
+        ];
     }
 
     /**
