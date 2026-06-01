@@ -87,8 +87,6 @@ class EditionSubscriptionsDeleteControllerTest extends AppIntegrationTestCase
 
     public function testEditionSubscriptionsDeleteController_Delete_Error_ConflictAlreadyOnCe(): void
     {
-        // Sub row exists but edition flag = CE (inconsistent state, but
-        // possible). 404 doesn't apply; 409 from the service does.
         SubscriptionFactory::make()->persist();
 
         $this->logInAsAdmin();

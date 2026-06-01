@@ -22,10 +22,7 @@ use Cake\Http\Exception\NotFoundException;
 use Passbolt\Edition\Service\EditionDowngradeService;
 
 /**
- * HTTP entry point for the in-product downgrade. Delegates to
- * EditionDowngradeService, which owns the transactional sequence.
- *
- * Endpoint: DELETE /edition/subscription/key.json
+ * HTTP entry point for the in-product downgrade.
  */
 class EditionSubscriptionsDeleteController extends AppController
 {
@@ -42,9 +39,8 @@ class EditionSubscriptionsDeleteController extends AppController
             throw new ForbiddenException(__('You are not allowed to access this location.'));
         }
 
-        // 404 if no subscription row. The downgrade service is idempotent on
-        // the delete step, so this REST-level check has to live here.
-        if (!$this->fetchTable('Passbolt/Subscription.Subscriptions')->exists([])) {
+        $subscriptions = $this->fetchTable('Passbolt/Subscription.Subscriptions');
+        if ($subscriptions->find()->count() === 0) {
             throw new NotFoundException(__('The subscription key does not exist.'));
         }
 
