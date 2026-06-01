@@ -54,7 +54,7 @@ trait CaseSensitiveCompareValueTrait
         $valuePlaceholder = ':value_case_insensitive_' . self::$placeholderCounter++;
         $query = $query->bind($valuePlaceholder, $col, $this->getBindType($col));
 
-        return $query->newExpr()->add("CONVERT({$valuePlaceholder} using utf8mb4) COLLATE utf8mb4_bin");
+        return $query->expr()->add("CONVERT({$valuePlaceholder} using utf8mb4) COLLATE utf8mb4_bin");
     }
 
     /**
@@ -77,7 +77,7 @@ trait CaseSensitiveCompareValueTrait
         foreach ($values as $value) {
             $valuePlaceholder = ':value_case_insensitive_' . self::$placeholderCounter++;
             $conditions[] = $query
-                ->newExpr()
+                ->expr()
                 ->add("CONVERT({$valuePlaceholder} using utf8mb4) COLLATE utf8mb4_bin");
 
             $query = $query->bind($valuePlaceholder, $value, $this->getBindType($value));
