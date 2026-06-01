@@ -95,7 +95,7 @@ class MetadataResourcesAddExistingTagForm extends Form
                 'Tags.id' => $tagId,
                 'OR' => [
                     'ResourcesTags.user_id' => $this->uac->getId(),
-                    $query->newExpr()->isNull('ResourcesTags.user_id'),
+                    $query->expr()->isNull('ResourcesTags.user_id'),
                 ],
             ])
             ->first();

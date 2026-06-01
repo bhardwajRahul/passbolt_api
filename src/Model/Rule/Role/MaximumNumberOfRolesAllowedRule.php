@@ -33,7 +33,7 @@ class MaximumNumberOfRolesAllowedRule
         $rolesTable = TableRegistry::getTableLocator()->get('Roles');
         $query = $rolesTable->find();
         $countActiveRoles = $query
-            ->where([$query->newExpr()->isNull($rolesTable->aliasField('deleted'))])
+            ->where([$query->expr()->isNull($rolesTable->aliasField('deleted'))])
             ->count();
 
         return $countActiveRoles < RolesTable::MAXIMUM_NO_OF_ROLES_ALLOWED;

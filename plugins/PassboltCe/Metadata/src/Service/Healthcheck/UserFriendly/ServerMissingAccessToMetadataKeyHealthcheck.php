@@ -63,13 +63,13 @@ class ServerMissingAccessToMetadataKeyHealthcheck implements HealthcheckServiceI
         $query = $this->fetchTable('Passbolt/Metadata.MetadataKeys')->find();
         $count = $query
             ->leftJoinWith('MetadataPrivateKeys', function (SelectQuery $q) {
-                $expr = $q->newExpr()->isNull('MetadataPrivateKeys.user_id');
+                $expr = $q->expr()->isNull('MetadataPrivateKeys.user_id');
 
                 return $q->where([$expr]);
             })
             ->where([
-                $query->newExpr()->isNull('MetadataPrivateKeys.metadata_key_id'),
-                $query->newExpr()->isNull('MetadataKeys.deleted'),
+                $query->expr()->isNull('MetadataPrivateKeys.metadata_key_id'),
+                $query->expr()->isNull('MetadataKeys.deleted'),
             ])
             ->count();
 

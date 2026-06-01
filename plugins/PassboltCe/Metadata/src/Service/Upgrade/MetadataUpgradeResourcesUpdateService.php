@@ -95,8 +95,8 @@ class MetadataUpgradeResourcesUpdateService extends MetadataRotateKeyResourcesUp
         $query = $secretRevisionsTable->updateQuery();
         $query->set('resource_type_id', $subquery)
             ->where([
-                $query->newExpr()->isNull('deleted'),
-                $query->newExpr()->in('resource_id', $resourceIds),
+                $query->expr()->isNull('deleted'),
+                $query->expr()->in('resource_id', $resourceIds),
             ])
             ->execute();
     }
