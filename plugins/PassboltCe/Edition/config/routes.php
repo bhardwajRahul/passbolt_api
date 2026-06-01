@@ -27,4 +27,8 @@ $routes->plugin('Passbolt/Edition', ['path' => '/edition'], function (RouteBuild
         'controller' => 'EditionSubscriptionsCreate',
         'action' => 'create',
     ])->setMethods(['POST']);
+
+    $routes->connect('/subscription/key', [
+        'controller' => 'EditionSubscriptionsDelete', 'action' => 'delete',
+    ])->setMethods(['DELETE']);
 });
