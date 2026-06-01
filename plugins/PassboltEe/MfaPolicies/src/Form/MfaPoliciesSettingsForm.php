@@ -62,7 +62,7 @@ class MfaPoliciesSettingsForm extends Form
     /**
      * @inheritDoc
      */
-    protected function _execute(array $data): bool
+    protected function process(array $data): bool
     {
         return true;
     }

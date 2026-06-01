@@ -51,7 +51,7 @@ class SsoSettingsAdfsDataForm extends SsoSettingsOAuth2DataForm
     /**
      * @inheritDoc
      */
-    protected function _execute(array $data): bool
+    protected function process(array $data): bool
     {
         return true;
     }
