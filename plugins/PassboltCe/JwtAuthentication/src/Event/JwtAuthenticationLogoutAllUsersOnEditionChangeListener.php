@@ -23,12 +23,13 @@ use Cake\Event\EventListenerInterface;
 use Cake\Log\Log;
 use Cake\ORM\Locator\LocatorAwareTrait;
 use Passbolt\Edition\Service\EditionDowngradeService;
+use Passbolt\Edition\Service\EditionUpgradeService;
 use Throwable;
 
 /**
- * Invalidates every active JWT refresh token after a PRO → CE downgrade.
+ * Invalidates all active JWT refresh token after edition transition (CE → PRO or PRO → CE).
  */
-class JwtAuthenticationLogoutAllUsersOnEditionDowngradeListener implements EventListenerInterface
+class JwtAuthenticationLogoutAllUsersOnEditionChangeListener implements EventListenerInterface
 {
     use LocatorAwareTrait;
 
@@ -38,15 +39,16 @@ class JwtAuthenticationLogoutAllUsersOnEditionDowngradeListener implements Event
     public function implementedEvents(): array
     {
         return [
-            EditionDowngradeService::EVENT_EDITION_DOWNGRADED => 'invalidRefreshToken',
+            EditionDowngradeService::EVENT_EDITION_DOWNGRADED => 'invalidateRefreshTokens',
+            EditionUpgradeService::EVENT_NAME => 'invalidateRefreshTokens',
         ];
     }
 
     /**
-     * @param \Cake\Event\EventInterface $event Edition.downgraded event.
+     * @param \Cake\Event\EventInterface $event Edition.downgraded or Edition.upgraded event.
      * @return void
      */
-    public function invalidRefreshToken(EventInterface $event): void
+    public function invalidateRefreshTokens(EventInterface $event): void
     {
         try {
             $this->fetchTable('AuthenticationTokens')->updateAll(
@@ -57,8 +59,8 @@ class JwtAuthenticationLogoutAllUsersOnEditionDowngradeListener implements Event
                 ]
             );
         } catch (Throwable $e) {
-            // Downgrade already committed: swallow to avoid a misleading 500.
-            $msg = 'Failed to invalidate refresh tokens after edition downgrade.';
+            // Edition change already committed: swallow to avoid a misleading 500.
+            $msg = 'Failed to invalidate refresh tokens after edition change.';
             if (Configure::read('debug')) {
                 $msg .= ' ' . $e->getMessage();
             }
