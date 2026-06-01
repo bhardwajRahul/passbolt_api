@@ -129,7 +129,7 @@ class SsoSettingsAzureDataForm extends BaseSsoSettingsForm
     /**
      * Execute the form if it is valid.
      *
-     * First validates the form, then calls the `_execute()` hook method.
+     * First validates the form, then calls the `process()` hook method.
      * This hook method can be implemented in subclasses to perform
      * the action of the form. This may be sending email, interacting
      * with a remote API, or anything else you may need.
@@ -137,7 +137,7 @@ class SsoSettingsAzureDataForm extends BaseSsoSettingsForm
      * @param array $data Form data.
      * @param array $options unused.
      * @return bool False on validation failure, otherwise returns the
-     *   result of the `_execute()` method.
+     *   result of the `process()` method.
      */
     public function execute(array $data, array $options = []): bool
     {
