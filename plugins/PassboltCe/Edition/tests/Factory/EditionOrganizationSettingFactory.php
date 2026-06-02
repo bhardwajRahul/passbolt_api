@@ -53,4 +53,20 @@ class EditionOrganizationSettingFactory extends OrganizationSettingFactory
             ];
         });
     }
+
+    /**
+     * @return $this
+     */
+    public function ce()
+    {
+        return $this->setField('value', EditionDto::EDITION_CE);
+    }
+
+    /**
+     * @return $this
+     */
+    public function pro()
+    {
+        return $this->setField('value', EditionDto::EDITION_PRO);
+    }
 }
