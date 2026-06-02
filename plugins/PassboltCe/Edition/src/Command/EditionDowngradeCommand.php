@@ -24,7 +24,9 @@ use App\Utility\UserAccessControl;
 use Cake\Console\Arguments;
 use Cake\Console\ConsoleIo;
 use Cake\Console\ConsoleOptionParser;
+use Cake\Core\Configure;
 use Cake\Http\Exception\ConflictException;
+use Passbolt\Edition\Middleware\EditionDowngradeDisabledMiddleware;
 use Passbolt\Edition\Service\EditionDowngradeService;
 
 /**
@@ -64,6 +66,11 @@ class EditionDowngradeCommand extends PassboltCommand
     public function execute(Arguments $args, ConsoleIo $io): ?int
     {
         parent::execute($args, $io);
+
+        if (Configure::read(EditionDowngradeDisabledMiddleware::PASSBOLT_SECURITY_EDITION_DOWNGRADE_DISABLED)) {
+            $io->error(__('Edition downgrade is disabled.'));
+            $this->abort();
+        }
 
         $admin = $this->resolveAdmin($args, $io);
         $uac = new UserAccessControl($admin->role->name, $admin->id, $admin->username);

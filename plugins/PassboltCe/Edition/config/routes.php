@@ -14,11 +14,16 @@
  * @since         5.13.0
  */
 use Cake\Routing\RouteBuilder;
+use Passbolt\Edition\Middleware\EditionDowngradeDisabledMiddleware;
 
 /** @var \Cake\Routing\RouteBuilder $routes */
 
 $routes->plugin('Passbolt/Edition', ['path' => '/edition'], function (RouteBuilder $routes): void {
     $routes->setExtensions(['json']);
+    $routes->registerMiddleware(
+        EditionDowngradeDisabledMiddleware::class,
+        new EditionDowngradeDisabledMiddleware()
+    );
 
     /**
      * @uses \Passbolt\Edition\Controller\EditionSubscriptionsCreateController::create()
@@ -28,7 +33,11 @@ $routes->plugin('Passbolt/Edition', ['path' => '/edition'], function (RouteBuild
         'action' => 'create',
     ])->setMethods(['POST']);
 
-    $routes->connect('/subscription/key', [
-        'controller' => 'EditionSubscriptionsDelete', 'action' => 'delete',
-    ])->setMethods(['DELETE']);
+    $routes
+        ->connect('/subscription/key', [
+            'controller' => 'EditionSubscriptionsDelete',
+            'action' => 'delete',
+        ])
+        ->setMethods(['DELETE'])
+        ->setMiddleware([EditionDowngradeDisabledMiddleware::class]);
 });

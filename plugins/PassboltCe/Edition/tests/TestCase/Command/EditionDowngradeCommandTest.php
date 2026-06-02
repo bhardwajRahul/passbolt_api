@@ -19,9 +19,11 @@ namespace Passbolt\Edition\Test\TestCase\Command;
 use App\Test\Factory\UserFactory;
 use App\Test\Lib\Utility\UserAccessControlTrait;
 use Cake\Console\TestSuite\ConsoleIntegrationTestTrait;
+use Cake\Core\Configure;
 use Cake\ORM\Locator\LocatorAwareTrait;
 use Cake\TestSuite\TestCase;
 use CakephpTestSuiteLight\Fixture\TruncateDirtyTables;
+use Passbolt\Edition\Middleware\EditionDowngradeDisabledMiddleware;
 use Passbolt\Edition\Service\EditionGetService;
 use Passbolt\Edition\Service\EditionSetService;
 use Passbolt\MfaPolicies\Test\Factory\MfaPoliciesSettingFactory;
@@ -143,5 +145,23 @@ class EditionDowngradeCommandTest extends TestCase
 
         $this->assertExitError();
         $this->assertErrorContains('No active admins were found.');
+    }
+
+    public function testEditionDowngradeCommand_Disabled_AbortsWhenFlagSet(): void
+    {
+        /** @var \App\Model\Entity\User $admin */
+        $admin = UserFactory::make()->admin()->active()->persist();
+        SubscriptionFactory::make()->persist();
+        (new EditionSetService())->setToPro($this->mockAdminAccessControl());
+
+        Configure::write(EditionDowngradeDisabledMiddleware::PASSBOLT_SECURITY_EDITION_DOWNGRADE_DISABLED, true);
+
+        $this->exec("passbolt edition_downgrade -u {$admin->username}");
+
+        $this->assertExitError();
+        $this->assertErrorContains('Edition downgrade is disabled.');
+        // No DB writes: subscription row + PRO edition flag intact.
+        $this->assertSame(1, $this->fetchTable('Passbolt/Subscription.Subscriptions')->find()->count());
+        $this->assertTrue((new EditionGetService())->get()->isPro());
     }
 }
