@@ -17,12 +17,14 @@ declare(strict_types=1);
 namespace Passbolt\Edition;
 
 use App\Middleware\SetUserIdentityInRequestMiddleware;
+use App\Service\Healthcheck\HealthcheckServiceCollector;
 use Cake\Core\BasePlugin;
 use Cake\Core\ContainerInterface;
 use Cake\Core\PluginApplicationInterface;
 use Cake\Http\MiddlewareQueue;
 use Passbolt\Edition\Middleware\LogoutUsersOnEditionChangeMiddleware;
 use Passbolt\Edition\Notification\Email\EditionRedactorPool;
+use Passbolt\Edition\Service\Healthcheck\Application\EditionPresentInDatabaseApplicationHealthcheck;
 
 class EditionPlugin extends BasePlugin
 {
@@ -41,6 +43,11 @@ class EditionPlugin extends BasePlugin
     public function services(ContainerInterface $container): void
     {
         parent::services($container);
+
+        $container->add(EditionPresentInDatabaseApplicationHealthcheck::class);
+        $container
+            ->extend(HealthcheckServiceCollector::class)
+            ->addMethodCall('addService', [EditionPresentInDatabaseApplicationHealthcheck::class]);
     }
 
     /**
