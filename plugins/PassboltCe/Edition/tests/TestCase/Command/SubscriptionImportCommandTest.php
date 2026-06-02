@@ -19,11 +19,14 @@ namespace Passbolt\Edition\Test\TestCase\Command;
 use App\Test\Factory\UserFactory;
 use App\Test\Lib\AppTestCase;
 use Cake\Console\TestSuite\ConsoleIntegrationTestTrait;
+use Cake\Core\Configure;
 use Cake\Core\Exception\CakeException;
+use Cake\I18n\DateTime;
 use Cake\ORM\Locator\LocatorAwareTrait;
 use Cake\ORM\TableRegistry;
 use Passbolt\Edition\Model\Dto\EditionDto;
 use Passbolt\Edition\Model\Table\EditionOrganizationTable;
+use Passbolt\Edition\Service\EditionManager;
 use Passbolt\Edition\Test\Factory\EditionOrganizationSettingFactory;
 use Passbolt\Subscription\Error\Exception\Subscriptions\SubscriptionRecordNotFoundException;
 use Passbolt\Subscription\Model\Entity\Subscription;
@@ -117,6 +120,63 @@ class SubscriptionImportCommandTest extends AppTestCase
     {
         UserFactory::make()->admin()->persist();
         EditionOrganizationSettingFactory::make()->setField('value', EditionDto::EDITION_PRO)->persist();
+
+        $file = $this->getValidSubscriptionFileName();
+        $this->exec('passbolt subscription_import -f ' . $file);
+
+        $this->assertExitSuccess();
+        $this->assertOutputContains('successfully imported in the database.');
+        $this->assertInstanceOf(Subscription::class, $this->Subscriptions->getOrFail());
+        $this->assertEditionIs(EditionDto::EDITION_PRO);
+    }
+
+    public function testSubscriptionImportCommand_Skips_WhenInstanceWasExplicitlyDowngraded(): void
+    {
+        // Reproduces Cedric's scenario: admin downgrades from the UI (which
+        // leaves `value='ce'` AND advances `modified` past `created`), then
+        // Docker restarts with the subscription key file still mounted. The
+        // import must not silently re-upgrade the instance.
+        //
+        // Simulate EditionManager having booted on this row state — that is
+        // what production sees in Configure after Application::bootstrap().
+        Configure::write('passbolt.edition', EditionDto::EDITION_CE);
+        Configure::write(
+            EditionManager::CONFIGURE_KEY_LAST_CHANGE_DATETIME,
+            new DateTime('2024-06-15 12:34:56')
+        );
+        UserFactory::make()->admin()->persist();
+        EditionOrganizationSettingFactory::make()
+            ->setField('value', EditionDto::EDITION_CE)
+            ->setField('created', new DateTime('2024-01-01 10:00:00'))
+            ->setField('modified', new DateTime('2024-06-15 12:34:56'))
+            ->persist();
+
+        $file = $this->getValidSubscriptionFileName();
+        $this->exec('passbolt subscription_import -f ' . $file);
+
+        $this->assertExitSuccess();
+        $this->assertErrorContains('instance was explicitly downgraded to CE');
+        $this->assertEditionIs(EditionDto::EDITION_CE);
+        // No subscription row was created — the mounted key was ignored.
+        $this->expectException(SubscriptionRecordNotFoundException::class);
+        $this->Subscriptions->getOrFail();
+    }
+
+    public function testSubscriptionImportCommand_AllowsUpgrade_WhenCeRowIsInDefaultStateFromMigration(): void
+    {
+        // V5130PopulateEdition writes `value='ce'` on existing CE installs as
+        // their initial state — `created == modified` so the change timestamp
+        // is null. Mounting a key on such an instance is a legitimate upgrade
+        // signal, NOT a "post-downgrade undo" attempt — the import must
+        // proceed.
+        Configure::write('passbolt.edition', EditionDto::EDITION_CE);
+        UserFactory::make()->admin()->persist();
+        $now = DateTime::now();
+        EditionOrganizationSettingFactory::make()
+            ->setField('value', EditionDto::EDITION_CE)
+            ->setField('created', $now)
+            ->setField('modified', $now)
+            ->persist();
 
         $file = $this->getValidSubscriptionFileName();
         $this->exec('passbolt subscription_import -f ' . $file);

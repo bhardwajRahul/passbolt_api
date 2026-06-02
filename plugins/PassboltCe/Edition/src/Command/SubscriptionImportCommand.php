@@ -22,15 +22,28 @@ use App\Utility\UserAccessControl;
 use Cake\Console\Arguments;
 use Cake\Console\ConsoleIo;
 use Cake\Console\ConsoleOptionParser;
+use Cake\Core\Configure;
 use Cake\Core\Exception\CakeException;
+use Cake\I18n\DateTime;
 use Cake\ORM\Locator\LocatorAwareTrait;
+use Passbolt\Edition\Model\Dto\EditionDto;
+use Passbolt\Edition\Service\EditionManager;
 use Passbolt\Edition\Service\EditionSetService;
 use Passbolt\Subscription\Error\Exception\Subscriptions\SubscriptionException;
 use Passbolt\Subscription\Service\Subscriptions\SubscriptionKeyGetService;
 use Passbolt\Subscription\Service\Subscriptions\SubscriptionKeyImportService;
 
 /**
- * Subscription Check shell command.
+ * Imports a subscription key supplied via file or text and flips the edition
+ * to PRO. Typically invoked by the Docker entrypoint when a key file is
+ * mounted into the container, so it runs on every container restart.
+ *
+ * Skips when the instance was explicitly downgraded to CE — detected when
+ * `Configure::passbolt.edition` is `ce` AND
+ * `Configure::passbolt.editionLastChangeDateTime` is non-null (the row's
+ * `modified` differs from `created`). A fresh CE install or one populated by
+ * V5130PopulateEdition has matching `created` / `modified` and a null
+ * change timestamp, so the import still proceeds in that case.
  */
 class SubscriptionImportCommand extends PassboltCommand
 {
@@ -83,6 +96,22 @@ class SubscriptionImportCommand extends PassboltCommand
         if (!$useText && (empty($file) || !is_string($file))) {
             $this->error(__('The subscription key file is invalid.'), $io);
             $this->abort();
+        }
+
+        if (
+            Configure::read('passbolt.edition') === EditionDto::EDITION_CE
+            && Configure::read(EditionManager::CONFIGURE_KEY_LAST_CHANGE_DATETIME) instanceof DateTime
+        ) {
+            $io->warning([
+                __('A subscription key was provided but the instance was explicitly downgraded to CE edition.'),
+                __('Ignoring the subscription key.'),
+                __(
+                    'Remove the subscription file mount to silence this warning '
+                    . 'or re-upload the key from the admin UI.'
+                ),
+            ]);
+
+            return $this->successCode();
         }
 
         $uac = $this->buildAdminUac();
