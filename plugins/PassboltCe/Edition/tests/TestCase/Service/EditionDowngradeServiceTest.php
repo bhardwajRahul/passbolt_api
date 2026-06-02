@@ -17,7 +17,6 @@ declare(strict_types=1);
 namespace Passbolt\Edition\Test\TestCase\Service;
 
 use App\Test\Lib\Utility\UserAccessControlTrait;
-use Cake\Cache\Cache;
 use Cake\Event\EventList;
 use Cake\Event\EventManager;
 use Cake\Http\Exception\ConflictException;
@@ -44,13 +43,6 @@ class EditionDowngradeServiceTest extends TestCase
     {
         parent::setUp();
         EventManager::instance()->setEventList(new EventList());
-        Cache::delete(EditionDowngradeService::EVENT_EDITION_DOWNGRADED);
-    }
-
-    public function tearDown(): void
-    {
-        Cache::delete(EditionDowngradeService::EVENT_EDITION_DOWNGRADED);
-        parent::tearDown();
     }
 
     public function testEditionDowngradeService_Downgrade_HappyPath(): void
@@ -70,10 +62,8 @@ class EditionDowngradeServiceTest extends TestCase
         $this->assertSame(0, $this->mfaPoliciesRowCount());
         // Edition flag flipped to CE.
         $this->assertFalse((new EditionGetService())->get()->isPro());
-        // Event fired and cache marker written.
+        // Event fired
         $this->assertEventFired(EditionDowngradeService::EVENT_EDITION_DOWNGRADED);
-        // TODO: re-enable when Cache::write is restored in EditionDowngradeService.
-        //$this->assertNotNull(Cache::read(EditionDowngradeService::EVENT_EDITION_DOWNGRADED));
     }
 
     public function testEditionDowngradeService_Downgrade_RollsBackWhenStepThrows(): void
@@ -99,7 +89,6 @@ class EditionDowngradeServiceTest extends TestCase
         $this->assertFalse(
             EventManager::instance()->getEventList()->hasEvent(EditionDowngradeService::EVENT_EDITION_DOWNGRADED)
         );
-        $this->assertNull(Cache::read(EditionDowngradeService::EVENT_EDITION_DOWNGRADED));
     }
 
     public function testEditionDowngradeService_Downgrade_StillDispatchesEventWhenNoResidualPluginData(): void
@@ -113,8 +102,6 @@ class EditionDowngradeServiceTest extends TestCase
 
         $this->assertFalse((new EditionGetService())->get()->isPro());
         $this->assertEventFired(EditionDowngradeService::EVENT_EDITION_DOWNGRADED);
-        // TODO: re-enable when Cache::write is restored in EditionDowngradeService.
-        //$this->assertNotNull(Cache::read(EditionDowngradeService::EVENT_EDITION_DOWNGRADED));
     }
 
     public function testEditionDowngradeService_Downgrade_ThrowsForbiddenWhenUacIsNotAdmin(): void
@@ -136,7 +123,6 @@ class EditionDowngradeServiceTest extends TestCase
             $this->assertFalse(
                 EventManager::instance()->getEventList()->hasEvent(EditionDowngradeService::EVENT_EDITION_DOWNGRADED)
             );
-            $this->assertNull(Cache::read(EditionDowngradeService::EVENT_EDITION_DOWNGRADED));
         }
     }
 
@@ -152,7 +138,6 @@ class EditionDowngradeServiceTest extends TestCase
             $this->assertFalse(
                 EventManager::instance()->getEventList()->hasEvent(EditionDowngradeService::EVENT_EDITION_DOWNGRADED)
             );
-            $this->assertNull(Cache::read(EditionDowngradeService::EVENT_EDITION_DOWNGRADED));
         }
     }
 
