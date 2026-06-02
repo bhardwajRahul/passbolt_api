@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 41c2572bd9bd4cc908d3e09e0cbed6e5\n"
 "POT-Creation-Date: 2026-05-07 04:01+0000\n"
-"PO-Revision-Date: 2026-05-07 09:35\n"
+"PO-Revision-Date: 2026-06-02 07:53\n"
 "Last-Translator: NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Portuguese, Brazilian\n"
 "MIME-Version: 1.0\n"
@@ -5081,7 +5081,7 @@ msgid "As a precaution, do not forget to backup your database before you continu
 msgstr "Por precaução, não se esqueça de fazer backup de seu banco de dados antes de continuar."
 
 msgid "Help"
-msgstr "Socorro"
+msgstr "Ajuda"
 
 msgid "Need help? You can find more information on how to install passbolt in the official online help."
 msgstr "Precisa de ajuda? Você pode encontrar mais informações sobre como instalar o passaporte na ajuda on-line oficial."
