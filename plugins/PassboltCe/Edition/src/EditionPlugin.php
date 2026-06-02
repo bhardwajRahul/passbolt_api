@@ -16,9 +16,12 @@ declare(strict_types=1);
  */
 namespace Passbolt\Edition;
 
+use App\Middleware\SetUserIdentityInRequestMiddleware;
 use Cake\Core\BasePlugin;
 use Cake\Core\ContainerInterface;
 use Cake\Core\PluginApplicationInterface;
+use Cake\Http\MiddlewareQueue;
+use Passbolt\Edition\Middleware\LogoutUsersOnEditionChangeMiddleware;
 use Passbolt\Edition\Notification\Email\EditionRedactorPool;
 
 class EditionPlugin extends BasePlugin
@@ -38,6 +41,20 @@ class EditionPlugin extends BasePlugin
     public function services(ContainerInterface $container): void
     {
         parent::services($container);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function middleware(MiddlewareQueue $middlewareQueue): MiddlewareQueue
+    {
+        // Position the edition-change logout check right after the identity
+        // middleware: the request identity must already be hydrated to a User
+        // entity (with last_logged_in) before we can compare timestamps.
+        return $middlewareQueue->insertAfter(
+            SetUserIdentityInRequestMiddleware::class,
+            LogoutUsersOnEditionChangeMiddleware::class
+        );
     }
 
     /**
