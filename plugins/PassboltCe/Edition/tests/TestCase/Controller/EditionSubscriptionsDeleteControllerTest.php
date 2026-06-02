@@ -18,6 +18,8 @@ namespace Passbolt\Edition\Test\TestCase\Controller;
 
 use App\Test\Lib\AppIntegrationTestCase;
 use App\Test\Lib\Utility\UserAccessControlTrait;
+use Cake\Core\Configure;
+use Passbolt\Edition\Middleware\EditionDowngradeDisabledMiddleware;
 use Passbolt\Edition\Service\EditionGetService;
 use Passbolt\Edition\Service\EditionSetService;
 use Passbolt\MfaPolicies\Test\Factory\MfaPoliciesSettingFactory;
@@ -94,5 +96,19 @@ class EditionSubscriptionsDeleteControllerTest extends AppIntegrationTestCase
 
         $this->assertError(409, 'The instance is already on CE.');
         $this->assertSame(1, $this->fetchTable('Passbolt/Subscription.Subscriptions')->find()->count());
+    }
+
+    public function testEditionSubscriptionsDeleteController_Error_EndpointDisabled(): void
+    {
+        SubscriptionFactory::make()->persist();
+        (new EditionSetService())->setToPro($this->mockAdminAccessControl());
+        Configure::write(EditionDowngradeDisabledMiddleware::PASSBOLT_SECURITY_EDITION_DOWNGRADE_DISABLED, true);
+
+        $this->logInAsAdmin();
+        $this->deleteJson(self::URL);
+
+        $this->assertForbiddenError('Edition downgrade is disabled.');
+        $this->assertSame(1, $this->fetchTable('Passbolt/Subscription.Subscriptions')->find()->count());
+        $this->assertTrue((new EditionGetService())->get()->isPro());
     }
 }
