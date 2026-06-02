@@ -17,10 +17,8 @@ declare(strict_types=1);
 namespace Passbolt\Edition\Service;
 
 use App\Utility\UserAccessControl;
-//use Cake\Cache\Cache;
 use Cake\Event\EventDispatcherTrait;
 use Cake\Http\Exception\ConflictException;
-//use Cake\I18n\DateTime;
 use Cake\ORM\Locator\LocatorAwareTrait;
 use Passbolt\Edition\Service\Cleanup\EditionDowngradeCleanupRunner;
 use Passbolt\Subscription\Service\Subscriptions\SubscriptionKeyDeleteService;
@@ -30,7 +28,7 @@ use Passbolt\Subscription\Service\Subscriptions\SubscriptionKeyDeleteService;
  *
  * Steps 1-3 (delete subscription key, run per-plugin cleanups, flip edition
  * flag to CE) run inside a single transaction — any exception rolls back the
- * entire downgrade. Step 4 (event dispatch + cache marker) runs after the
+ * entire downgrade. Step 4 (event dispatch) runs after the
  * commit; listener failures must not be able to roll the downgrade back.
  *
  * Called by EditionSubscriptionsDeleteController and
@@ -42,7 +40,7 @@ class EditionDowngradeService
     use LocatorAwareTrait;
 
     /**
-     * Event name AND cache key the post-commit marker is written under.
+     * Event name the post-commit marker is written under.
      *
      * @var string
      */
@@ -74,8 +72,6 @@ class EditionDowngradeService
 
         // Post-commit: notify + record marker. Failures here must not roll
         // the downgrade back, so they live outside the transactional block.
-        // TODO
-//        Cache::write(self::EVENT_EDITION_DOWNGRADED, DateTime::now());
         $this->dispatchEvent(self::EVENT_EDITION_DOWNGRADED, compact('uac'), $this);
     }
 }

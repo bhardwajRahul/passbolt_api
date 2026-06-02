@@ -27,6 +27,7 @@ use Cake\Database\Exception\MissingExtensionException;
 use Cake\Database\Exception\QueryException;
 use Cake\Datasource\Exception\MissingDatasourceConfigException;
 use Cake\Http\Exception\InternalErrorException;
+use Cake\I18n\DateTime;
 use Cake\Log\Log;
 use Passbolt\Edition\Model\Dto\EditionDto;
 use Passbolt\Ee\EeSolutionBootstrapper;
@@ -34,6 +35,16 @@ use Passbolt\Ee\EeSolutionBootstrapper;
 class EditionManager
 {
     use FeaturePluginAwareTrait;
+
+    /**
+     * Configure key holding the timestamp of the last edition change
+     * (CE → PRO or PRO → CE), or `null` when the edition has never been
+     * modified since creation. Read by middlewares that invalidate sessions
+     * or refresh tokens issued prior to the change.
+     *
+     * @var string
+     */
+    public const CONFIGURE_KEY_LAST_CHANGE_DATETIME = 'passbolt.editionLastChangeDateTime';
 
     private bool $booted = false;
 
@@ -43,6 +54,11 @@ class EditionManager
      * @var string
      */
     private string $edition = EditionDto::EDITION_CE;
+
+    /**
+     * @var \Cake\I18n\DateTime|null
+     */
+    private ?DateTime $lastEditionChangeDateTime = null;
 
     private ?string $solutionBootstrapperClass = null;
 
@@ -67,8 +83,12 @@ class EditionManager
             return;
         }
 
-        $this->edition = $this->resolveEdition();
+        $dto = $this->resolveEditionDto();
+        $this->edition = $dto->getEdition();
+        $this->lastEditionChangeDateTime = $dto->getLastEditionChangeDateTime();
+
         Configure::write('passbolt.edition', $this->edition);
+        Configure::write(self::CONFIGURE_KEY_LAST_CHANGE_DATETIME, $this->lastEditionChangeDateTime);
 
         $this->disableProPluginsIfNotPro();
 
@@ -78,14 +98,16 @@ class EditionManager
     }
 
     /**
-     * Resolve the edition by reading from the DB via EditionGetService.
+     * Resolve the edition DTO by reading from the DB via EditionGetService.
+     * Falls back to a default CE DTO (no downgrade timestamp) when the DB
+     * is unavailable — keeps the application bootable on a broken connection.
      *
-     * @return string
+     * @return \Passbolt\Edition\Model\Dto\EditionDto
      */
-    protected function resolveEdition(): string
+    protected function resolveEditionDto(): EditionDto
     {
         try {
-            return (new EditionGetService())->get()->getEdition();
+            return (new EditionGetService())->get();
         } catch (
             DatabaseException
             | MissingConnectionException
@@ -100,7 +122,7 @@ class EditionManager
             }
             Log::error($msg);
 
-            return EditionDto::EDITION_CE;
+            return new EditionDto(EditionDto::EDITION_CE);
         }
     }
 
@@ -139,6 +161,16 @@ class EditionManager
     public function getEdition(): string
     {
         return $this->edition;
+    }
+
+    /**
+     * @return \Cake\I18n\DateTime|null Timestamp of the last edition change
+     *   (CE → PRO or PRO → CE), or `null` when the edition has never been
+     *   modified since creation.
+     */
+    public function getLastEditionChangeDateTime(): ?DateTime
+    {
+        return $this->lastEditionChangeDateTime;
     }
 
     /**

@@ -19,6 +19,7 @@ namespace Passbolt\Edition\Test\TestCase\Service;
 use App\BaseSolutionBootstrapper;
 use App\Test\Lib\AppTestCaseV5;
 use Cake\Core\Configure;
+use Cake\I18n\DateTime;
 use Passbolt\Edition\Model\Dto\EditionDto;
 use Passbolt\Edition\Service\EditionManager;
 use Passbolt\Edition\Test\Factory\EditionOrganizationSettingFactory;
@@ -35,8 +36,6 @@ class EditionManagerTest extends AppTestCaseV5
     {
         parent::setUp();
         $this->sut = new EditionManager();
-        // Clear any value the test bootstrap may have written to avoid any side effects
-        Configure::delete('passbolt.edition');
     }
 
     public function tearDown(): void
@@ -121,6 +120,70 @@ class EditionManagerTest extends AppTestCaseV5
 
         $this->assertTrue(Configure::read('passbolt.plugins.sso.enabled'));
         $this->assertTrue(Configure::read('passbolt.plugins.accountRecovery.enabled'));
+    }
+
+    public function testEditionManager_Boot_FreshCeRow_LastChangeDateTimeIsNull(): void
+    {
+        // Default factory uses TimestampBehavior so created == modified.
+        EditionOrganizationSettingFactory::make()
+            ->setField('value', EditionDto::EDITION_CE)
+            ->persist();
+
+        $this->sut->boot();
+
+        $this->assertNull($this->sut->getLastEditionChangeDateTime());
+        $this->assertNull(Configure::read(EditionManager::CONFIGURE_KEY_LAST_CHANGE_DATETIME));
+    }
+
+    public function testEditionManager_Boot_TouchedCeRow_ExposesChangeTimestampOnManagerAndConfigure(): void
+    {
+        $created = new DateTime('2024-01-01 10:00:00');
+        $modified = new DateTime('2024-06-15 12:34:56');
+        EditionOrganizationSettingFactory::make()
+            ->setField('value', EditionDto::EDITION_CE)
+            ->setField('created', $created)
+            ->setField('modified', $modified)
+            ->persist();
+
+        $this->sut->boot();
+
+        $fromManager = $this->sut->getLastEditionChangeDateTime();
+        $fromConfigure = Configure::read(EditionManager::CONFIGURE_KEY_LAST_CHANGE_DATETIME);
+
+        $this->assertNotNull($fromManager);
+        $this->assertSame($modified->getTimestamp(), $fromManager->getTimestamp());
+        // Configure holds the same DateTime instance — middleware can compare directly.
+        $this->assertSame($fromManager, $fromConfigure);
+    }
+
+    public function testEditionManager_Boot_TouchedProRow_ExposesChangeTimestampOnManagerAndConfigure(): void
+    {
+        // A touched PRO row reflects a CE → PRO upgrade — exposed identically
+        // to a downgrade so the logout middleware fires on either transition.
+        $created = new DateTime('2024-01-01 10:00:00');
+        $modified = new DateTime('2024-06-15 12:34:56');
+        EditionOrganizationSettingFactory::make()
+            ->setField('value', EditionDto::EDITION_PRO)
+            ->setField('created', $created)
+            ->setField('modified', $modified)
+            ->persist();
+
+        $this->sut->boot();
+
+        $fromManager = $this->sut->getLastEditionChangeDateTime();
+        $fromConfigure = Configure::read(EditionManager::CONFIGURE_KEY_LAST_CHANGE_DATETIME);
+
+        $this->assertNotNull($fromManager);
+        $this->assertSame($modified->getTimestamp(), $fromManager->getTimestamp());
+        $this->assertSame($fromManager, $fromConfigure);
+    }
+
+    public function testEditionManager_Boot_NoRow_LastChangeDateTimeIsNull(): void
+    {
+        $this->sut->boot();
+
+        $this->assertNull($this->sut->getLastEditionChangeDateTime());
+        $this->assertNull(Configure::read(EditionManager::CONFIGURE_KEY_LAST_CHANGE_DATETIME));
     }
 
     public function testEditionManager_Boot_CeEdition_EveryProPluginMentionedInConfigAreDisabled(): void
