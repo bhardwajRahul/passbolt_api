@@ -44,7 +44,7 @@ trait DummySubscriptionTrait
             throw new RuntimeException('Cannot find dummy subscription key file ' . $subscriptionDevPublicKey);
         }
 
-        Configure::write('passbolt.plugins.subscription.subscriptionKey.public', $subscriptionDevPublicKey);
+        Configure::write('passbolt.plugins.edition.subscriptionKey.public', $subscriptionDevPublicKey);
     }
 
     /**

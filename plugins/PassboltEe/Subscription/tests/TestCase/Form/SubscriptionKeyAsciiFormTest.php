@@ -67,7 +67,7 @@ class SubscriptionKeyAsciiFormTest extends TestCase
     public function testSubscriptionKeyAsciiForm_Parse_SuccessNewFormat()
     {
         Configure::write(
-            'passbolt.plugins.subscription.subscriptionKey.public',
+            'passbolt.plugins.edition.subscriptionKey.public',
             PLUGINS . 'PassboltEe' . DS . 'Subscription' . DS . 'tests' . DS . 'Fixture' . DS . 'gpg' . DS . 'subscription_staging_public.key'
         );
         $licenseStr = $this->getDummySubscriptionKey('subscription_staging_timestamp');

@@ -34,7 +34,7 @@ class SubscriptionKeyControllerTest extends WebInstallerIntegrationTestCase
     {
         Configure::load('Passbolt/Subscription.config', 'default', true);
         $licenseDevPublicKey = PLUGINS . DS . 'PassboltEe' . DS . 'Subscription' . DS . 'tests' . DS . 'Fixture' . DS . 'gpg' . DS . 'subscription_dev_public.key';
-        Configure::write('passbolt.plugins.subscription.subscriptionKey.public', $licenseDevPublicKey);
+        Configure::write('passbolt.plugins.edition.subscriptionKey.public', $licenseDevPublicKey);
     }
 
     protected function checkPluginSubscriptionExists(): bool

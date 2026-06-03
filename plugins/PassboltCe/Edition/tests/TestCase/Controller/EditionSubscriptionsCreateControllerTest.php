@@ -133,7 +133,7 @@ class EditionSubscriptionsCreateControllerTest extends AppIntegrationTestCase
 
     public function testEditionSubscriptionsCreateController_Error_BadSignature(): void
     {
-        Configure::delete('passbolt.plugins.subscription.subscriptionKey.public');
+        Configure::delete('passbolt.plugins.edition.subscriptionKey.public');
         $this->logInAsAdmin();
         $data = $this->getValidSubscriptionKey();
 
