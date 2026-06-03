@@ -61,7 +61,6 @@ use Authentication\Plugin as AuthenticationPlugin;
 use Cake\Console\CommandCollection;
 use Cake\Core\Configure;
 use Cake\Core\ContainerInterface;
-use Cake\Core\Exception\MissingPluginException;
 use Cake\Error\Middleware\ErrorHandlerMiddleware;
 use Cake\Http\BaseApplication;
 use Cake\Http\Client;
@@ -188,10 +187,6 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
         $this->initEdition();
         $this->initSolutionBootstrapper();
 
-        if (PHP_SAPI === 'cli') {
-            $this->addCliDevelopmentPlugins();
-        }
-
         $this->initEmails();
         (new AvatarsConfigurationService())->loadConfiguration();
     }
@@ -279,30 +274,6 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
     protected function addVendorPlugins()
     {
         return $this->addPlugin(EmailQueuePlugin::class);
-    }
-
-    /**
-     * Add plugins relevant in CLI development mode
-     * - Bake
-     * - Migrations
-     *
-     * @return $this
-     */
-    protected function addCliDevelopmentPlugins()
-    {
-        if (!Configure::read('debug')) {
-            return $this;
-        }
-        try {
-            $this
-                ->addPlugin('Bake')
-                ->addPlugin('CakephpFixtureFactories')
-                ->addPlugin('IdeHelper');
-        } catch (MissingPluginException $e) {
-            // Do not halt if the plugin is missing
-        }
-
-        return $this;
     }
 
     /**

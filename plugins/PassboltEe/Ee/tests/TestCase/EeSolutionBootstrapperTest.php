@@ -100,11 +100,6 @@ class EeSolutionBootstrapperTest extends SolutionBootstrapperTestCase
                 'EmailQueue',
             ],
             self::EXPECTED_EE_PLUGINS,
-            [
-                'Bake',
-                'CakephpFixtureFactories',
-                'Cake/TwigView',
-            ]
         );
         $this->assertPluginList($plugins, $expectedPluginList);
         $this->assertPluginListContains($plugins, BaseSolutionBootstrapperTest::EXPECTED_CE_PLUGINS);
@@ -124,9 +119,6 @@ class EeSolutionBootstrapperTest extends SolutionBootstrapperTestCase
             'Passbolt/Subscription',
             'Passbolt/JwtAuthentication',
             'Passbolt/WebInstaller',
-            'Bake',
-            'CakephpFixtureFactories',
-            'Cake/TwigView',
         ];
         $this->assertPluginList($plugins, $expectedPluginList);
     }
