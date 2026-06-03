@@ -16,7 +16,9 @@ declare(strict_types=1);
  */
 namespace Passbolt\Edition\Test\TestCase\Controller;
 
+use App\Test\Factory\UserFactory;
 use App\Test\Lib\AppIntegrationTestCase;
+use App\Test\Lib\Model\EmailQueueTrait;
 use App\Test\Lib\Utility\UserAccessControlTrait;
 use Cake\Core\Configure;
 use Cake\Event\EventList;
@@ -24,6 +26,7 @@ use Cake\Event\EventManager;
 use Cake\ORM\Locator\LocatorAwareTrait;
 use Passbolt\Edition\Model\Dto\EditionDto;
 use Passbolt\Edition\Model\Table\EditionOrganizationTable;
+use Passbolt\Edition\Notification\Email\EditionUpgradeEmailRedactor;
 use Passbolt\Edition\Service\EditionSetService;
 use Passbolt\Edition\Service\EditionUpgradeService;
 use Passbolt\Edition\Test\Factory\EditionOrganizationSettingFactory;
@@ -37,6 +40,7 @@ use Passbolt\Subscription\Test\SubscriptionFactory;
 class EditionSubscriptionsCreateControllerTest extends AppIntegrationTestCase
 {
     use DummySubscriptionTrait;
+    use EmailQueueTrait;
     use LocatorAwareTrait;
     use UserAccessControlTrait;
 
@@ -56,7 +60,11 @@ class EditionSubscriptionsCreateControllerTest extends AppIntegrationTestCase
 
     public function testEditionSubscriptionsCreateController_Success(): void
     {
-        $this->logInAsAdmin();
+        // Dummy subscription key allows 2 seats — keep the user count at 2 to
+        // stay inside the limit while still proving another admin is notified.
+        $operator = $this->logInAsAdmin();
+        /** @var \App\Model\Entity\User $otherAdmin */
+        $otherAdmin = UserFactory::make()->admin()->active()->persist();
         $data = $this->getValidSubscriptionKey();
 
         $this->postJson('/edition/subscription/key.json', compact('data'));
@@ -70,6 +78,16 @@ class EditionSubscriptionsCreateControllerTest extends AppIntegrationTestCase
         $this->assertSame(EditionDto::EDITION_PRO, $editionRow->get('value'));
         $this->assertTrue(
             EventManager::instance()->getEventList()->hasEvent(EditionUpgradeService::EVENT_NAME)
+        );
+        $this->assertEmailQueueCount(1);
+        $this->assertEmailIsInQueue([
+            'email' => $otherAdmin->username,
+            'template' => EditionUpgradeEmailRedactor::TEMPLATE,
+        ]);
+        $this->assertEmailWithRecipientIsInNotQueue($operator->username);
+        $this->assertEmailSubject(
+            $otherAdmin->username,
+            $operator->profile->full_name . ' upgraded this Passbolt instance to Pro Edition'
         );
     }
 

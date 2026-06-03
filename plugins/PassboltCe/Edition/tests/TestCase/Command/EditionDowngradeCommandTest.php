@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace Passbolt\Edition\Test\TestCase\Command;
 
 use App\Test\Factory\UserFactory;
+use App\Test\Lib\Model\EmailQueueTrait;
 use App\Test\Lib\Utility\UserAccessControlTrait;
 use Cake\Console\TestSuite\ConsoleIntegrationTestTrait;
 use Cake\Core\Configure;
@@ -24,6 +25,7 @@ use Cake\ORM\Locator\LocatorAwareTrait;
 use Cake\TestSuite\TestCase;
 use CakephpTestSuiteLight\Fixture\TruncateDirtyTables;
 use Passbolt\Edition\Middleware\EditionDowngradeDisabledMiddleware;
+use Passbolt\Edition\Notification\Email\EditionDowngradeEmailRedactor;
 use Passbolt\Edition\Service\EditionGetService;
 use Passbolt\Edition\Service\EditionSetService;
 use Passbolt\MfaPolicies\Test\Factory\MfaPoliciesSettingFactory;
@@ -35,6 +37,7 @@ use Passbolt\Subscription\Test\SubscriptionFactory;
 class EditionDowngradeCommandTest extends TestCase
 {
     use ConsoleIntegrationTestTrait;
+    use EmailQueueTrait;
     use LocatorAwareTrait;
     use TruncateDirtyTables;
     use UserAccessControlTrait;
@@ -42,7 +45,12 @@ class EditionDowngradeCommandTest extends TestCase
     public function testEditionDowngradeCommand_Success(): void
     {
         /** @var \App\Model\Entity\User $admin */
-        [$admin] = UserFactory::make(5)->admin()->active()->persist();
+        [$admin, $otherAdmin1, $otherAdmin2] = UserFactory::make(5)->admin()->active()->persist();
+        // Disabled admins and non-admins must not be notified.
+        /** @var \App\Model\Entity\User $disabledAdmin */
+        $disabledAdmin = UserFactory::make()->admin()->active()->disabled()->persist();
+        /** @var \App\Model\Entity\User $regularUser */
+        $regularUser = UserFactory::make()->user()->active()->persist();
         SubscriptionFactory::make()->persist();
         MfaPoliciesSettingFactory::make()->persist();
         (new EditionSetService())->setToPro($this->mockAdminAccessControl());
@@ -58,6 +66,24 @@ class EditionDowngradeCommandTest extends TestCase
         // --username, not at the mock UAC used in the setToPro seed above.
         $editionRow = $this->fetchTable('Passbolt/Edition.EditionOrganization')->find()->firstOrFail();
         $this->assertSame($admin->id, $editionRow->get('modified_by'));
+        // One downgrade notification per active admin except the operator.
+        $this->assertEmailQueueCount(4);
+        foreach ([$otherAdmin1, $otherAdmin2] as $recipient) {
+            $this->assertEmailIsInQueue([
+                'email' => $recipient->username,
+                'template' => EditionDowngradeEmailRedactor::TEMPLATE,
+            ]);
+        }
+        $this->assertEmailWithRecipientIsInNotQueue($admin->username);
+        $this->assertEmailWithRecipientIsInNotQueue($disabledAdmin->username);
+        $this->assertEmailWithRecipientIsInNotQueue($regularUser->username);
+        $this->assertEmailInBatchContains(
+            [
+                $admin->profile->full_name . ' downgraded the instance to Community Edition',
+                'Your Passbolt instance was downgraded from Pro to Community Edition',
+            ],
+            $otherAdmin1->username
+        );
     }
 
     public function testEditionDowngradeCommand_AbortsCleanly_WhenAlreadyOnCe(): void

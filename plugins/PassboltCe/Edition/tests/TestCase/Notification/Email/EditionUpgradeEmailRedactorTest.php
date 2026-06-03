@@ -59,7 +59,7 @@ class EditionUpgradeEmailRedactorTest extends AppTestCase
     public function testEditionUpgradeEmailRedactor_Success_OneEmailPerOtherAdmin(): void
     {
         /** @var \App\Model\Entity\User $operator */
-        $operator = UserFactory::make()->admin()->active()->persist();
+        $operator = UserFactory::make()->admin()->active()->withAvatar()->persist();
         /** @var \App\Model\Entity\User $otherAdmin1 */
         $otherAdmin1 = UserFactory::make()->admin()->active()->persist();
         /** @var \App\Model\Entity\User $otherAdmin2 */
@@ -85,6 +85,14 @@ class EditionUpgradeEmailRedactorTest extends AppTestCase
             $this->assertArrayHasKey('upgradedAt', $body);
             $this->assertArrayHasKey('seats', $body);
             $this->assertArrayHasKey('expiry', $body);
+            $this->assertNotNull($body['operator']->profile);
+            $this->assertNotNull($body['operator']->profile->avatar);
+            /** @var array $roundTripped */
+            $roundTripped = json_decode((string)json_encode($body['operator']), true);
+            $this->assertSame(
+                $body['operator']->profile->avatar->id,
+                $roundTripped['profile']['avatar']['id'] ?? null
+            );
         }
     }
 

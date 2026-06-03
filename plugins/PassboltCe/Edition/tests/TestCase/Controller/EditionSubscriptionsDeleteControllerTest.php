@@ -16,10 +16,13 @@ declare(strict_types=1);
  */
 namespace Passbolt\Edition\Test\TestCase\Controller;
 
+use App\Test\Factory\UserFactory;
 use App\Test\Lib\AppIntegrationTestCase;
+use App\Test\Lib\Model\EmailQueueTrait;
 use App\Test\Lib\Utility\UserAccessControlTrait;
 use Cake\Core\Configure;
 use Passbolt\Edition\Middleware\EditionDowngradeDisabledMiddleware;
+use Passbolt\Edition\Notification\Email\EditionDowngradeEmailRedactor;
 use Passbolt\Edition\Service\EditionGetService;
 use Passbolt\Edition\Service\EditionSetService;
 use Passbolt\MfaPolicies\Test\Factory\MfaPoliciesSettingFactory;
@@ -30,6 +33,7 @@ use Passbolt\Subscription\Test\SubscriptionFactory;
  */
 class EditionSubscriptionsDeleteControllerTest extends AppIntegrationTestCase
 {
+    use EmailQueueTrait;
     use UserAccessControlTrait;
 
     private const URL = '/edition/subscription/key.json';
@@ -40,14 +44,36 @@ class EditionSubscriptionsDeleteControllerTest extends AppIntegrationTestCase
         SubscriptionFactory::make()->persist();
         MfaPoliciesSettingFactory::make()->persist();
         (new EditionSetService())->setToPro($this->mockAdminAccessControl());
+        /** @var \App\Model\Entity\User $otherAdmin */
+        $otherAdmin = UserFactory::make()->admin()->active()->persist();
+        // Disabled admins and non-admins must not be notified.
+        /** @var \App\Model\Entity\User $disabledAdmin */
+        $disabledAdmin = UserFactory::make()->admin()->active()->disabled()->persist();
+        /** @var \App\Model\Entity\User $regularUser */
+        $regularUser = UserFactory::make()->user()->active()->persist();
 
-        $this->logInAsAdmin();
+        $operator = $this->logInAsAdmin();
         $this->deleteJson(self::URL);
 
         $this->assertSuccess();
         $this->assertSame(0, $this->fetchTable('Passbolt/Subscription.Subscriptions')->find()->count());
         $this->assertSame(0, $this->fetchTable('Passbolt/MfaPolicies.MfaPoliciesSettings')->find()->count());
         $this->assertFalse((new EditionGetService())->get()->isPro());
+        $this->assertEmailQueueCount(1);
+        $this->assertEmailIsInQueue([
+            'email' => $otherAdmin->username,
+            'template' => EditionDowngradeEmailRedactor::TEMPLATE,
+        ]);
+        $this->assertEmailWithRecipientIsInNotQueue($operator->username);
+        $this->assertEmailWithRecipientIsInNotQueue($disabledAdmin->username);
+        $this->assertEmailWithRecipientIsInNotQueue($regularUser->username);
+        $this->assertEmailInBatchContains(
+            [
+                $operator->profile->full_name . ' downgraded the instance to Community Edition',
+                'Your Passbolt instance was downgraded from Pro to Community Edition',
+            ],
+            $otherAdmin->username
+        );
     }
 
     public function testEditionSubscriptionsDeleteController_Delete_Error_AuthenticationRequired(): void
