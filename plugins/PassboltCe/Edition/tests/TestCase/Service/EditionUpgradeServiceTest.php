@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace Passbolt\Edition\Test\TestCase\Service;
 
 use App\Test\Lib\AppTestCaseV5;
+use Cake\Core\Configure;
 use Cake\Event\EventList;
 use Cake\Event\EventManager;
 use Cake\Http\Exception\ForbiddenException;
@@ -116,6 +117,20 @@ class EditionUpgradeServiceTest extends AppTestCaseV5
             ->where(['property' => EditionOrganizationTable::PROPERTY_NAME])
             ->count());
         $this->assertFalse(EventManager::instance()->getEventList()->hasEvent(EditionUpgradeService::EVENT_NAME));
+    }
+
+    public function testEditionUpgradeService_CE_PublicKeyConfigPublishedByEditionPlugin(): void
+    {
+        // Check Edition plugin loaded in CE and PRO both.
+        // Must publish the subscription public key path so the upgrade-to-PRO flow can verify signatures.
+        Configure::delete('passbolt.plugins.edition.subscriptionKey.public');
+        Configure::load('Passbolt/Edition.config', 'default', true);
+
+        $publicKeyPath = Configure::read('passbolt.plugins.edition.subscriptionKey.public');
+
+        $this->assertIsString($publicKeyPath);
+        $this->assertNotSame('', $publicKeyPath);
+        $this->assertFileExists($publicKeyPath);
     }
 
     private function countSubscriptionRows(): int

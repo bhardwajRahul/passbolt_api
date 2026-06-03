@@ -13,6 +13,8 @@
  * @link          https://www.passbolt.com Passbolt(tm)
  * @since         5.13.0
  */
+use Cake\Core\Configure;
+
 return [
     'passbolt' => [
         'plugins' => [
@@ -22,6 +24,12 @@ return [
                     env('PASSBOLT_PLUGINS_EDITION_DISABLE_LOGOUT_USERS_ON_EDITION_CHANGE_MIDDLEWARE', false),
                     FILTER_VALIDATE_BOOLEAN
                 ),
+                'subscriptionKey' => [
+                    'public' => Configure::read(
+                        'passbolt.plugins.edition.subscriptionKey.public',
+                        __DIR__ . DS . 'subscription_public.key',
+                    ),
+                ],
             ],
         ],
     ],

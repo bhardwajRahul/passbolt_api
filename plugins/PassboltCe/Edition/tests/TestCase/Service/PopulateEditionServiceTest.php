@@ -83,7 +83,7 @@ class PopulateEditionServiceTest extends AppTestCaseV5
     }
 
     /**
-     * Test scenario where passbolt.plugins.subscription.subscriptionKey.public configuration isn't present.
+     * Test scenario where passbolt.plugins.edition.subscriptionKey.public configuration isn't present.
      *
      * @return void
      */
