@@ -460,7 +460,6 @@ class FoldersRelationsMoveItemInUserTreeServiceTest extends FoldersTestCase
         /** @var \Passbolt\Folders\Model\Entity\Folder $folderD */
         $folderD = FolderFactory::make()
             ->withPermissionsFor([$userC, $userD, $userE])
-            ->withFoldersRelationsFor([$userC], $folderB)
             ->withFoldersRelationsFor([$userD, $userE])
             ->persist();
         /** @var \Passbolt\Folders\Model\Entity\Folder $folderC */
@@ -471,17 +470,27 @@ class FoldersRelationsMoveItemInUserTreeServiceTest extends FoldersTestCase
         $folderA = FolderFactory::make()
             ->withPermissionsFor([$userA, $userB])
             ->withFoldersRelationsFor([$userA])
-            ->withFoldersRelationsFor([$userB], $folderC)
             ->persist();
-        // in order to make the test predictable, we need to make the relation C->A older than the relation D->C, so
-        // the algorithm will always choose the relation to break.
-        sleep(1);
-        FoldersRelationFactory::make()
+        // SCC repair tie-breaks on MIN(created). Pin the cycle relations explicitly so the
+        // algorithm always picks "D under B" as the relation to break: the kept "A under C"
+        // must be older than "D under B". FoldersRelationFactory's default `created` is a
+        // random past date, which makes the comparison non-deterministic without this pin.
+        FoldersRelationFactory::make(['created' => '2020-01-01 00:00:00'])
+            ->user($userB)
+            ->foreignModelFolder($folderA)
+            ->folderParent($folderC)
+            ->persist();
+        FoldersRelationFactory::make(['created' => '2020-02-01 00:00:00'])
+            ->user($userC)
+            ->foreignModelFolder($folderD)
+            ->folderParent($folderB)
+            ->persist();
+        FoldersRelationFactory::make(['created' => '2020-02-01 00:00:00'])
             ->user($userC)
             ->foreignModelFolder($folderC)
             ->folderParent($folderD)
             ->persist();
-        FoldersRelationFactory::make()
+        FoldersRelationFactory::make(['created' => '2020-02-01 00:00:00'])
             ->user($userE)
             ->foreignModelFolder($folderC)
             ->folderParent($folderD)

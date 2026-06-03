@@ -97,9 +97,6 @@ class BaseSolutionBootstrapperTest extends SolutionBootstrapperTestCase
             'Passbolt/JwtAuthentication',
             'Passbolt/Edition',
             'Passbolt/WebInstaller',
-            'Bake',
-            'CakephpFixtureFactories',
-            'Cake/TwigView',
         ];
         $plugins = $this->arrangeAndGetPlugins();
         $this->assertPluginList($plugins, $expectedPluginList);
@@ -116,11 +113,6 @@ class BaseSolutionBootstrapperTest extends SolutionBootstrapperTestCase
                 'PassboltSeleniumApi',
             ],
             self::EXPECTED_CE_PLUGINS,
-            [
-                'Bake',
-                'CakephpFixtureFactories',
-                'Cake/TwigView',
-            ]
         );
     }
 

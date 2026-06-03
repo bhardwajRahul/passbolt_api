@@ -338,9 +338,8 @@ class UserScimResource implements ScimResourceInterface
         if (!empty($user->scim_entry)) {
             throw new ConflictException(
                 sprintf(
-                    'The %s resource with id `%s` could not be created due to a uniqueness conflict',
-                    $this->getType(),
-                    $user->id
+                    'The %s resource could not be created due to a uniqueness conflict',
+                    $this->getType()
                 ),
                 scimType: ScimException::SCIM_TYPE_UNIQUENESS,
             );

@@ -102,9 +102,9 @@ class ShareMetadataKeyCommand extends PassboltCommand
         $metadataKeys = $metadataKeysQuery
             ->contain(['MetadataPrivateKeys' => function (Query $query) {
                 // get server key data along with the metadata key
-                return $query->where([$query->newExpr()->isNull('user_id')]);
+                return $query->where([$query->expr()->isNull('user_id')]);
             }])
-            ->where([$metadataKeysQuery->newExpr()->isNull('deleted')])
+            ->where([$metadataKeysQuery->expr()->isNull('deleted')])
             ->toArray();
 
         return $metadataKeys;
@@ -134,14 +134,14 @@ class ShareMetadataKeyCommand extends PassboltCommand
             ->find('activeNotDeleted')
             ->contain('Gpgkeys')
             ->innerJoin(['MissingMetadataKeys' => 'metadata_keys'], [
-                $usersQuery->newExpr()->isNull('MissingMetadataKeys.deleted'),
+                $usersQuery->expr()->isNull('MissingMetadataKeys.deleted'),
             ])
             ->leftJoin(['MetadataPrivateKeys' => 'metadata_private_keys'], [
                 'MetadataPrivateKeys.user_id' => new IdentifierExpression('Users.id'),
                 'MetadataPrivateKeys.metadata_key_id' => new IdentifierExpression('MissingMetadataKeys.id'),
-                $usersQuery->newExpr()->isNotNull('MetadataPrivateKeys.user_id'),
+                $usersQuery->expr()->isNotNull('MetadataPrivateKeys.user_id'),
             ])
-            ->where([$usersQuery->newExpr()->isNull('MetadataPrivateKeys.metadata_key_id')]);
+            ->where([$usersQuery->expr()->isNull('MetadataPrivateKeys.metadata_key_id')]);
     }
 
     /**

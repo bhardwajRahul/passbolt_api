@@ -45,7 +45,7 @@ class MetadataKeyHealthcheckService extends AbstractHealthcheckService
         /** @var array<\Passbolt\Metadata\Model\Entity\MetadataKey> $records */
         $records = $metadataKeysQuery
             ->contain(['MetadataPrivateKeys'])
-            ->where([$metadataKeysQuery->newExpr()->isNull('MetadataKeys.deleted')])
+            ->where([$metadataKeysQuery->expr()->isNull('MetadataKeys.deleted')])
             ->all();
 
         foreach ($records as $record) {

@@ -212,4 +212,15 @@ class SubscriptionKeyAsciiForm extends Form
 
         return $this->_gpg;
     }
+
+    /**
+     * Execute implementation.
+     *
+     * @param array $data formdata
+     * @return bool
+     */
+    protected function process(array $data): bool
+    {
+        return true;
+    }
 }

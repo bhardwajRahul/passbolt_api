@@ -398,10 +398,10 @@ trait ResourcesFindersTrait
      */
     public function notExpiredQueryExpression(): QueryExpression
     {
-        $isNull = $this->find()->newExpr()->isNull('expired');
-        $isFuture = $this->find()->newExpr()->gt('expired', DateTime::now());
+        $isNull = $this->find()->expr()->isNull('expired');
+        $isFuture = $this->find()->expr()->gt('expired', DateTime::now());
 
-        return $this->find()->newExpr()->or([
+        return $this->find()->expr()->or([
             $isNull,
             $isFuture,
         ]);
@@ -461,15 +461,15 @@ trait ResourcesFindersTrait
             ->where([
                 'Resources.deleted' => false,
                 'Resources.metadata_key_type' => MetadataKey::TYPE_SHARED_KEY,
-                $query->newExpr()->isNotNull('Resources.metadata'),
-                $query->newExpr()->isNotNull('Resources.metadata_key_id'),
+                $query->expr()->isNotNull('Resources.metadata'),
+                $query->expr()->isNotNull('Resources.metadata_key_id'),
             ])
             ->innerJoinWith('ResourceTypes', function (Query $q) {
                 return $q->whereNull('ResourceTypes.deleted');
             })
             ->innerJoin(['MetadataKeys' => 'metadata_keys'], [
                 'MetadataKeys.id' => new IdentifierExpression('Resources.metadata_key_id'),
-                $query->newExpr()->isNotNull('MetadataKeys.expired'),
+                $query->expr()->isNotNull('MetadataKeys.expired'),
             ])
             ->disableHydration();
     }
@@ -536,7 +536,7 @@ trait ResourcesFindersTrait
         return $query
             ->where([
                 'Resources.deleted' => false,
-                $query->newExpr()->isNull('Resources.metadata'),
+                $query->expr()->isNull('Resources.metadata'),
             ])
             ->innerJoinWith('ResourceTypes', function (Query $q) {
                 return $q->whereNull('ResourceTypes.deleted');
