@@ -17,9 +17,8 @@ declare(strict_types=1);
 namespace Passbolt\Edition\Middleware;
 
 use App\Model\Entity\User;
-use Authentication\AuthenticationServiceInterface;
-use Authentication\Authenticator\SessionAuthenticator;
 use Cake\Core\Configure;
+use Cake\Http\Cookie\Cookie;
 use Cake\Http\Response;
 use Cake\Http\ServerRequest;
 use Cake\I18n\DateTime;
@@ -47,6 +46,12 @@ use Psr\Http\Server\RequestHandlerInterface;
  * Registered after SetUserIdentityInRequestMiddleware so the identity is
  * already hydrated to a User entity (and carries `last_logged_in` thanks
  * to the matching select-list amend in UsersFindersTrait::findAuthIdentifier).
+ *
+ * On hit the middleware destroys the session, expires the session cookie,
+ * and mirrors `AuthLogoutController`'s response shape: 302 to the login URL
+ * for HTML clients (so the browser auto-navigates without needing a manual
+ * refresh), 401 with the standard envelope for JSON / API clients (the SPA
+ * frontend's re-authentication signal).
  */
 final class LogoutUsersOnEditionChangeMiddleware implements MiddlewareInterface
 {
@@ -86,6 +91,58 @@ final class LogoutUsersOnEditionChangeMiddleware implements MiddlewareInterface
     }
 
     /**
+     * Browser (HTML) clients get a 302 to the login URL so the page navigates
+     * automatically — no manual refresh needed. JSON / API clients get a 401
+     * with Passbolt's standard error envelope; the SPA frontend catches that
+     * and routes to the login screen client-side. In both cases the session
+     * cookie is expired so the pre-change session id is not sent on the next
+     * request.
+     *
+     * @param \Cake\Http\ServerRequest $request Request.
+     * @return \Psr\Http\Message\ResponseInterface
+     */
+    private function buildLogoutResponse(ServerRequest $request): ResponseInterface
+    {
+        // Match the attributes the original session cookie was set with so the
+        // browser's (name, domain, path, secure) tuple matches and the expiry
+        // actually takes effect — relevant for subpath installs (`/passbolt/`),
+        // HTTPS-only deployments, and non-default SameSite policies.
+        $params = session_get_cookie_params();
+        $cookie = (new Cookie((string)session_name()))
+            ->withPath($params['path'])
+            ->withSecure((bool)$params['secure'])
+            ->withHttpOnly((bool)$params['httponly'])
+            ->withSameSite($params['samesite'] ?: 'Lax');
+        if (!empty($params['domain'])) {
+            $cookie = $cookie->withDomain($params['domain']);
+        }
+        $response = (new Response())->withExpiredCookie($cookie);
+
+        if ($request->is('json')) {
+            return $response->withStatus(401)
+                ->withHeader('Content-Type', 'application/json')
+                ->withStringBody((string)json_encode([
+                    'header' => [
+                        'status' => 'error',
+                        'message' => __('Your session expired due to an edition change. Please log in again.'),
+                        'code' => 401,
+                    ],
+                    'body' => null,
+                ]));
+        }
+
+        $loginUrl = Router::url([
+            'prefix' => 'Auth',
+            'plugin' => null,
+            'controller' => 'AuthLogin',
+            'action' => 'loginGet',
+            '_method' => 'GET',
+        ]);
+
+        return $response->withStatus(302)->withHeader('Location', $loginUrl);
+    }
+
+    /**
      * Returns true when this request belongs to a session-authenticated user
      * whose login predates `passbolt.editionLastChangeDateTime`.
      *
@@ -101,22 +158,22 @@ final class LogoutUsersOnEditionChangeMiddleware implements MiddlewareInterface
             return false;
         }
 
-        // Anonymous request → nothing to invalidate.
-        $user = $request->getAttribute('identity');
-        if (!$user instanceof User) {
+        // Established-session-only signal: Cake's `AuthenticationMiddleware`
+        // calls `persistIdentity` *after* downstream middlewares run (see
+        // vendor/cakephp/authentication/src/Middleware/AuthenticationMiddleware.php),
+        // so a request still in the middle of a GPG handshake has no identity
+        // in its session by the time we fire. Only sessions that pre-existed
+        // this request carry the `Auth` key — exactly the set we want to
+        // invalidate. JWT requests are stateless and never write to session,
+        // so they pass through here untouched (their refresh tokens are
+        // invalidated by `LogoutAllUsersOnEditionChangeListener` instead).
+        /** @var \Cake\Http\ServerRequest $request */
+        if (!$request->getSession()->check('Auth')) {
             return false;
         }
 
-        // Session-only: JWT auth is handled by its own listener.
-        // getAuthenticationProvider() returns the authenticator that produced
-        // the current identity — SessionAuthenticator for the session path,
-        // a JWT-specific authenticator for token auth.
-        $service = $request->getAttribute('authentication');
-        if (!$service instanceof AuthenticationServiceInterface) {
-            return false;
-        }
-        $provider = $service->getAuthenticationProvider();
-        if (!$provider instanceof SessionAuthenticator) {
+        $user = $request->getAttribute('identity');
+        if (!$user instanceof User) {
             return false;
         }
 
@@ -128,44 +185,5 @@ final class LogoutUsersOnEditionChangeMiddleware implements MiddlewareInterface
         // Loose comparison at second precision — matches the DTO's
         // millisecond-drift tolerance
         return $lastLoggedIn->getTimestamp() < $lastChangeAt->getTimestamp();
-    }
-
-    /**
-     * Mirrors AuthLogoutController's response shape: 302 to the login page for
-     * HTML clients, JSON envelope for API clients. We expose a 401 status on
-     * the JSON path so the front-end's standard "re-authenticate" handler
-     * fires (we did not honour the user's request — the session was forcibly
-     * terminated — so this is not a success response).
-     *
-     * @param \Cake\Http\ServerRequest $request Request.
-     * @return \Psr\Http\Message\ResponseInterface
-     */
-    private function buildLogoutResponse(ServerRequest $request): ResponseInterface
-    {
-        $isJson = $request->is('json');
-        $loginUrl = Router::url([
-            'prefix' => 'Auth',
-            'plugin' => null,
-            'controller' => 'AuthLogin',
-            'action' => 'loginGet',
-            '_method' => 'GET',
-            '_ext' => $isJson ? 'json' : null,
-        ]);
-
-        $response = new Response();
-        if ($isJson) {
-            return $response->withStatus(401)
-                ->withHeader('Content-Type', 'application/json')
-                ->withStringBody((string)json_encode([
-                    'header' => [
-                        'status' => 'error',
-                        'message' => __('Your session expired due to an edition change. Please log in again.'),
-                        'code' => 401,
-                    ],
-                    'body' => null,
-                ]));
-        }
-
-        return $response->withStatus(302)->withHeader('Location', $loginUrl);
     }
 }
