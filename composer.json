@@ -91,7 +91,6 @@
         "phpstan/phpstan": "^1.12.10",
         "psy/psysh": "@stable",
         "cakephp/debug_kit": "^5.0.0",
-        "cakephp/bake": "^3.0.0",
         "phpunit/phpunit": "^11.5.50",
         "cakephp/cakephp-codesniffer": "^5.0",
         "passbolt/passbolt-selenium-api": "dev-cakephp5#861bc4fe19b5ed58e50dd9a9c52909c997f2934a",

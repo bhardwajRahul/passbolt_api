@@ -22,11 +22,6 @@ composer cs-check
 composer cs-fix
 ```
 
-## How to regenerate the fixtures
-```
-sudo su -s /bin/bash -c "./bin/cake PassboltTestData.fixturize default" www-data
-```
-
 ## How do I contribute to the the js application
 
 Clone the appjs repository in a separate folder
