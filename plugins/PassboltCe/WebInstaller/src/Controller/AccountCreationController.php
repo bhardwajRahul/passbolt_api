@@ -29,8 +29,22 @@ class AccountCreationController extends WebInstallerController
     public function initialize(): void
     {
         parent::initialize();
-        $this->stepInfo['next'] = '/install/installation';
+        $this->stepInfo['previous'] = $this->getPrevious();
+        $this->stepInfo['next'] = '/install/subscription';
         $this->stepInfo['template'] = 'Pages/account_creation';
+    }
+
+    /**
+     * Mirrors the inbound flow: account_creation is reached from /install/email
+     * when SMTP wasn't already configured, otherwise from /install/options.
+     */
+    protected function getPrevious(): string
+    {
+        if (!$this->webInstaller->getSettings('hasSmtpSettings')) {
+            return '/install/email';
+        }
+
+        return '/install/options';
     }
 
     /**
@@ -44,8 +58,35 @@ class AccountCreationController extends WebInstallerController
             return $this->indexPost();
         }
 
+        $this->prefillFromSession();
+
         $this->set('formExecuteResult', null);
         $this->render('Pages/account_creation');
+    }
+
+    /**
+     * Re-injects previously saved first_user settings into the request so the
+     * form re-renders with the values the user already entered (Cancel/Back
+     * round-trip). Saved shape is nested ({username, profile: {first_name,
+     * last_name}}) but the form fields are flat — flatten here.
+     */
+    private function prefillFromSession(): void
+    {
+        $saved = $this->webInstaller->getSettings('first_user');
+        if (empty($saved)) {
+            return;
+        }
+
+        $flat = [
+            'username' => $saved['username'] ?? null,
+            'first_name' => $saved['profile']['first_name'] ?? null,
+            'last_name' => $saved['profile']['last_name'] ?? null,
+        ];
+        foreach ($flat as $key => $value) {
+            if ($value !== null) {
+                $this->request = $this->request->withData($key, $value);
+            }
+        }
     }
 
     /**

@@ -45,7 +45,6 @@ use App\Service\Cookie\DefaultSecureCookieService;
 use App\Service\HealthcheckStatus\DefaultHealthcheckStatusService;
 use App\Service\HealthcheckStatus\HealthcheckStatusServiceInterface;
 use App\Service\Subscriptions\DefaultSubscriptionCheckInCommandService;
-use App\Service\Subscriptions\EditionManager;
 use App\Service\Subscriptions\SubscriptionCheckInCommandServiceInterface;
 use App\ServiceProvider\CommandServiceProvider;
 use App\ServiceProvider\HealthcheckServiceProvider;
@@ -76,6 +75,7 @@ use DebugKit\DebugKitPlugin;
 use EmailQueue\Command\SenderCommand;
 use EmailQueue\EmailQueuePlugin;
 use Migrations\MigrationsPlugin;
+use Passbolt\Edition\Service\EditionManager;
 use Passbolt\EmailDigest\EmailDigestPlugin;
 use Passbolt\Rbacs\Service\ActionAccessControl\AdminOnlyRoleActionAccessControlService;
 use Passbolt\Rbacs\Service\ActionAccessControl\RoleActionAccessControlServiceInterface;
@@ -198,7 +198,7 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
      */
     private function initEdition(): void
     {
-        $this->editionManager = new EditionManager();
+        $this->editionManager = EditionManager::getInstance();
         $this->editionManager->boot();
     }
 

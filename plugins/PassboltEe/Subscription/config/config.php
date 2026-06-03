@@ -14,20 +14,12 @@
  * @since         4.10.0
  */
 
-use Cake\Core\Configure;
-
 return [
     'passbolt' => [
         'plugins' => [
             'subscription' => [
                 'version' => '1.0.0',
                 'enabled' => true,
-                'subscriptionKey' => [
-                    'public' => Configure::read(
-                        'passbolt.plugins.subscription.subscriptionKey.public',
-                        __DIR__ . DS . 'subscription_public.key',
-                    ),
-                ],
             ],
         ],
     ],

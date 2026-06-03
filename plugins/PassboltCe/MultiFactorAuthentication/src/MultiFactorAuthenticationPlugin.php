@@ -16,7 +16,6 @@ declare(strict_types=1);
  */
 namespace Passbolt\MultiFactorAuthentication;
 
-use App\Middleware\SetUserIdentityInRequestMiddleware;
 use App\Service\Command\ProcessUserService;
 use App\Utility\Application\FeaturePluginAwareTrait;
 use Cake\Core\BasePlugin;
@@ -25,6 +24,7 @@ use Cake\Core\PluginApplicationInterface;
 use Cake\Http\MiddlewareQueue;
 use Cake\ORM\TableRegistry;
 use Duo\DuoUniversal\Client;
+use Passbolt\Edition\Middleware\LogoutUsersOnEditionChangeMiddleware;
 use Passbolt\JwtAuthentication\Authenticator\JwtArmoredChallengeInterface;
 use Passbolt\MultiFactorAuthentication\Authenticator\MfaJwtArmoredChallengeService;
 use Passbolt\MultiFactorAuthentication\Command\MfaUserSettingsDisableCommand;
@@ -58,8 +58,13 @@ class MultiFactorAuthenticationPlugin extends BasePlugin
      */
     public function middleware(MiddlewareQueue $middlewareQueue): MiddlewareQueue
     {
+        // Anchor after LogoutUsersOnEditionChangeMiddleware (not directly after
+        // SetUserIdentityInRequestMiddleware) so a pre-change session is
+        // terminated before MFA enforcement evaluates it against post-change
+        // policy state. The Edition plugin is loaded unconditionally by
+        // BaseSolutionBootstrapper, so the anchor is always present.
         return $middlewareQueue
-            ->insertAfter(SetUserIdentityInRequestMiddleware::class, MfaRequiredCheckMiddleware::class)
+            ->insertAfter(LogoutUsersOnEditionChangeMiddleware::class, MfaRequiredCheckMiddleware::class)
             ->insertAfter(MfaRequiredCheckMiddleware::class, InjectMfaFormMiddleware::class);
     }
 

@@ -386,6 +386,7 @@ trait UsersFindersTrait
                 'Users.id',
                 'Users.role_id',
                 'Users.username',
+                'Users.last_logged_in',
                 'Roles.id',
                 'Roles.name',
             ]);

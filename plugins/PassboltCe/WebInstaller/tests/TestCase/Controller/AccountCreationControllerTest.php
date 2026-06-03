@@ -35,8 +35,9 @@ class AccountCreationControllerTest extends WebInstallerIntegrationTestCase
         $this->assertStringContainsString('Admin user details', $data);
     }
 
-    public function testWebInstallerAccountCreationPostSuccess()
+    public function testWebInstallerAccountCreationPostSuccess_RedirectsToSubscription()
     {
+        // Subscription is shown on every edition
         $postData = [
             'username' => 'aurore@passbolt.com',
             'first_name' => 'Aurore',
@@ -44,7 +45,7 @@ class AccountCreationControllerTest extends WebInstallerIntegrationTestCase
         ];
         $this->post('/install/account_creation', $postData);
         $this->assertResponseCode(302);
-        $this->assertRedirectContains('install/installation');
+        $this->assertRedirectContains('/install/subscription');
 
         $expectedData = [
             'username' => 'aurore@passbolt.com',
