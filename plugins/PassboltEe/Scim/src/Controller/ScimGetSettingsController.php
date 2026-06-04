@@ -34,8 +34,11 @@ class ScimGetSettingsController extends AppController
         $this->User->assertIsAdmin();
 
         $settings = (new ScimGetSettingsService())->getSettings();
-        if (empty($settings)) {
+
+        if (is_null($settings)) {
             $settings = new stdClass();
+        } else {
+            $settings = $settings->toArray();
         }
 
         $this->success(__('The operation was successful.'), $settings);
