@@ -30,7 +30,6 @@ use App\Middleware\CsrfProtectionMiddleware;
 use App\Middleware\GpgAuthHeadersMiddleware;
 use App\Middleware\HttpProxyMiddleware;
 use App\Middleware\PermissionsPolicyHeaderUnloadMiddleware;
-use App\Middleware\PreventSetCookieOnAvatarsViewMiddleware;
 use App\Middleware\SessionAuthPreventDeletedOrDisabledUsersMiddleware;
 use App\Middleware\SessionPreventExtensionMiddleware;
 use App\Middleware\SetUserIdentityInRequestMiddleware;
@@ -132,7 +131,6 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
             ->insertAfter(RoutingMiddleware::class, ApiVersionMiddleware::class)
             ->insertAfter(RoutingMiddleware::class, UuidParserMiddleware::class)
             ->add(new SessionPreventExtensionMiddleware())
-            ->add(new PreventSetCookieOnAvatarsViewMiddleware())
             ->add(BodyParserMiddleware::class)
             ->add(SessionAuthPreventDeletedOrDisabledUsersMiddleware::class)
             ->insertAfter(

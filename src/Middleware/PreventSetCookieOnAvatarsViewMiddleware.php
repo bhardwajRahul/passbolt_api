@@ -18,8 +18,7 @@ declare(strict_types=1);
 namespace App\Middleware;
 
 use Cake\Http\Cookie\CookieCollection;
-use Cake\Http\ServerRequest;
-use Cake\Utility\Hash;
+use Cake\Http\Response;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
@@ -28,7 +27,7 @@ use Psr\Http\Server\RequestHandlerInterface;
 class PreventSetCookieOnAvatarsViewMiddleware implements MiddlewareInterface
 {
     /**
-     * Strip every Set-Cookie emitter path on the /avatars/view/{uuid}/{format}.jpg endpoint.
+     * Strip every Set-Cookie emitter path on the avatars view endpoint.
      *
      * The avatar view endpoint is public and has no functional need to update client cookie state.
      * Safari processes Set-Cookie on <img> responses natively, which overwrites the user's active
@@ -49,35 +48,14 @@ class PreventSetCookieOnAvatarsViewMiddleware implements MiddlewareInterface
     ): ResponseInterface {
         $response = $handler->handle($request);
 
-        /** @var \Cake\Http\ServerRequest $request */
-        if (!$this->isAvatarsViewRequest($request)) {
-            return $response;
-        }
-
         if (!headers_sent()) {
             header_remove('Set-Cookie');
         }
 
-        if ($response instanceof \Cake\Http\Response) {
+        if ($response instanceof Response) {
             $response = $response->withCookieCollection(new CookieCollection());
         }
 
         return $response->withoutHeader('Set-Cookie');
-    }
-
-    /**
-     * Check whether the request targets the avatars view action.
-     *
-     * @param \Cake\Http\ServerRequest $request The request.
-     * @return bool
-     */
-    protected function isAvatarsViewRequest(ServerRequest $request): bool
-    {
-        $params = $request->getAttribute('params', []);
-        $prefix = Hash::get($params, 'prefix');
-        $controller = Hash::get($params, 'controller');
-        $action = Hash::get($params, 'action');
-
-        return $prefix === 'Avatars' && $controller === 'AvatarsView' && $action === 'view';
     }
 }
