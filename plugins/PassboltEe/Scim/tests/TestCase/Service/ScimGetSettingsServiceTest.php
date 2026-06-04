@@ -20,6 +20,7 @@ namespace Passbolt\Scim\Test\TestCase\Service;
 use App\Service\OpenPGP\OpenPGPCommonServerOperationsTrait;
 use App\Test\Lib\AppTestCase;
 use App\Utility\OpenPGP\OpenPGPBackendFactory;
+use Passbolt\Scim\Model\Dto\ScimSettingsDto;
 use Passbolt\Scim\Service\ScimGetSettingsService;
 use Passbolt\Scim\Test\Factory\ScimSettingFactory;
 
@@ -72,19 +73,10 @@ class ScimGetSettingsServiceTest extends AppTestCase
         $gpg = $this->setDecryptKeyWithServerKey($gpg);
         $data = json_decode($gpg->decrypt($scimSettings->value), associative: true);
         $settings = $this->service->getSettings();
-        $this->assertSame([
-            'setting_id',
-            'scim_user_id',
-            'id',
-            'base_api_endpoint',
-            'expired',
-            'created',
-            'modified',
-            'created_by',
-            'modified_by',
-        ], array_keys($settings));
-        $this->assertSame($data['setting_id'], $settings['setting_id']);
-        $this->assertSame($data['scim_user_id'], $settings['scim_user_id']);
-        $this->assertStringContainsString('/scim/v2/' . $data['setting_id'], $settings['base_api_endpoint']);
+        $this->assertInstanceOf(ScimSettingsDto::class, $settings);
+        $settingsFilteredArray = $settings->toArray();
+        $this->assertSame($data['setting_id'], $settingsFilteredArray['setting_id']);
+        $this->assertSame($data['scim_user_id'], $settingsFilteredArray['scim_user_id']);
+        $this->assertStringContainsString('/scim/v2/' . $data['setting_id'], $settingsFilteredArray['base_api_endpoint']);
     }
 }

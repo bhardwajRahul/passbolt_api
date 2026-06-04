@@ -18,7 +18,10 @@ namespace Passbolt\Scim\Service;
 
 use App\Error\Exception\FormValidationException;
 use Cake\Http\Exception\InternalErrorException;
+use Cake\Routing\Router;
+use Cake\Utility\Hash;
 use Passbolt\Scim\Form\Settings\ScimSettingsForm;
+use Passbolt\Scim\Model\Dto\ScimSettingsDto;
 
 class ScimGetSettingsService extends ScimBaseSettingsService
 {
@@ -42,20 +45,22 @@ class ScimGetSettingsService extends ScimBaseSettingsService
 
     /**
      * Read the SCIM settings in the DB
-     * If not found, the default settings are returned
+     * If not found, null is returned
      * A validation error is thrown if the settings in the DB are not valid
      *
-     * @return array
+     * @return \Passbolt\Scim\Model\Dto\ScimSettingsDto|null
      * @throws \Cake\Http\Exception\InternalErrorException if the data in the DB is not valid
      */
-    public function getSettings(): array
+    public function getSettings(): ?ScimSettingsDto
     {
         /** @var \Passbolt\Scim\Model\Table\ScimSettingsTable $scimSettingsTable */
         $scimSettingsTable = $this->fetchTable('Passbolt/Scim.ScimSettings');
+
         /** @var \Passbolt\Scim\Model\Entity\ScimSetting|null $settings */
         $settings = $scimSettingsTable->find()->first();
+
         if (is_null($settings)) {
-            return $this->getDefaultSettings();
+            return null;
         }
         $value = $this->decryptSettings($settings);
         $form = new ScimSettingsForm();
@@ -69,6 +74,16 @@ class ScimGetSettingsService extends ScimBaseSettingsService
             throw new InternalErrorException($validationException->getMessage(), 500, $validationException);
         }
 
-        return $this->getRenderedValue($settings, $form);
+        return ScimSettingsDto::createFromArray([
+            'id' => $settings->id,
+            'setting_id' => Hash::get($value, 'setting_id'),
+            'scim_user_id' => Hash::get($value, 'scim_user_id'),
+            'base_api_endpoint' => Router::url('scim/v2/' . Hash::get($value, 'setting_id'), true),
+            'expired' => Hash::get($value, 'expired'),
+            'created' => $settings->created,
+            'created_by' => $settings->created_by,
+            'modified' => $settings->modified,
+            'modified_by' => $settings->modified_by,
+        ]);
     }
 }
