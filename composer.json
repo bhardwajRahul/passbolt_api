@@ -70,7 +70,7 @@
         "cakephp/cakephp": "^5.3.6",
         "cakephp/migrations": "^4.0.0",
         "cakephp/plugin-installer": "^2.0",
-        "mobiledetect/mobiledetectlib": "^4.8.03",
+        "mobiledetect/mobiledetectlib": "^4.11.0",
         "ramsey/uuid": "^4.2.3",
         "singpolyma/openpgp-php": "^0.7",
         "donatj/phpuseragentparser": "^1.10.0",
