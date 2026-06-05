@@ -22,6 +22,7 @@ use App\Service\Healthcheck\HealthcheckServiceCollector;
 use App\Service\Healthcheck\HealthcheckServiceInterface;
 use App\Service\Healthcheck\SkipHealthcheckInterface;
 use App\Service\OpenPGP\OpenPGPCommonServerOperationsTrait;
+use Cake\Database\Exception\MissingConnectionException;
 use Cake\ORM\Locator\LocatorAwareTrait;
 use Cake\ORM\Query\SelectQuery;
 use Passbolt\Metadata\Service\MetadataKeysSettingsGetService;
@@ -60,18 +61,24 @@ class ServerMissingAccessToMetadataKeyHealthcheck implements HealthcheckServiceI
             return $this;
         }
 
-        $query = $this->fetchTable('Passbolt/Metadata.MetadataKeys')->find();
-        $count = $query
-            ->leftJoinWith('MetadataPrivateKeys', function (SelectQuery $q) {
-                $expr = $q->newExpr()->isNull('MetadataPrivateKeys.user_id');
+        try {
+            $query = $this->fetchTable('Passbolt/Metadata.MetadataKeys')->find();
+            $count = $query
+                ->leftJoinWith('MetadataPrivateKeys', function (SelectQuery $q) {
+                    $expr = $q->expr()->isNull('MetadataPrivateKeys.user_id');
 
-                return $q->where([$expr]);
-            })
-            ->where([
-                $query->newExpr()->isNull('MetadataPrivateKeys.metadata_key_id'),
-                $query->newExpr()->isNull('MetadataKeys.deleted'),
-            ])
-            ->count();
+                    return $q->where([$expr]);
+                })
+                ->where([
+                    $query->expr()->isNull('MetadataPrivateKeys.metadata_key_id'),
+                    $query->expr()->isNull('MetadataKeys.deleted'),
+                ])
+                ->count();
+        } catch (MissingConnectionException $e) {
+            // Database is unreachable; fail this check (ConnectDatabaseHealthcheck
+            // surfaces the root cause) so the healthcheck run can complete.
+            return $this;
+        }
 
         if ($count === 0) {
             $this->status = true;

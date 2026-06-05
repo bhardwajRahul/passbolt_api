@@ -53,7 +53,7 @@ class PopulateCreatedByAndModifiedByInSecretsService
             // Join the action that originated the secret creation/update.
             ->innerJoin(['ActionLogs' => 'action_logs'], [
                 'ActionLogs.id' => new IdentifierExpression('EntitiesHistory.action_log_id'),
-                $this->EntitiesHistoryTable->find()->newExpr()->isNotNull('ActionLogs.user_id'),
+                $this->EntitiesHistoryTable->find()->expr()->isNotNull('ActionLogs.user_id'),
             ])
             // Correlate with the outer UPDATE query  row: use the physical table name because CakePHP removes aliases in UPDATE/DELETE queries.
             ->where(['EntitiesHistory.foreign_key' => new IdentifierExpression("$tbl.id")])
@@ -77,8 +77,8 @@ class PopulateCreatedByAndModifiedByInSecretsService
             // modified_by copies created by, it might later be used to persist the ID of the user who re-encrypt and sign the payload.
             ->set('modified_by', $fn->coalesce([$latestUserIdSub, $fallbackCreatedBySub]))
             ->where([
-                $update->newExpr()->isNull('created_by'),
-                $update->newExpr()->isNull('modified_by'),
+                $update->expr()->isNull('created_by'),
+                $update->expr()->isNull('modified_by'),
             ])
             ->execute();
     }

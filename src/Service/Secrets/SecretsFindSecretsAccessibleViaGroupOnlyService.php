@@ -234,10 +234,10 @@ class SecretsFindSecretsAccessibleViaGroupOnlyService
                 'resource_id' => 'PermissionsDirect.aco_foreign_key',
             ])
             ->where([
-                'PermissionsDirect.aco' => $inheritedAccessesFromTargetGroupQuery->newExpr('PermissionsInheritedFromGroup.aco'), //phpcs:ignore
+                'PermissionsDirect.aco' => $inheritedAccessesFromTargetGroupQuery->expr('PermissionsInheritedFromGroup.aco'), //phpcs:ignore
                 'PermissionsDirect.aro' => PermissionsTable::USER_ARO,
-                'PermissionsDirect.aro_foreign_key' => $inheritedAccessesFromTargetGroupQuery->newExpr('GroupsUsersForInheritedFromGroup.user_id'), //phpcs:ignore
-                'PermissionsDirect.aco_foreign_key' => $inheritedAccessesFromTargetGroupQuery->newExpr('PermissionsInheritedFromGroup.aco_foreign_key'), //phpcs:ignore
+                'PermissionsDirect.aro_foreign_key' => $inheritedAccessesFromTargetGroupQuery->expr('GroupsUsersForInheritedFromGroup.user_id'), //phpcs:ignore
+                'PermissionsDirect.aco_foreign_key' => $inheritedAccessesFromTargetGroupQuery->expr('PermissionsInheritedFromGroup.aco_foreign_key'), //phpcs:ignore
             ]);
 
         // INHERITED_FROM_OTHER_GROUPS_ACCESSES
@@ -257,11 +257,11 @@ class SecretsFindSecretsAccessibleViaGroupOnlyService
                 ],
             ])
             ->where([
-                'PermissionsInheritedOtherGroups.aco' => $inheritedAccessesFromTargetGroupQuery->newExpr('PermissionsInheritedFromGroup.aco'), //phpcs:ignore
+                'PermissionsInheritedOtherGroups.aco' => $inheritedAccessesFromTargetGroupQuery->expr('PermissionsInheritedFromGroup.aco'), //phpcs:ignore
                 'PermissionsInheritedOtherGroups.aro' => PermissionsTable::GROUP_ARO,
-                'GroupsUsersForInheritedFromOtherGroups.group_id <>' => $inheritedAccessesFromTargetGroupQuery->newExpr('GroupsUsersForInheritedFromGroup.group_id'), //phpcs:ignore
-                'GroupsUsersForInheritedFromOtherGroups.user_id' => $inheritedAccessesFromTargetGroupQuery->newExpr('GroupsUsersForInheritedFromGroup.user_id'), //phpcs:ignore
-                'PermissionsInheritedOtherGroups.aco_foreign_key' => $inheritedAccessesFromTargetGroupQuery->newExpr('PermissionsInheritedFromGroup.aco_foreign_key'), //phpcs:ignore
+                'GroupsUsersForInheritedFromOtherGroups.group_id <>' => $inheritedAccessesFromTargetGroupQuery->expr('GroupsUsersForInheritedFromGroup.group_id'), //phpcs:ignore
+                'GroupsUsersForInheritedFromOtherGroups.user_id' => $inheritedAccessesFromTargetGroupQuery->expr('GroupsUsersForInheritedFromGroup.user_id'), //phpcs:ignore
+                'PermissionsInheritedOtherGroups.aco_foreign_key' => $inheritedAccessesFromTargetGroupQuery->expr('PermissionsInheritedFromGroup.aco_foreign_key'), //phpcs:ignore
             ]);
 
         // R = INHERITED_FROM_GROUP_ACCESSES - ( INHERITED_FROM_OTHER_GROUPS_ACCESSES + DIRECT_USERS_ACCESSES)

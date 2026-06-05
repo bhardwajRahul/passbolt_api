@@ -17,16 +17,13 @@ declare(strict_types=1);
 
 namespace Passbolt\DirectorySync\Test\TestCase\Controller;
 
+use App\Test\Factory\UserFactory;
 use App\Utility\UuidFactory;
 use Passbolt\DirectorySync\Test\Utility\DirectorySyncDeprecatedIntegrationTestCase;
 
 class DirectoryIgnoreAddControllerTest extends DirectorySyncDeprecatedIntegrationTestCase
 {
-    public array $fixtures = [
-        'app.Base/Users', 'app.Base/Groups', 'app.Base/Secrets', 'app.Base/Roles',
-        'app.Alt0/GroupsUsers', 'app.Alt0/Permissions',
-        'app.Base/Favorites',
-    ];
+    public array $fixtures = [];
 
     /**
      * @group DirectorySync
@@ -36,9 +33,9 @@ class DirectoryIgnoreAddControllerTest extends DirectorySyncDeprecatedIntegratio
      */
     public function testDirectorySyncControllerIgnoreAddSuccess()
     {
-        $this->authenticateAs('admin');
-        $userId = UuidFactory::uuid('user.id.ada');
-        $this->postJson("/directorysync/ignore/users/$userId.json?api-version=v2");
+        $this->loginAsAdmin();
+        $user = UserFactory::make()->persist();
+        $this->postJson("/directorysync/ignore/users/{$user->get('id')}.json?api-version=v2");
         $this->assertSuccess();
     }
 
@@ -50,7 +47,7 @@ class DirectoryIgnoreAddControllerTest extends DirectorySyncDeprecatedIntegratio
      */
     public function testDirectorySyncControllerIgnoreAddErrorNotValidId()
     {
-        $this->authenticateAs('admin');
+        $this->loginAsAdmin();
         $userId = 'invalid-id';
         $this->postJson("/directorysync/ignore/users/$userId.json?api-version=v2");
         $this->assertError(400);
@@ -64,7 +61,7 @@ class DirectoryIgnoreAddControllerTest extends DirectorySyncDeprecatedIntegratio
      */
     public function testDirectorySyncControllerIgnoreAddErrorNotModel()
     {
-        $this->authenticateAs('admin');
+        $this->loginAsAdmin();
         $userId = 'invalid-id';
         $this->postJson("/directorysync/ignore/comments/$userId.json?api-version=v2");
         $this->assertError(400);
@@ -78,7 +75,7 @@ class DirectoryIgnoreAddControllerTest extends DirectorySyncDeprecatedIntegratio
      */
     public function testDirectorySyncControllerIgnoreAddErrorRecordDoesNotExist()
     {
-        $this->authenticateAs('admin');
+        $this->loginAsAdmin();
         $userId = UuidFactory::uuid();
         $this->postJson("/directorysync/ignore/users/$userId.json?api-version=v2");
         $this->assertError(404);
@@ -93,9 +90,9 @@ class DirectoryIgnoreAddControllerTest extends DirectorySyncDeprecatedIntegratio
     public function testDirectorySyncControllerIgnoreAddErrorResourceAccessDenied()
     {
         // Check that the user cannot access the resource
-        $this->authenticateAs('dame');
-        $userId = UuidFactory::uuid('user.id.ada');
-        $this->postJson("/directorysync/ignore/users/$userId.json?api-version=2");
+        $this->logInAsUser();
+        $user = UserFactory::make()->persist();
+        $this->postJson("/directorysync/ignore/users/{$user->get('id')}.json?api-version=2");
         $this->assertError(403);
     }
 
@@ -107,10 +104,10 @@ class DirectoryIgnoreAddControllerTest extends DirectorySyncDeprecatedIntegratio
      */
     public function testDirectorySyncControllerIgnoreAddErrorAlreadyMarkedAsIgnored()
     {
-        $this->authenticateAs('admin');
-        $userId = UuidFactory::uuid('user.id.ada');
-        $this->postJson("/directorysync/ignore/users/$userId.json?api-version=2");
-        $this->postJson("/directorysync/ignore/users/$userId.json?api-version=2");
+        $this->loginAsAdmin();
+        $user = UserFactory::make()->persist();
+        $this->postJson("/directorysync/ignore/users/{$user->get('id')}.json?api-version=2");
+        $this->postJson("/directorysync/ignore/users/{$user->get('id')}.json?api-version=2");
         $this->assertError(400);
     }
 
@@ -122,8 +119,8 @@ class DirectoryIgnoreAddControllerTest extends DirectorySyncDeprecatedIntegratio
      */
     public function testDirectorySyncControllerIgnoreAddErrorNotAuthenticated()
     {
-        $userId = UuidFactory::uuid('user.id.ada');
-        $this->postJson("/directorysync/ignore/users/$userId.json?api-version=2");
+        $user = UserFactory::make()->persist();
+        $this->postJson("/directorysync/ignore/users/{$user->get('id')}.json?api-version=2");
         $this->assertAuthenticationError();
     }
 }

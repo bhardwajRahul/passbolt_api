@@ -56,6 +56,7 @@ class ResourcesHealthcheckService extends AbstractHealthcheckService
      */
     public function check(): array
     {
+        /** @var array<\App\Model\Entity\Resource> $records */
         $records = $this->table->find()->all();
         $metadataKeys = TableRegistry::getTableLocator()->get('Passbolt/Metadata.MetadataKeys')
             ->find('active')

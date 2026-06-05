@@ -127,6 +127,7 @@ class UserSyncActionAddCaseSensitiveTest extends DirectorySyncDeprecatedIntegrat
             $message,
         );
         $this->assertSame(2, UserFactory::count());
+        /** @var \App\Model\Entity\User $userInserted */
         $userInserted = UserFactory::find()->contain('Profiles')
             ->where(compact('username'))
             ->firstOrFail();

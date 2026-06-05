@@ -87,7 +87,7 @@ class PopulateSecretRevisionsForExistingSecretsService
             // Join the action log that originated from the secret update
             ->innerJoin(['ActionLogs' => 'action_logs'], [
                 'ActionLogs.id' => new IdentifierExpression('EntitiesHistory.action_log_id'),
-                $entitiesHistoryQuery->newExpr()->isNotNull('ActionLogs.user_id'),
+                $entitiesHistoryQuery->expr()->isNotNull('ActionLogs.user_id'),
             ])
             ->innerJoin(['Actions' => 'actions'], [
                 'Actions.id' => new IdentifierExpression('ActionLogs.action_id'),
@@ -121,7 +121,7 @@ class PopulateSecretRevisionsForExistingSecretsService
                 // Filter out deleted resources
                 'Resources.deleted' => false,
                 // Only select resources without secret revisions
-                $this->ResourcesTable->find()->newExpr()->isNull('SecretRevisions.resource_id'),
+                $this->ResourcesTable->find()->expr()->isNull('SecretRevisions.resource_id'),
             ]);
 
         /** @var \Cake\Database\Connection $connection */
@@ -177,7 +177,7 @@ class PopulateSecretRevisionsForExistingSecretsService
         $updateQuery = $this->SecretsTable->updateQuery();
         $updateQuery
             ->set('secret_revision_id', $subquery)
-            ->where([$updateQuery->newExpr()->isNull('secret_revision_id')]);
+            ->where([$updateQuery->expr()->isNull('secret_revision_id')]);
 
         return $updateQuery->execute()->rowCount();
     }

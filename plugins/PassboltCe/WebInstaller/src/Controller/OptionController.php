@@ -113,10 +113,11 @@ class OptionController extends WebInstallerController
     {
         if (!$this->webInstaller->getSettings('hasSmtpSettings')) {
             return 'install/email';
-        } elseif (!$this->webInstaller->getSettings('hasAdmin')) {
-            return '/install/account_creation';
-        } else {
-            return 'install/installation';
         }
+        if (!$this->webInstaller->getSettings('hasAdmin')) {
+            return '/install/account_creation';
+        }
+
+        return '/install/subscription';
     }
 }

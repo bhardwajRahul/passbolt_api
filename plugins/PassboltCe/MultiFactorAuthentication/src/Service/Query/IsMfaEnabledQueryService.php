@@ -92,18 +92,18 @@ class IsMfaEnabledQueryService
         if ($isMfaEnabledFilter) {
             $or = [];
             foreach ($mfaOrgSettings->getEnabledProviders() as $provider) {
-                $or[] = $query->newExpr()->like('MfaSettings.value', '%"' . $provider . '"%"' . $provider . '"%');
+                $or[] = $query->expr()->like('MfaSettings.value', '%"' . $provider . '"%"' . $provider . '"%');
             }
             $query->where(['OR' => $or]);
         } else {
             $notLike = [];
             foreach ($mfaOrgSettings->getEnabledProviders() as $provider) {
                 $notLike[] =
-                    $query->newExpr()->notLike('MfaSettings.value', '%"' . $provider . '"%"' . $provider . '"%');
+                    $query->expr()->notLike('MfaSettings.value', '%"' . $provider . '"%"' . $provider . '"%');
             }
             $query->where(['OR' => [
                 $notLike,
-                $query->newExpr()->isNull('MfaSettings.id'),
+                $query->expr()->isNull('MfaSettings.id'),
             ]]);
         }
 
@@ -135,7 +135,7 @@ class IsMfaEnabledQueryService
                 ->subquery();
             $or = [];
             foreach ($mfaOrgSettings->getEnabledProviders() as $provider) {
-                $or[] = $query->newExpr()->like('AccountSettings.value', '%"' . $provider . '"%"' . $provider . '"%');
+                $or[] = $query->expr()->like('AccountSettings.value', '%"' . $provider . '"%"' . $provider . '"%');
             }
             $isMfaEnabledSubQuery
                 ->select('count(*)')

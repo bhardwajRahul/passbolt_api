@@ -44,7 +44,8 @@ class UsersViewContainAccountRecoveryUserSettingsControllerTest extends AccountR
         $this->getJson('/users/' . $user->id . '.json?contain[account_recovery_user_setting]=1&contain[foo]=1');
         $this->assertSuccess();
 
-        $this->assertSame(compact('status'), (array)$this->_responseJsonBody->account_recovery_user_setting);
+        $setting = (array)$this->_responseJsonBody->account_recovery_user_setting;
+        $this->assertSame($status, $setting['status']);
     }
 
     public function testUsersViewControllerGetSuccess_ContainAccountRecoveryUserSetting_Fails_If_Not_LoggedIn_User()

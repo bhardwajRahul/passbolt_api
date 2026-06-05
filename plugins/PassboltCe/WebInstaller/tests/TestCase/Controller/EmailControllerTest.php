@@ -212,6 +212,26 @@ class EmailControllerTest extends WebInstallerIntegrationTestCase
         $this->assertMailCount(0);
     }
 
+    public function testWebInstallerEmailPostSuccess_RedirectsToSubscriptionWhenAdminAlreadyExists(): void
+    {
+        // Admin already in DB → skip account_creation. Subscription is the
+        // next step on every edition (WP 7.4).
+        $this->session(['webinstaller' => ['initialized' => true, 'hasAdmin' => true]]);
+
+        $this->post('/install/email', [
+            'sender_name' => 'Passbolt Test',
+            'sender_email' => 'test@passbolt.com',
+            'host' => 'unreachable_host',
+            'tls' => true,
+            'port' => 123,
+            'authentication_method' => 'username_and_password',
+            'username' => 'test@passbolt.com',
+            'password' => 'password',
+        ]);
+
+        $this->assertRedirectContains('/install/subscription');
+    }
+
     public function testWebInstallerEmailPostError_Oauth2MissingFields(): void
     {
         $postData = [

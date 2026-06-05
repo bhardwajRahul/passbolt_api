@@ -4,7 +4,6 @@
     <ImplementedReturnTypeMismatch>
       <code><![CDATA[\Passbolt\AccountSettings\Model\Entity\AccountSetting]]></code>
       <code><![CDATA[\Passbolt\AccountSettings\Model\Entity\AccountSetting]]></code>
-      <code><![CDATA[\Passbolt\AccountSettings\Model\Entity\AccountSetting[]]]></code>
       <code><![CDATA[\Passbolt\AccountSettings\Model\Entity\AccountSetting|false]]></code>
       <code><![CDATA[iterable<\Passbolt\AccountSettings\Model\Entity\AccountSetting>|iterable<\Cake\Datasource\EntityInterface>]]></code>
       <code><![CDATA[iterable<\Passbolt\AccountSettings\Model\Entity\AccountSetting>|iterable<\Cake\Datasource\EntityInterface>]]></code>
@@ -30,7 +29,6 @@
     <ImplementedReturnTypeMismatch>
       <code><![CDATA[\Passbolt\Folders\Model\Entity\FolderHistory]]></code>
       <code><![CDATA[\Passbolt\Folders\Model\Entity\FolderHistory]]></code>
-      <code><![CDATA[\Passbolt\Folders\Model\Entity\FolderHistory[]]]></code>
       <code><![CDATA[\Passbolt\Folders\Model\Entity\FolderHistory|false]]></code>
     </ImplementedReturnTypeMismatch>
   </file>
@@ -38,7 +36,6 @@
     <ImplementedReturnTypeMismatch>
       <code><![CDATA[\Passbolt\Folders\Model\Entity\FoldersRelation]]></code>
       <code><![CDATA[\Passbolt\Folders\Model\Entity\FoldersRelation]]></code>
-      <code><![CDATA[\Passbolt\Folders\Model\Entity\FoldersRelation[]]]></code>
       <code><![CDATA[\Passbolt\Folders\Model\Entity\FoldersRelation|false]]></code>
     </ImplementedReturnTypeMismatch>
   </file>
@@ -46,7 +43,6 @@
     <ImplementedReturnTypeMismatch>
       <code><![CDATA[\Passbolt\Folders\Model\Entity\FoldersRelation]]></code>
       <code><![CDATA[\Passbolt\Folders\Model\Entity\FoldersRelation]]></code>
-      <code><![CDATA[\Passbolt\Folders\Model\Entity\FoldersRelation[]]]></code>
       <code><![CDATA[\Passbolt\Folders\Model\Entity\FoldersRelation|false]]></code>
       <code><![CDATA[iterable<\Passbolt\Folders\Model\Entity\FoldersRelation>|iterable<\Cake\Datasource\EntityInterface>]]></code>
       <code><![CDATA[iterable<\Passbolt\Folders\Model\Entity\FoldersRelation>|iterable<\Cake\Datasource\EntityInterface>]]></code>
@@ -61,7 +57,6 @@
     <ImplementedReturnTypeMismatch>
       <code><![CDATA[\Passbolt\Folders\Model\Entity\Folder]]></code>
       <code><![CDATA[\Passbolt\Folders\Model\Entity\Folder]]></code>
-      <code><![CDATA[\Passbolt\Folders\Model\Entity\Folder[]]]></code>
       <code><![CDATA[\Passbolt\Folders\Model\Entity\Folder|false]]></code>
       <code><![CDATA[iterable<\Passbolt\Folders\Model\Entity\Folder>|iterable<\Cake\Datasource\EntityInterface>]]></code>
       <code><![CDATA[iterable<\Passbolt\Folders\Model\Entity\Folder>|iterable<\Cake\Datasource\EntityInterface>]]></code>
@@ -357,7 +352,6 @@
     <ImplementedReturnTypeMismatch>
       <code><![CDATA[\Passbolt\Log\Model\Entity\ActionLog]]></code>
       <code><![CDATA[\Passbolt\Log\Model\Entity\ActionLog]]></code>
-      <code><![CDATA[\Passbolt\Log\Model\Entity\ActionLog[]]]></code>
       <code><![CDATA[\Passbolt\Log\Model\Entity\ActionLog|false]]></code>
       <code><![CDATA[iterable<\Passbolt\Log\Model\Entity\ActionLog>|iterable<\Cake\Datasource\EntityInterface>]]></code>
       <code><![CDATA[iterable<\Passbolt\Log\Model\Entity\ActionLog>|iterable<\Cake\Datasource\EntityInterface>]]></code>
@@ -372,7 +366,6 @@
     <ImplementedReturnTypeMismatch>
       <code><![CDATA[\Passbolt\Log\Model\Entity\Action]]></code>
       <code><![CDATA[\Passbolt\Log\Model\Entity\Action]]></code>
-      <code><![CDATA[\Passbolt\Log\Model\Entity\Action[]]]></code>
       <code><![CDATA[\Passbolt\Log\Model\Entity\Action|false]]></code>
       <code><![CDATA[iterable<\Passbolt\Log\Model\Entity\Action>|iterable<\Cake\Datasource\EntityInterface>]]></code>
       <code><![CDATA[iterable<\Passbolt\Log\Model\Entity\Action>|iterable<\Cake\Datasource\EntityInterface>]]></code>
@@ -387,7 +380,6 @@
     <ImplementedReturnTypeMismatch>
       <code><![CDATA[\Passbolt\Log\Model\Entity\EntityHistory]]></code>
       <code><![CDATA[\Passbolt\Log\Model\Entity\EntityHistory]]></code>
-      <code><![CDATA[\Passbolt\Log\Model\Entity\EntityHistory[]]]></code>
       <code><![CDATA[\Passbolt\Log\Model\Entity\EntityHistory|false]]></code>
       <code><![CDATA[iterable<\Passbolt\Log\Model\Entity\EntityHistory>|iterable<\Cake\Datasource\EntityInterface>]]></code>
       <code><![CDATA[iterable<\Passbolt\Log\Model\Entity\EntityHistory>|iterable<\Cake\Datasource\EntityInterface>]]></code>
@@ -402,7 +394,6 @@
     <ImplementedReturnTypeMismatch>
       <code><![CDATA[\Passbolt\Log\Model\Entity\PermissionHistory]]></code>
       <code><![CDATA[\Passbolt\Log\Model\Entity\PermissionHistory]]></code>
-      <code><![CDATA[\Passbolt\Log\Model\Entity\PermissionHistory[]]]></code>
       <code><![CDATA[\Passbolt\Log\Model\Entity\PermissionHistory|false]]></code>
       <code><![CDATA[iterable<\Passbolt\Log\Model\Entity\PermissionHistory>|iterable<\Cake\Datasource\EntityInterface>]]></code>
       <code><![CDATA[iterable<\Passbolt\Log\Model\Entity\PermissionHistory>|iterable<\Cake\Datasource\EntityInterface>]]></code>
@@ -417,7 +408,6 @@
     <ImplementedReturnTypeMismatch>
       <code><![CDATA[\Passbolt\Log\Model\Entity\SecretAccess]]></code>
       <code><![CDATA[\Passbolt\Log\Model\Entity\SecretAccess]]></code>
-      <code><![CDATA[\Passbolt\Log\Model\Entity\SecretAccess[]]]></code>
       <code><![CDATA[\Passbolt\Log\Model\Entity\SecretAccess|false]]></code>
       <code><![CDATA[iterable<\Passbolt\Log\Model\Entity\SecretAccess>|iterable<\Cake\Datasource\EntityInterface>]]></code>
       <code><![CDATA[iterable<\Passbolt\Log\Model\Entity\SecretAccess>|iterable<\Cake\Datasource\EntityInterface>]]></code>
@@ -432,7 +422,6 @@
     <ImplementedReturnTypeMismatch>
       <code><![CDATA[\Passbolt\Log\Model\Entity\SecretHistory]]></code>
       <code><![CDATA[\Passbolt\Log\Model\Entity\SecretHistory]]></code>
-      <code><![CDATA[\Passbolt\Log\Model\Entity\SecretHistory[]]]></code>
       <code><![CDATA[\Passbolt\Log\Model\Entity\SecretHistory|false]]></code>
       <code><![CDATA[iterable<\Passbolt\Log\Model\Entity\SecretHistory>|iterable<\Cake\Datasource\EntityInterface>]]></code>
       <code><![CDATA[iterable<\Passbolt\Log\Model\Entity\SecretHistory>|iterable<\Cake\Datasource\EntityInterface>]]></code>
@@ -509,7 +498,6 @@
   <file src="plugins/PassboltCe/Metadata/src/Model/Table/MetadataKeysTable.php">
     <ImplementedReturnTypeMismatch>
       <code><![CDATA[\Passbolt\Metadata\Model\Entity\MetadataKey]]></code>
-      <code><![CDATA[\Passbolt\Metadata\Model\Entity\MetadataKey[]]]></code>
       <code><![CDATA[\Passbolt\Metadata\Model\Entity\MetadataKey[]|iterable<mixed, \Cake\Datasource\EntityInterface>]]></code>
       <code><![CDATA[\Passbolt\Metadata\Model\Entity\MetadataKey[]|iterable<mixed, \Cake\Datasource\EntityInterface>]]></code>
       <code><![CDATA[\Passbolt\Metadata\Model\Entity\MetadataKey[]|iterable<mixed, \Cake\Datasource\EntityInterface>|false]]></code>
@@ -524,7 +512,6 @@
     <ImplementedReturnTypeMismatch>
       <code><![CDATA[\Passbolt\Metadata\Model\Entity\MetadataPrivateKey]]></code>
       <code><![CDATA[\Passbolt\Metadata\Model\Entity\MetadataPrivateKey]]></code>
-      <code><![CDATA[\Passbolt\Metadata\Model\Entity\MetadataPrivateKey[]]]></code>
       <code><![CDATA[\Passbolt\Metadata\Model\Entity\MetadataPrivateKey[]|iterable<mixed, \Cake\Datasource\EntityInterface>]]></code>
       <code><![CDATA[\Passbolt\Metadata\Model\Entity\MetadataPrivateKey[]|iterable<mixed, \Cake\Datasource\EntityInterface>]]></code>
       <code><![CDATA[\Passbolt\Metadata\Model\Entity\MetadataPrivateKey[]|iterable<mixed, \Cake\Datasource\EntityInterface>|false]]></code>
@@ -539,7 +526,6 @@
     <ImplementedReturnTypeMismatch>
       <code><![CDATA[\Passbolt\Metadata\Model\Entity\MetadataSessionKey]]></code>
       <code><![CDATA[\Passbolt\Metadata\Model\Entity\MetadataSessionKey]]></code>
-      <code><![CDATA[\Passbolt\Metadata\Model\Entity\MetadataSessionKey[]]]></code>
       <code><![CDATA[\Passbolt\Metadata\Model\Entity\MetadataSessionKey[]|iterable<mixed, \Cake\Datasource\EntityInterface>]]></code>
       <code><![CDATA[\Passbolt\Metadata\Model\Entity\MetadataSessionKey[]|iterable<mixed, \Cake\Datasource\EntityInterface>]]></code>
       <code><![CDATA[\Passbolt\Metadata\Model\Entity\MetadataSessionKey[]|iterable<mixed, \Cake\Datasource\EntityInterface>]]></code>
@@ -570,7 +556,6 @@
     <ImplementedReturnTypeMismatch>
       <code><![CDATA[\Cake\Datasource\EntityInterface|false]]></code>
       <code><![CDATA[\Passbolt\Mobile\Model\Entity\Transfer]]></code>
-      <code><![CDATA[\Passbolt\Mobile\Model\Entity\Transfer[]]]></code>
     </ImplementedReturnTypeMismatch>
   </file>
   <file src="plugins/PassboltCe/Mobile/tests/TestCase/Controller/Transfers/TransfersUpdateControllerTest.php">
@@ -696,12 +681,6 @@
     </InvalidPropertyFetch>
   </file>
   <file src="plugins/PassboltCe/MultiFactorAuthentication/tests/TestCase/Event/ClearMfaCookieOnSetupAndRecoverTest.php">
-    <InvalidArgument>
-      <code><![CDATA[$event]]></code>
-      <code><![CDATA[$event]]></code>
-      <code><![CDATA[$event]]></code>
-      <code><![CDATA[$event]]></code>
-    </InvalidArgument>
     <UndefinedPropertyAssignment>
       <code><![CDATA[$controller->User]]></code>
     </UndefinedPropertyAssignment>
@@ -813,7 +792,6 @@
     <ImplementedReturnTypeMismatch>
       <code><![CDATA[\Passbolt\Rbacs\Model\Entity\Rbac]]></code>
       <code><![CDATA[\Passbolt\Rbacs\Model\Entity\Rbac]]></code>
-      <code><![CDATA[\Passbolt\Rbacs\Model\Entity\Rbac[]]]></code>
       <code><![CDATA[\Passbolt\Rbacs\Model\Entity\Rbac|false]]></code>
       <code><![CDATA[iterable<\Passbolt\Rbacs\Model\Entity\Rbac>|iterable<\Cake\Datasource\EntityInterface>]]></code>
       <code><![CDATA[iterable<\Passbolt\Rbacs\Model\Entity\Rbac>|iterable<\Cake\Datasource\EntityInterface>|false]]></code>
@@ -827,7 +805,6 @@
     <ImplementedReturnTypeMismatch>
       <code><![CDATA[\Passbolt\Rbacs\Model\Entity\UiAction]]></code>
       <code><![CDATA[\Passbolt\Rbacs\Model\Entity\UiAction]]></code>
-      <code><![CDATA[\Passbolt\Rbacs\Model\Entity\UiAction[]]]></code>
       <code><![CDATA[\Passbolt\Rbacs\Model\Entity\UiAction|false]]></code>
       <code><![CDATA[iterable<\Passbolt\Rbacs\Model\Entity\UiAction>|iterable<\Cake\Datasource\EntityInterface>]]></code>
       <code><![CDATA[iterable<\Passbolt\Rbacs\Model\Entity\UiAction>|iterable<\Cake\Datasource\EntityInterface>]]></code>
@@ -865,7 +842,6 @@
     <ImplementedReturnTypeMismatch>
       <code><![CDATA[\Passbolt\ResourceTypes\Model\Entity\ResourceType]]></code>
       <code><![CDATA[\Passbolt\ResourceTypes\Model\Entity\ResourceType]]></code>
-      <code><![CDATA[\Passbolt\ResourceTypes\Model\Entity\ResourceType[]]]></code>
       <code><![CDATA[\Passbolt\ResourceTypes\Model\Entity\ResourceType|false]]></code>
       <code><![CDATA[iterable<\Passbolt\ResourceTypes\Model\Entity\ResourceType>|iterable<\Cake\Datasource\EntityInterface>]]></code>
       <code><![CDATA[iterable<\Passbolt\ResourceTypes\Model\Entity\ResourceType>|iterable<\Cake\Datasource\EntityInterface>]]></code>
@@ -888,7 +864,6 @@
     <ImplementedReturnTypeMismatch>
       <code><![CDATA[\Passbolt\SecretRevisions\Model\Entity\SecretRevision]]></code>
       <code><![CDATA[\Passbolt\SecretRevisions\Model\Entity\SecretRevision]]></code>
-      <code><![CDATA[\Passbolt\SecretRevisions\Model\Entity\SecretRevision[]]]></code>
       <code><![CDATA[\Passbolt\SecretRevisions\Model\Entity\SecretRevision[]|iterable<mixed, \Cake\Datasource\EntityInterface>]]></code>
       <code><![CDATA[\Passbolt\SecretRevisions\Model\Entity\SecretRevision[]|iterable<mixed, \Cake\Datasource\EntityInterface>]]></code>
       <code><![CDATA[\Passbolt\SecretRevisions\Model\Entity\SecretRevision[]|iterable<mixed, \Cake\Datasource\EntityInterface>|false]]></code>
@@ -904,16 +879,6 @@
       <code><![CDATA[$senderEmail]]></code>
       <code><![CDATA[$senderEmail]]></code>
     </InvalidCast>
-  </file>
-  <file src="plugins/PassboltCe/SmtpSettings/tests/TestCase/Event/SmtpTransportBeforeSendEventListenerTest.php">
-    <InvalidArgument>
-      <code><![CDATA[$event]]></code>
-      <code><![CDATA[$event]]></code>
-      <code><![CDATA[$event]]></code>
-      <code><![CDATA[$event]]></code>
-      <code><![CDATA[$event]]></code>
-      <code><![CDATA[$event]]></code>
-    </InvalidArgument>
   </file>
   <file src="plugins/PassboltCe/WebInstaller/src/Controller/WebInstallerController.php">
     <ImplementedReturnTypeMismatch>
@@ -934,7 +899,6 @@
     <ImplementedReturnTypeMismatch>
       <code><![CDATA[\Passbolt\AccountRecovery\Model\Entity\AccountRecoveryOrganizationPolicy]]></code>
       <code><![CDATA[\Passbolt\AccountRecovery\Model\Entity\AccountRecoveryOrganizationPolicy]]></code>
-      <code><![CDATA[\Passbolt\AccountRecovery\Model\Entity\AccountRecoveryOrganizationPolicy[]]]></code>
       <code><![CDATA[\Passbolt\AccountRecovery\Model\Entity\AccountRecoveryOrganizationPolicy|false]]></code>
       <code><![CDATA[iterable<\Passbolt\AccountRecovery\Model\Entity\AccountRecoveryOrganizationPolicy>|iterable<\Cake\Datasource\EntityInterface>]]></code>
       <code><![CDATA[iterable<\Passbolt\AccountRecovery\Model\Entity\AccountRecoveryOrganizationPolicy>|iterable<\Cake\Datasource\EntityInterface>]]></code>
@@ -949,7 +913,6 @@
     <ImplementedReturnTypeMismatch>
       <code><![CDATA[\Passbolt\AccountRecovery\Model\Entity\AccountRecoveryOrganizationPublicKey]]></code>
       <code><![CDATA[\Passbolt\AccountRecovery\Model\Entity\AccountRecoveryOrganizationPublicKey]]></code>
-      <code><![CDATA[\Passbolt\AccountRecovery\Model\Entity\AccountRecoveryOrganizationPublicKey[]]]></code>
       <code><![CDATA[\Passbolt\AccountRecovery\Model\Entity\AccountRecoveryOrganizationPublicKey|false]]></code>
       <code><![CDATA[iterable<\Passbolt\AccountRecovery\Model\Entity\AccountRecoveryOrganizationPublicKey>|iterable<\Cake\Datasource\EntityInterface>]]></code>
       <code><![CDATA[iterable<\Passbolt\AccountRecovery\Model\Entity\AccountRecoveryOrganizationPublicKey>|iterable<\Cake\Datasource\EntityInterface>]]></code>
@@ -964,7 +927,6 @@
     <ImplementedReturnTypeMismatch>
       <code><![CDATA[\Passbolt\AccountRecovery\Model\Entity\AccountRecoveryPrivateKeyPassword]]></code>
       <code><![CDATA[\Passbolt\AccountRecovery\Model\Entity\AccountRecoveryPrivateKeyPassword]]></code>
-      <code><![CDATA[\Passbolt\AccountRecovery\Model\Entity\AccountRecoveryPrivateKeyPassword[]]]></code>
       <code><![CDATA[\Passbolt\AccountRecovery\Model\Entity\AccountRecoveryPrivateKeyPassword|false]]></code>
       <code><![CDATA[iterable<\Passbolt\AccountRecovery\Model\Entity\AccountRecoveryPrivateKeyPassword>|iterable<\Cake\Datasource\EntityInterface>]]></code>
       <code><![CDATA[iterable<\Passbolt\AccountRecovery\Model\Entity\AccountRecoveryPrivateKeyPassword>|iterable<\Cake\Datasource\EntityInterface>]]></code>
@@ -979,7 +941,6 @@
     <ImplementedReturnTypeMismatch>
       <code><![CDATA[\Passbolt\AccountRecovery\Model\Entity\AccountRecoveryPrivateKey]]></code>
       <code><![CDATA[\Passbolt\AccountRecovery\Model\Entity\AccountRecoveryPrivateKey]]></code>
-      <code><![CDATA[\Passbolt\AccountRecovery\Model\Entity\AccountRecoveryPrivateKey[]]]></code>
       <code><![CDATA[\Passbolt\AccountRecovery\Model\Entity\AccountRecoveryPrivateKey|false]]></code>
       <code><![CDATA[iterable<\Passbolt\AccountRecovery\Model\Entity\AccountRecoveryPrivateKey>|iterable<\Cake\Datasource\EntityInterface>]]></code>
       <code><![CDATA[iterable<\Passbolt\AccountRecovery\Model\Entity\AccountRecoveryPrivateKey>|iterable<\Cake\Datasource\EntityInterface>]]></code>
@@ -994,7 +955,6 @@
     <ImplementedReturnTypeMismatch>
       <code><![CDATA[\Passbolt\AccountRecovery\Model\Entity\AccountRecoveryRequest]]></code>
       <code><![CDATA[\Passbolt\AccountRecovery\Model\Entity\AccountRecoveryRequest]]></code>
-      <code><![CDATA[\Passbolt\AccountRecovery\Model\Entity\AccountRecoveryRequest[]]]></code>
       <code><![CDATA[\Passbolt\AccountRecovery\Model\Entity\AccountRecoveryRequest|false]]></code>
       <code><![CDATA[iterable<\Passbolt\AccountRecovery\Model\Entity\AccountRecoveryRequest>|iterable<\Cake\Datasource\EntityInterface>]]></code>
       <code><![CDATA[iterable<\Passbolt\AccountRecovery\Model\Entity\AccountRecoveryRequest>|iterable<\Cake\Datasource\EntityInterface>]]></code>
@@ -1009,7 +969,6 @@
     <ImplementedReturnTypeMismatch>
       <code><![CDATA[\Passbolt\AccountRecovery\Model\Entity\AccountRecoveryResponse]]></code>
       <code><![CDATA[\Passbolt\AccountRecovery\Model\Entity\AccountRecoveryResponse]]></code>
-      <code><![CDATA[\Passbolt\AccountRecovery\Model\Entity\AccountRecoveryResponse[]]]></code>
       <code><![CDATA[\Passbolt\AccountRecovery\Model\Entity\AccountRecoveryResponse|false]]></code>
       <code><![CDATA[iterable<\Passbolt\AccountRecovery\Model\Entity\AccountRecoveryResponse>|iterable<\Cake\Datasource\EntityInterface>]]></code>
       <code><![CDATA[iterable<\Passbolt\AccountRecovery\Model\Entity\AccountRecoveryResponse>|iterable<\Cake\Datasource\EntityInterface>]]></code>
@@ -1024,7 +983,6 @@
     <ImplementedReturnTypeMismatch>
       <code><![CDATA[\Passbolt\AccountRecovery\Model\Entity\AccountRecoveryUserSetting]]></code>
       <code><![CDATA[\Passbolt\AccountRecovery\Model\Entity\AccountRecoveryUserSetting]]></code>
-      <code><![CDATA[\Passbolt\AccountRecovery\Model\Entity\AccountRecoveryUserSetting[]]]></code>
       <code><![CDATA[\Passbolt\AccountRecovery\Model\Entity\AccountRecoveryUserSetting|false]]></code>
       <code><![CDATA[iterable<\Passbolt\AccountRecovery\Model\Entity\AccountRecoveryUserSetting>|iterable<\Cake\Datasource\EntityInterface>]]></code>
       <code><![CDATA[iterable<\Passbolt\AccountRecovery\Model\Entity\AccountRecoveryUserSetting>|iterable<\Cake\Datasource\EntityInterface>]]></code>
@@ -1351,7 +1309,6 @@
     <ImplementedReturnTypeMismatch>
       <code><![CDATA[\Passbolt\DirectorySync\Model\Entity\DirectoryEntry]]></code>
       <code><![CDATA[\Passbolt\DirectorySync\Model\Entity\DirectoryEntry]]></code>
-      <code><![CDATA[\Passbolt\DirectorySync\Model\Entity\DirectoryEntry[]]]></code>
       <code><![CDATA[\Passbolt\DirectorySync\Model\Entity\DirectoryEntry|false]]></code>
       <code><![CDATA[iterable<\Passbolt\DirectorySync\Model\Entity\DirectoryEntry>|iterable<\Cake\Datasource\EntityInterface>]]></code>
       <code><![CDATA[iterable<\Passbolt\DirectorySync\Model\Entity\DirectoryEntry>|iterable<\Cake\Datasource\EntityInterface>]]></code>
@@ -1366,7 +1323,6 @@
     <ImplementedReturnTypeMismatch>
       <code><![CDATA[\Passbolt\DirectorySync\Model\Entity\DirectoryIgnore]]></code>
       <code><![CDATA[\Passbolt\DirectorySync\Model\Entity\DirectoryIgnore]]></code>
-      <code><![CDATA[\Passbolt\DirectorySync\Model\Entity\DirectoryIgnore[]]]></code>
       <code><![CDATA[\Passbolt\DirectorySync\Model\Entity\DirectoryIgnore|false]]></code>
       <code><![CDATA[iterable<\Passbolt\DirectorySync\Model\Entity\DirectoryIgnore>|iterable<\Cake\Datasource\EntityInterface>]]></code>
       <code><![CDATA[iterable<\Passbolt\DirectorySync\Model\Entity\DirectoryIgnore>|iterable<\Cake\Datasource\EntityInterface>]]></code>
@@ -1381,7 +1337,6 @@
     <ImplementedReturnTypeMismatch>
       <code><![CDATA[\Passbolt\DirectorySync\Model\Entity\DirectoryRelation]]></code>
       <code><![CDATA[\Passbolt\DirectorySync\Model\Entity\DirectoryRelation]]></code>
-      <code><![CDATA[\Passbolt\DirectorySync\Model\Entity\DirectoryRelation[]]]></code>
       <code><![CDATA[\Passbolt\DirectorySync\Model\Entity\DirectoryRelation|false]]></code>
       <code><![CDATA[iterable<\Passbolt\DirectorySync\Model\Entity\DirectoryRelation>|iterable<\Cake\Datasource\EntityInterface>]]></code>
       <code><![CDATA[iterable<\Passbolt\DirectorySync\Model\Entity\DirectoryRelation>|iterable<\Cake\Datasource\EntityInterface>]]></code>
@@ -1393,7 +1348,6 @@
     <ImplementedReturnTypeMismatch>
       <code><![CDATA[\Passbolt\DirectorySync\Model\Entity\DirectoryReportsItem]]></code>
       <code><![CDATA[\Passbolt\DirectorySync\Model\Entity\DirectoryReportsItem]]></code>
-      <code><![CDATA[\Passbolt\DirectorySync\Model\Entity\DirectoryReportsItem[]]]></code>
       <code><![CDATA[\Passbolt\DirectorySync\Model\Entity\DirectoryReportsItem|false]]></code>
       <code><![CDATA[iterable<\Passbolt\DirectorySync\Model\Entity\DirectoryReportsItem>|iterable<\Cake\Datasource\EntityInterface>]]></code>
       <code><![CDATA[iterable<\Passbolt\DirectorySync\Model\Entity\DirectoryReportsItem>|iterable<\Cake\Datasource\EntityInterface>]]></code>
@@ -1408,7 +1362,6 @@
     <ImplementedReturnTypeMismatch>
       <code><![CDATA[\Passbolt\DirectorySync\Model\Entity\DirectoryReport]]></code>
       <code><![CDATA[\Passbolt\DirectorySync\Model\Entity\DirectoryReport]]></code>
-      <code><![CDATA[\Passbolt\DirectorySync\Model\Entity\DirectoryReport[]]]></code>
       <code><![CDATA[\Passbolt\DirectorySync\Model\Entity\DirectoryReport|false]]></code>
       <code><![CDATA[iterable<\Passbolt\DirectorySync\Model\Entity\DirectoryReport>|iterable<\Cake\Datasource\EntityInterface>]]></code>
       <code><![CDATA[iterable<\Passbolt\DirectorySync\Model\Entity\DirectoryReport>|iterable<\Cake\Datasource\EntityInterface>]]></code>
@@ -1430,7 +1383,6 @@
       <code><![CDATA[\Passbolt\Scim\Model\Entity\ScimEntry]]></code>
       <code><![CDATA[\Passbolt\Scim\Model\Entity\ScimEntry]]></code>
       <code><![CDATA[\Passbolt\Scim\Model\Entity\ScimEntry|false]]></code>
-      <code><![CDATA[array<\Passbolt\Scim\Model\Entity\ScimEntry>]]></code>
       <code><![CDATA[iterable<\Passbolt\Scim\Model\Entity\ScimEntry>]]></code>
       <code><![CDATA[iterable<\Passbolt\Scim\Model\Entity\ScimEntry>]]></code>
       <code><![CDATA[iterable<\Passbolt\Scim\Model\Entity\ScimEntry>|false]]></code>
@@ -1441,7 +1393,6 @@
     <ImplementedReturnTypeMismatch>
       <code><![CDATA[\Passbolt\Sso\Model\Entity\SsoKey]]></code>
       <code><![CDATA[\Passbolt\Sso\Model\Entity\SsoKey]]></code>
-      <code><![CDATA[\Passbolt\Sso\Model\Entity\SsoKey[]]]></code>
       <code><![CDATA[\Passbolt\Sso\Model\Entity\SsoKey|false]]></code>
       <code><![CDATA[iterable<\Passbolt\Sso\Model\Entity\SsoKey>|iterable<\Cake\Datasource\EntityInterface>]]></code>
       <code><![CDATA[iterable<\Passbolt\Sso\Model\Entity\SsoKey>|iterable<\Cake\Datasource\EntityInterface>]]></code>
@@ -1456,7 +1407,6 @@
     <ImplementedReturnTypeMismatch>
       <code><![CDATA[\Passbolt\Sso\Model\Entity\SsoSetting]]></code>
       <code><![CDATA[\Passbolt\Sso\Model\Entity\SsoSetting]]></code>
-      <code><![CDATA[\Passbolt\Sso\Model\Entity\SsoSetting[]]]></code>
       <code><![CDATA[\Passbolt\Sso\Model\Entity\SsoSetting|false]]></code>
       <code><![CDATA[iterable<\Passbolt\Sso\Model\Entity\SsoSetting>|iterable<\Cake\Datasource\EntityInterface>]]></code>
       <code><![CDATA[iterable<\Passbolt\Sso\Model\Entity\SsoSetting>|iterable<\Cake\Datasource\EntityInterface>]]></code>
@@ -1471,7 +1421,6 @@
     <ImplementedReturnTypeMismatch>
       <code><![CDATA[\Passbolt\Sso\Model\Entity\SsoState]]></code>
       <code><![CDATA[\Passbolt\Sso\Model\Entity\SsoState]]></code>
-      <code><![CDATA[\Passbolt\Sso\Model\Entity\SsoState[]]]></code>
       <code><![CDATA[\Passbolt\Sso\Model\Entity\SsoState|false]]></code>
       <code><![CDATA[iterable<\Passbolt\Sso\Model\Entity\SsoState>|iterable<\Cake\Datasource\EntityInterface>]]></code>
       <code><![CDATA[iterable<\Passbolt\Sso\Model\Entity\SsoState>|iterable<\Cake\Datasource\EntityInterface>]]></code>
@@ -1866,7 +1815,6 @@
     <ImplementedReturnTypeMismatch>
       <code><![CDATA[\Passbolt\Tags\Model\Entity\ResourcesTag]]></code>
       <code><![CDATA[\Passbolt\Tags\Model\Entity\ResourcesTag]]></code>
-      <code><![CDATA[\Passbolt\Tags\Model\Entity\ResourcesTag[]]]></code>
       <code><![CDATA[\Passbolt\Tags\Model\Entity\ResourcesTag|false]]></code>
       <code><![CDATA[iterable<\Passbolt\Tags\Model\Entity\ResourcesTag>|iterable<\Cake\Datasource\EntityInterface>]]></code>
       <code><![CDATA[iterable<\Passbolt\Tags\Model\Entity\ResourcesTag>|iterable<\Cake\Datasource\EntityInterface>]]></code>
@@ -1881,7 +1829,6 @@
     <ImplementedReturnTypeMismatch>
       <code><![CDATA[\Passbolt\Tags\Model\Entity\Tag]]></code>
       <code><![CDATA[\Passbolt\Tags\Model\Entity\Tag]]></code>
-      <code><![CDATA[\Passbolt\Tags\Model\Entity\Tag[]]]></code>
       <code><![CDATA[\Passbolt\Tags\Model\Entity\Tag|false]]></code>
       <code><![CDATA[iterable<\Passbolt\Tags\Model\Entity\Tag>|iterable<\Cake\Datasource\EntityInterface>]]></code>
       <code><![CDATA[iterable<\Passbolt\Tags\Model\Entity\Tag>|iterable<\Cake\Datasource\EntityInterface>]]></code>
@@ -1927,7 +1874,6 @@
     <ImplementedReturnTypeMismatch>
       <code><![CDATA[\App\Model\Entity\AuthenticationToken]]></code>
       <code><![CDATA[\App\Model\Entity\AuthenticationToken]]></code>
-      <code><![CDATA[\App\Model\Entity\AuthenticationToken[]]]></code>
       <code><![CDATA[\App\Model\Entity\AuthenticationToken|false]]></code>
       <code><![CDATA[iterable<\App\Model\Entity\AuthenticationToken>|iterable<\Cake\Datasource\EntityInterface>]]></code>
       <code><![CDATA[iterable<\App\Model\Entity\AuthenticationToken>|iterable<\Cake\Datasource\EntityInterface>]]></code>
@@ -1943,7 +1889,6 @@
     <ImplementedReturnTypeMismatch>
       <code><![CDATA[\App\Model\Entity\Avatar]]></code>
       <code><![CDATA[\App\Model\Entity\Avatar]]></code>
-      <code><![CDATA[\App\Model\Entity\Avatar[]]]></code>
       <code><![CDATA[\App\Model\Entity\Avatar|false]]></code>
       <code><![CDATA[iterable<\App\Model\Entity\Avatar>|iterable<\Cake\Datasource\EntityInterface>]]></code>
       <code><![CDATA[iterable<\App\Model\Entity\Avatar>|iterable<\Cake\Datasource\EntityInterface>]]></code>
@@ -1958,7 +1903,6 @@
     <ImplementedReturnTypeMismatch>
       <code><![CDATA[\App\Model\Entity\Comment]]></code>
       <code><![CDATA[\App\Model\Entity\Comment]]></code>
-      <code><![CDATA[\App\Model\Entity\Comment[]]]></code>
       <code><![CDATA[\App\Model\Entity\Comment|false]]></code>
       <code><![CDATA[iterable<\App\Model\Entity\Comment>|iterable<\Cake\Datasource\EntityInterface>]]></code>
       <code><![CDATA[iterable<\App\Model\Entity\Comment>|iterable<\Cake\Datasource\EntityInterface>]]></code>
@@ -1973,7 +1917,6 @@
     <ImplementedReturnTypeMismatch>
       <code><![CDATA[\App\Model\Entity\Favorite]]></code>
       <code><![CDATA[\App\Model\Entity\Favorite]]></code>
-      <code><![CDATA[\App\Model\Entity\Favorite[]]]></code>
       <code><![CDATA[\App\Model\Entity\Favorite|false]]></code>
       <code><![CDATA[iterable<\App\Model\Entity\Favorite>|iterable<\Cake\Datasource\EntityInterface>]]></code>
       <code><![CDATA[iterable<\App\Model\Entity\Favorite>|iterable<\Cake\Datasource\EntityInterface>]]></code>
@@ -1988,7 +1931,6 @@
     <ImplementedReturnTypeMismatch>
       <code><![CDATA[\App\Model\Entity\Gpgkey]]></code>
       <code><![CDATA[\App\Model\Entity\Gpgkey]]></code>
-      <code><![CDATA[\App\Model\Entity\Gpgkey[]]]></code>
       <code><![CDATA[\App\Model\Entity\Gpgkey|false]]></code>
       <code><![CDATA[iterable<\App\Model\Entity\Gpgkey>|iterable<\Cake\Datasource\EntityInterface>]]></code>
       <code><![CDATA[iterable<\App\Model\Entity\Gpgkey>|iterable<\Cake\Datasource\EntityInterface>]]></code>
@@ -2003,7 +1945,6 @@
     <ImplementedReturnTypeMismatch>
       <code><![CDATA[\App\Model\Entity\Group]]></code>
       <code><![CDATA[\App\Model\Entity\Group]]></code>
-      <code><![CDATA[\App\Model\Entity\Group[]]]></code>
       <code><![CDATA[\App\Model\Entity\Group|false]]></code>
       <code><![CDATA[iterable<\App\Model\Entity\Group>|iterable<\Cake\Datasource\EntityInterface>]]></code>
       <code><![CDATA[iterable<\App\Model\Entity\Group>|iterable<\Cake\Datasource\EntityInterface>]]></code>
@@ -2018,7 +1959,6 @@
     <ImplementedReturnTypeMismatch>
       <code><![CDATA[\App\Model\Entity\GroupsUser]]></code>
       <code><![CDATA[\App\Model\Entity\GroupsUser]]></code>
-      <code><![CDATA[\App\Model\Entity\GroupsUser[]]]></code>
       <code><![CDATA[\App\Model\Entity\GroupsUser|false]]></code>
       <code><![CDATA[iterable<\App\Model\Entity\GroupsUser>|iterable<\Cake\Datasource\EntityInterface>]]></code>
       <code><![CDATA[iterable<\App\Model\Entity\GroupsUser>|iterable<\Cake\Datasource\EntityInterface>]]></code>
@@ -2033,7 +1973,6 @@
     <ImplementedReturnTypeMismatch>
       <code><![CDATA[\App\Model\Entity\OrganizationSetting]]></code>
       <code><![CDATA[\App\Model\Entity\OrganizationSetting]]></code>
-      <code><![CDATA[\App\Model\Entity\OrganizationSetting[]]]></code>
       <code><![CDATA[\App\Model\Entity\OrganizationSetting|false]]></code>
       <code><![CDATA[iterable<\App\Model\Entity\OrganizationSetting>|iterable<\Cake\Datasource\EntityInterface>]]></code>
       <code><![CDATA[iterable<\App\Model\Entity\OrganizationSetting>|iterable<\Cake\Datasource\EntityInterface>]]></code>
@@ -2045,7 +1984,6 @@
     <ImplementedReturnTypeMismatch>
       <code><![CDATA[\App\Model\Entity\Permission]]></code>
       <code><![CDATA[\App\Model\Entity\Permission]]></code>
-      <code><![CDATA[\App\Model\Entity\Permission[]]]></code>
       <code><![CDATA[\App\Model\Entity\Permission|false]]></code>
       <code><![CDATA[iterable<\App\Model\Entity\Permission>|iterable<\Cake\Datasource\EntityInterface>]]></code>
       <code><![CDATA[iterable<\App\Model\Entity\Permission>|iterable<\Cake\Datasource\EntityInterface>]]></code>
@@ -2060,7 +1998,6 @@
     <ImplementedReturnTypeMismatch>
       <code><![CDATA[\App\Model\Entity\Profile]]></code>
       <code><![CDATA[\App\Model\Entity\Profile]]></code>
-      <code><![CDATA[\App\Model\Entity\Profile[]]]></code>
       <code><![CDATA[\App\Model\Entity\Profile|false]]></code>
       <code><![CDATA[iterable<\App\Model\Entity\Profile>|iterable<\Cake\Datasource\EntityInterface>]]></code>
       <code><![CDATA[iterable<\App\Model\Entity\Profile>|iterable<\Cake\Datasource\EntityInterface>]]></code>
@@ -2075,7 +2012,6 @@
     <ImplementedReturnTypeMismatch>
       <code><![CDATA[\App\Model\Entity\Resource]]></code>
       <code><![CDATA[\App\Model\Entity\Resource]]></code>
-      <code><![CDATA[\App\Model\Entity\Resource[]]]></code>
       <code><![CDATA[\App\Model\Entity\Resource|false]]></code>
       <code><![CDATA[iterable<\App\Model\Entity\Resource>|iterable<\Cake\Datasource\EntityInterface>]]></code>
       <code><![CDATA[iterable<\App\Model\Entity\Resource>|iterable<\Cake\Datasource\EntityInterface>]]></code>
@@ -2090,7 +2026,6 @@
     <ImplementedReturnTypeMismatch>
       <code><![CDATA[\App\Model\Entity\Role]]></code>
       <code><![CDATA[\App\Model\Entity\Role]]></code>
-      <code><![CDATA[\App\Model\Entity\Role[]]]></code>
       <code><![CDATA[\App\Model\Entity\Role|false]]></code>
       <code><![CDATA[iterable<\App\Model\Entity\Role>|iterable<\Cake\Datasource\EntityInterface>]]></code>
       <code><![CDATA[iterable<\App\Model\Entity\Role>|iterable<\Cake\Datasource\EntityInterface>]]></code>
@@ -2105,7 +2040,6 @@
     <ImplementedReturnTypeMismatch>
       <code><![CDATA[\App\Model\Entity\Secret]]></code>
       <code><![CDATA[\App\Model\Entity\Secret]]></code>
-      <code><![CDATA[\App\Model\Entity\Secret[]]]></code>
       <code><![CDATA[\App\Model\Entity\Secret|false]]></code>
       <code><![CDATA[iterable<\App\Model\Entity\Secret>|iterable<\Cake\Datasource\EntityInterface>]]></code>
       <code><![CDATA[iterable<\App\Model\Entity\Secret>|iterable<\Cake\Datasource\EntityInterface>]]></code>
@@ -2120,7 +2054,6 @@
     <ImplementedReturnTypeMismatch>
       <code><![CDATA[\App\Model\Entity\User]]></code>
       <code><![CDATA[\App\Model\Entity\User]]></code>
-      <code><![CDATA[\App\Model\Entity\User[]]]></code>
       <code><![CDATA[\App\Model\Entity\User|false]]></code>
       <code><![CDATA[iterable<\App\Model\Entity\User>|iterable<\Cake\Datasource\EntityInterface>]]></code>
       <code><![CDATA[iterable<\App\Model\Entity\User>|iterable<\Cake\Datasource\EntityInterface>]]></code>

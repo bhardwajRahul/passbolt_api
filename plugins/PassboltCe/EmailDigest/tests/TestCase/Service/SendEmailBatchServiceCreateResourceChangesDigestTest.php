@@ -75,7 +75,9 @@ class SendEmailBatchServiceCreateResourceChangesDigestTest extends AppIntegratio
         $this->postJson('/resources.json', $data);
         $this->assertSuccess();
 
-        $this->service->sendNextEmailsBatch(EmailQueueFactory::find()->all()->toArray());
+        /** @var array<\Cake\ORM\Entity> $emailQueue */
+        $emailQueue = EmailQueueFactory::find()->all()->toArray();
+        $this->service->sendNextEmailsBatch($emailQueue);
 
         $this->assertSame(1, ResourceFactory::count());
         $this->assertMailCount(1);
@@ -108,7 +110,9 @@ class SendEmailBatchServiceCreateResourceChangesDigestTest extends AppIntegratio
             $this->assertSuccess();
         }
 
-        $this->service->sendNextEmailsBatch(EmailQueueFactory::find()->all()->toArray());
+        /** @var array<\Cake\ORM\Entity> $emailQueue */
+        $emailQueue = EmailQueueFactory::find()->all()->toArray();
+        $this->service->sendNextEmailsBatch($emailQueue);
 
         $this->assertSame($nResourcesAdded, ResourceFactory::count());
 

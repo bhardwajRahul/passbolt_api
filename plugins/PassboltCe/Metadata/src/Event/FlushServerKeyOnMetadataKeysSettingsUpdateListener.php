@@ -68,7 +68,7 @@ class FlushServerKeyOnMetadataKeysSettingsUpdateListener implements EventListene
         $table = TableRegistry::getTableLocator()->get('Passbolt/Metadata.MetadataPrivateKeys');
         /** @var \Cake\ORM\Query\SelectQuery $query */
         $query = $table->find();
-        $serverPrivateKeys = $query->where([$query->newExpr()->isNull('user_id')])->all();
+        $serverPrivateKeys = $query->where([$query->expr()->isNull('user_id')])->all();
 
         /** @var \Passbolt\Metadata\Model\Entity\MetadataPrivateKey $serverPrivateKey */
         foreach ($serverPrivateKeys as $serverPrivateKey) {

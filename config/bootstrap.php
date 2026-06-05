@@ -32,7 +32,6 @@ require CORE_PATH . 'config' . DS . 'bootstrap.php';
 
 use App\Mailer\Transport\DebugTransport;
 use App\Mailer\Transport\SmtpTransport;
-use App\Service\Subscriptions\EditionManager;
 use Cake\Cache\Cache;
 use Cake\Database\Type\JsonType;
 use Cake\Database\TypeFactory;
@@ -67,10 +66,7 @@ try {
     Configure::load('app', 'default', false);
     Configure::load('default', 'default', false); // passbolt default config
     Configure::load('version', 'default', true);
-    if (Configure::read('passbolt.edition') === EditionManager::EDITION_PRO) {
-        Configure::load('pro', 'default', true); // pro default config
-    }
-
+    Configure::load('pro', 'default', true); // pro defaults — plugins are disabled runtime by EditionManager when in CE mode
     Configure::load('audit_logs', 'default', true); // audit logs config
     if (\file_exists(CONFIG . DS . 'passbolt.php')) {
         Configure::load('passbolt', 'default', true); // merge with default config
@@ -88,18 +84,6 @@ try {
         exit($e->getMessage() . "\n");
     }
 }
-
-// Workaround for cakephp/cakephp#19407: Session::_defaultConfig() only applies the
-// SameSite=Lax default to the 'php' preset. Set it explicitly so cache/database/cake
-// presets get it too. Remove once cakephp/cakephp ships the fix.
-// The ini key contains literal dots, so it must be set inside the array — not via
-// a dotted Configure path, which Configure::write would interpret as nesting.
-$sessionIni = (array)Configure::read('Session.ini');
-if (!isset($sessionIni['session.cookie_samesite'])) {
-    $sessionIni['session.cookie_samesite'] = 'Lax';
-    Configure::write('Session.ini', $sessionIni);
-}
-unset($sessionIni);
 
 /**
  * Overwrite these paths. This is a helper to ensure CakePHP3 to 4 retro-compatibility
@@ -258,9 +242,6 @@ TypeFactory::map('time', StringType::class);
 $uid = posix_getuid();
 $user = posix_getpwuid($uid);
 define('PROCESS_USER', $user['name']);
-
-// Are we running passbolt pro?
-define('PASSBOLT_PRO', Configure::read('passbolt.edition') === 'pro');
 
 /**
  * Set email queue plugin serialization type to JSON.

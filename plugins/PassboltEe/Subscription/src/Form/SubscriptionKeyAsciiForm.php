@@ -181,7 +181,7 @@ class SubscriptionKeyAsciiForm extends Form
     {
         $msg = __('The subscription key cannot be verified.');
         $subscription = '';
-        $filePublicKey = Configure::read('passbolt.plugins.subscription.subscriptionKey.public');
+        $filePublicKey = Configure::read('passbolt.plugins.edition.subscriptionKey.public');
 
         if (!$filePublicKey || !file_exists($filePublicKey)) {
             $msg .= ' ' . __('The passbolt OpenPGP public key could not be found.');
@@ -219,7 +219,7 @@ class SubscriptionKeyAsciiForm extends Form
      * @param array $data formdata
      * @return bool
      */
-    protected function _execute(array $data): bool
+    protected function process(array $data): bool
     {
         return true;
     }

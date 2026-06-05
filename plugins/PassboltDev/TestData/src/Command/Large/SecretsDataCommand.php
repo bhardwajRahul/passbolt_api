@@ -41,6 +41,7 @@ class SecretsDataCommand extends DataCommand
         // As a default key can be shared among user, the encryption will require the key fingerprint.
         // As the key meta data are already stored in db, get the meta data from the db and avoid performance issue
         // by avoiding any gpg extra parsing.
+        /** @var array<\App\Model\Entity\Gpgkey> $gpgkeys */
         $gpgkeys = $gpgkeysTable->find()->all();
         foreach ($gpgkeys as $gpgkey) {
             $this->gpgkeys[$gpgkey->user_id] = $gpgkey->fingerprint;

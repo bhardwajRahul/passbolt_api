@@ -84,7 +84,9 @@ class ResourcesTagsDataCommand extends DataCommand
         $resourcesTable = $this->fetchTable('Resources');
         $tagsTable = $this->fetchTable('Tags');
 
+        /** @var array<\Passbolt\Tags\Model\Entity\Tag> $tags */
         $tags = $tagsTable->find()->where(['is_shared' => true])->all();
+        /** @var array<\App\Model\Entity\Resource> $resources */
         $resources = $resourcesTable->find()->all();
         foreach ($resources as $resource) {
             foreach ($tags as $tag) {

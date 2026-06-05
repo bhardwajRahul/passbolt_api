@@ -8,17 +8,15 @@ declare(strict_types=1);
  * unit tests in this file.
  */
 
-use App\Service\Subscriptions\EditionManager;
-use Cake\Core\Configure;
 use Cake\Datasource\ConnectionManager;
 use Cake\TestSuite\ConnectionHelper;
 use Migrations\TestSuite\Migrator;
+use Passbolt\Edition\Service\EditionManager;
+use Passbolt\Edition\Test\Lib\TestingEditionManager;
 
 require dirname(__DIR__) . '/vendor/autoload.php';
 require dirname(__DIR__) . '/config/bootstrap.php';
-// Enforcing the edition to PRO to homogenize the code on the CE edition
-Configure::write('passbolt.edition', EditionManager::EDITION_PRO);
-Configure::load('pro', 'default', true); // pro default config
+EditionManager::setInstance(new TestingEditionManager());
 
 $_SERVER['PHP_SELF'] = '/';
 

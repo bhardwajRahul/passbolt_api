@@ -227,6 +227,7 @@ class FoldersShareService
         UserAccessControl $uac,
         Folder $folder
     ): void {
+        /** @var array<\Passbolt\Folders\Model\Entity\FoldersRelation> $personalItems */
         $personalItems = $this->foldersRelationsTable
             ->findByUserIdAndFolderParentId($uac->getId(), $folder->id)
             ->select(['foreign_id', 'foreign_model'])

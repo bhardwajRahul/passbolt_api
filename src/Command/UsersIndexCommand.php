@@ -111,6 +111,7 @@ class UsersIndexCommand extends PassboltCommand
             );
         }
 
+        /** @var array<\App\Model\Entity\User> $users */
         $users = $query->toArray();
 
         if (count($users) === 0) {
@@ -130,11 +131,11 @@ class UsersIndexCommand extends PassboltCommand
                 $user->username,
                 $user->profile->last_name ?? '',
                 $user->profile->first_name ?? '',
-                $user->created?->toAtomString() ?? '',
+                $user->created->toAtomString(),
                 $user->active ? 'yes' : 'no',
                 $user->disabled ? 'yes' : 'no',
                 $user->deleted ? 'yes' : 'no',
-                $user->is_mfa_enabled ? 'yes' : 'no',
+                $user->get('is_mfa_enabled') ? 'yes' : 'no',
             ];
         }
 

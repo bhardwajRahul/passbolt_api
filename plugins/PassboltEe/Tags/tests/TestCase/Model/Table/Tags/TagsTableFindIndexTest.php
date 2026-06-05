@@ -101,6 +101,7 @@ class TagsTableFindIndexTest extends TagTestCase
         /** @var \Passbolt\Tags\Model\Entity\Tag $tag */
         $tag = TagFactory::make()->isPersonalFor($resource, $user)->persist();
 
+        /** @var array<\Passbolt\Tags\Model\Entity\Tag> $result */
         $result = $this->tagsTable->findIndex($user->id)->all()->toArray();
         $this->assertCount(1, $result);
         $this->assertEquals($tag->id, $result[0]->id);
@@ -125,6 +126,7 @@ class TagsTableFindIndexTest extends TagTestCase
         /** @var \Passbolt\Tags\Model\Entity\Tag $tag */
         $tag = TagFactory::make()->isSharedFor($resource)->persist();
 
+        /** @var array<\Passbolt\Tags\Model\Entity\Tag> $result */
         $result = $this->tagsTable->findIndex($user->id)->all()->toArray();
         $this->assertCount(1, $result);
         $this->assertEquals($tag->id, $result[0]->id);

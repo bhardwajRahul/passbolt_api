@@ -83,6 +83,7 @@ class ResourcesDeleteController extends AppController
 
         // Retrieve the resource to delete.
         try {
+            /** @var \App\Model\Entity\Resource $resource */
             $resource = $this->Resources->find()
                 ->contain(['ResourceTypes'])
                 ->where(['Resources.id' => $id])
