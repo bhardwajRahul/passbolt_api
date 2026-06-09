@@ -40,9 +40,21 @@ class EmailController extends WebInstallerController
     {
         parent::initialize();
         $this->stepInfo['previous'] = '/install/options';
-        $this->stepInfo['next'] = $this->webInstaller->getSettings('hasAdmin') ?
-            'install/installation' : '/install/account_creation';
+        $this->stepInfo['next'] = $this->getNext();
         $this->stepInfo['template'] = 'Pages/email';
+    }
+
+    /**
+     * The step following email: account_creation when no admin exists yet,
+     * otherwise subscription
+     */
+    protected function getNext(): string
+    {
+        if (!$this->webInstaller->getSettings('hasAdmin')) {
+            return '/install/account_creation';
+        }
+
+        return '/install/subscription';
     }
 
     /**

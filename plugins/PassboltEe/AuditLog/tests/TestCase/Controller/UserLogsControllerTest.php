@@ -96,6 +96,7 @@ class UserLogsControllerTest extends LogIntegrationTestCase
                 'profile' => [
                     'first_name' => $user->profile->first_name,
                     'last_name' => $user->profile->last_name,
+                    'id' => $user->profile->id,
                 ],
             ]];
             $this->assertSame($expectedData, $actionLog['data']);

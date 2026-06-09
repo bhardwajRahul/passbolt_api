@@ -20,12 +20,14 @@ namespace Passbolt\Folders\Test\TestCase\Service\FoldersRelations;
 use App\Error\Exception\CustomValidationException;
 use App\Model\Entity\Permission;
 use App\Model\Entity\Role;
+use App\Model\Table\PermissionsTable;
 use App\Test\Factory\GroupFactory;
 use App\Test\Factory\UserFactory;
 use App\Utility\UserAccessControl;
 use App\Utility\UuidFactory;
 use Cake\Utility\Hash;
 use Passbolt\Folders\Model\Entity\FoldersRelation;
+use Passbolt\Folders\Service\FoldersRelations\FoldersRelationsDetectStronglyConnectedComponentsService;
 use Passbolt\Folders\Service\FoldersRelations\FoldersRelationsMoveItemInUserTreeService;
 use Passbolt\Folders\Test\Factory\FolderFactory;
 use Passbolt\Folders\Test\Factory\FoldersRelationFactory;
@@ -460,7 +462,6 @@ class FoldersRelationsMoveItemInUserTreeServiceTest extends FoldersTestCase
         /** @var \Passbolt\Folders\Model\Entity\Folder $folderD */
         $folderD = FolderFactory::make()
             ->withPermissionsFor([$userC, $userD, $userE])
-            ->withFoldersRelationsFor([$userC], $folderB)
             ->withFoldersRelationsFor([$userD, $userE])
             ->persist();
         /** @var \Passbolt\Folders\Model\Entity\Folder $folderC */
@@ -471,17 +472,27 @@ class FoldersRelationsMoveItemInUserTreeServiceTest extends FoldersTestCase
         $folderA = FolderFactory::make()
             ->withPermissionsFor([$userA, $userB])
             ->withFoldersRelationsFor([$userA])
-            ->withFoldersRelationsFor([$userB], $folderC)
             ->persist();
-        // in order to make the test predictable, we need to make the relation C->A older than the relation D->C, so
-        // the algorithm will always choose the relation to break.
-        sleep(1);
-        FoldersRelationFactory::make()
+        // SCC repair tie-breaks on MIN(created). Pin the cycle relations explicitly so the
+        // algorithm always picks "D under B" as the relation to break: the kept "A under C"
+        // must be older than "D under B". FoldersRelationFactory's default `created` is a
+        // random past date, which makes the comparison non-deterministic without this pin.
+        FoldersRelationFactory::make(['created' => '2020-01-01 00:00:00'])
+            ->user($userB)
+            ->foreignModelFolder($folderA)
+            ->folderParent($folderC)
+            ->persist();
+        FoldersRelationFactory::make(['created' => '2020-02-01 00:00:00'])
+            ->user($userC)
+            ->foreignModelFolder($folderD)
+            ->folderParent($folderB)
+            ->persist();
+        FoldersRelationFactory::make(['created' => '2020-02-01 00:00:00'])
             ->user($userC)
             ->foreignModelFolder($folderC)
             ->folderParent($folderD)
             ->persist();
-        FoldersRelationFactory::make()
+        FoldersRelationFactory::make(['created' => '2020-02-01 00:00:00'])
             ->user($userE)
             ->foreignModelFolder($folderC)
             ->folderParent($folderD)
@@ -1165,5 +1176,78 @@ class FoldersRelationsMoveItemInUserTreeServiceTest extends FoldersTestCase
         $this->assertItemIsInTrees($resourceA->get('id'), 2);
         $this->assertFolderRelation($resourceA->get('id'), FoldersRelation::FOREIGN_MODEL_RESOURCE, $userA->id, FoldersRelation::ROOT);
         $this->assertFolderRelation($resourceA->get('id'), FoldersRelation::FOREIGN_MODEL_RESOURCE, $userB->id, FoldersRelation::ROOT);
+    }
+
+    /*
+     * End-to-end regression for the cooperating-users cycle exploit.
+     *
+     * Setup mirrors the exploit's pre-move state:
+     *   Ada's tree:   Alpha (shared) -> Bravo (personal) -> Charlie (shared)
+     *   Carol's tree: Alpha at root, Charlie at root (Carol cannot see Bravo)
+     *
+     * Carol then moves Alpha into Charlie. Before the fix, the global SCC detector
+     * skipped Bravo (1 user => "personal"), so the resulting cycle in Ada's tree
+     * (Charlie -> Alpha -> Bravo -> Charlie) went undetected and her three folders
+     * silently disappeared from the UI. With the fix, the detector sees the cycle
+     * and the repair service breaks one edge so Ada's folders remain reachable.
+     */
+
+    public function testMoveItemInUserTreeSuccess_Folder_CycleThroughPersonalIntermediaryIsDetectedAndRepaired()
+    {
+        [$folderAlpha, $folderBravo, $folderCharlie, $userAdaId, $userCarolId] =
+            $this->insertFixture_Folder_CycleThroughPersonalIntermediary();
+        $uac = new UserAccessControl(Role::USER, $userCarolId);
+
+        $this->service->move($uac, FoldersRelation::FOREIGN_MODEL_FOLDER, $folderAlpha->id, $folderCharlie->id);
+
+        // Carol's view: the move she requested took effect.
+        $this->assertFolderRelation($folderAlpha->id, FoldersRelation::FOREIGN_MODEL_FOLDER, $userCarolId, $folderCharlie->id);
+        $this->assertFolderRelation($folderCharlie->id, FoldersRelation::FOREIGN_MODEL_FOLDER, $userCarolId, FoldersRelation::ROOT);
+
+        // Ada's tree must remain cycle-free. The repair service breaks exactly one
+        // edge in the cycle; we don't lock down which one (it depends on relation
+        // age/usage tie-breakers), but Ada's tree must not contain a closed loop.
+        $sccDetector = new FoldersRelationsDetectStronglyConnectedComponentsService();
+        $this->assertEmpty(
+            $sccDetector->detectInUserTree($userAdaId),
+            "Ada's tree still contains a cycle after the move; the repair service did not break it."
+        );
+
+        // All three folders are still present in Ada's tree (none were deleted).
+        $this->assertItemIsInTrees($folderAlpha->id, 2);
+        $this->assertItemIsInTrees($folderBravo->id, 1);
+        $this->assertItemIsInTrees($folderCharlie->id, 2);
+    }
+
+    private function insertFixture_Folder_CycleThroughPersonalIntermediary()
+    {
+        // Pre-move state (Phase 1-4 of the exploit):
+        //   Alpha   (Ada:O, Carol:O) - root for both
+        //   Bravo   (Ada:O)          - parent: Alpha (personal to Ada)
+        //   Charlie (Ada:O, Carol:O) - parent: Bravo for Ada, root for Carol
+        $userAdaId = UuidFactory::uuid('user.id.ada');
+        $userCarolId = UuidFactory::uuid('user.id.carol');
+
+        $folderAlpha = $this->addFolder(['name' => 'Alpha']);
+        $folderBravo = $this->addFolder(['name' => 'Bravo']);
+        $folderCharlie = $this->addFolder(['name' => 'Charlie']);
+
+        // Alpha is shared with Ada and Carol, both at root.
+        $this->addPermission('Folder', $folderAlpha->id, 'User', $userAdaId, Permission::OWNER);
+        $this->addPermission('Folder', $folderAlpha->id, 'User', $userCarolId, Permission::OWNER);
+        $this->addFolderRelation(['foreign_model' => PermissionsTable::FOLDER_ACO, 'foreign_id' => $folderAlpha->id, 'user_id' => $userAdaId, 'folder_parent_id' => FoldersRelation::ROOT]);
+        $this->addFolderRelation(['foreign_model' => PermissionsTable::FOLDER_ACO, 'foreign_id' => $folderAlpha->id, 'user_id' => $userCarolId, 'folder_parent_id' => FoldersRelation::ROOT]);
+
+        // Bravo is personal to Ada, parent = Alpha.
+        $this->addPermission('Folder', $folderBravo->id, 'User', $userAdaId, Permission::OWNER);
+        $this->addFolderRelation(['foreign_model' => PermissionsTable::FOLDER_ACO, 'foreign_id' => $folderBravo->id, 'user_id' => $userAdaId, 'folder_parent_id' => $folderAlpha->id]);
+
+        // Charlie is shared. Ada sees it under Bravo; Carol sees it at root.
+        $this->addPermission('Folder', $folderCharlie->id, 'User', $userAdaId, Permission::OWNER);
+        $this->addPermission('Folder', $folderCharlie->id, 'User', $userCarolId, Permission::OWNER);
+        $this->addFolderRelation(['foreign_model' => PermissionsTable::FOLDER_ACO, 'foreign_id' => $folderCharlie->id, 'user_id' => $userAdaId, 'folder_parent_id' => $folderBravo->id]);
+        $this->addFolderRelation(['foreign_model' => PermissionsTable::FOLDER_ACO, 'foreign_id' => $folderCharlie->id, 'user_id' => $userCarolId, 'folder_parent_id' => FoldersRelation::ROOT]);
+
+        return [$folderAlpha, $folderBravo, $folderCharlie, $userAdaId, $userCarolId];
     }
 }

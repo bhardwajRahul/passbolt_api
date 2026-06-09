@@ -73,7 +73,7 @@ class MetadataSettingsGetStartedService
 
             return $query
                 ->where([
-                    $query->newExpr()->or(function (QueryExpression $or) use ($typesSettingProperty, $keysSettingProperty) { // phpcs:ignore
+                    $query->expr()->or(function (QueryExpression $or) use ($typesSettingProperty, $keysSettingProperty) { // phpcs:ignore
 
                         return $or
                             ->eq('property_id', UuidFactory::uuid($typesSettingProperty))

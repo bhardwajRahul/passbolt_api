@@ -68,6 +68,7 @@ trait AssertDirectoryTrait
      */
     public function assertDirectoryEntryExists(array $where)
     {
+        /** @var array<\Passbolt\DirectorySync\Model\Entity\DirectoryEntry> $syncEntry */
         $syncEntry = $this->action->DirectoryEntries->find()->where($where)->all()->toArray();
         $this->assertEquals(1, count($syncEntry));
 
@@ -80,6 +81,7 @@ trait AssertDirectoryTrait
      */
     public function assertOrphanDirectoryEntryExists($id)
     {
+        /** @var array<\Passbolt\DirectorySync\Model\Entity\DirectoryEntry> $syncEntry */
         $syncEntry = $this->action->DirectoryEntries->find()->where(['id' => $id, 'foreign_key IS NULL'])->all()->toArray();
         $this->assertEquals(1, count($syncEntry));
 
@@ -96,6 +98,7 @@ trait AssertDirectoryTrait
         $u = $Users->find()->where($where)->first();
 
         $where = ['foreign_model' => Alias::MODEL_USERS, 'foreign_key' => $u->get('id')];
+        /** @var array<\Passbolt\DirectorySync\Model\Entity\DirectoryEntry> $syncEntry */
         $syncEntry = $this->action->DirectoryEntries->find()->where($where)->all()->toArray();
         $this->assertEquals(1, count($syncEntry));
 
@@ -112,6 +115,7 @@ trait AssertDirectoryTrait
         $g = $Groups->find()->where($where)->first();
 
         $where = ['foreign_model' => Alias::MODEL_GROUPS, 'foreign_key' => $g->get('id')];
+        /** @var array<\Passbolt\DirectorySync\Model\Entity\DirectoryEntry> $syncEntry */
         $syncEntry = $this->action->DirectoryEntries->find()->where($where)->all()->toArray();
         $this->assertEquals(1, count($syncEntry));
 
@@ -124,6 +128,7 @@ trait AssertDirectoryTrait
      */
     public function assertDirectoryEntryNotExists(array $where)
     {
+        /** @var array<\Passbolt\DirectorySync\Model\Entity\DirectoryEntry> $syncEntry */
         $syncEntry = $this->action->DirectoryEntries->find()->where($where)->all()->toArray();
         $this->assertEmpty($syncEntry);
 

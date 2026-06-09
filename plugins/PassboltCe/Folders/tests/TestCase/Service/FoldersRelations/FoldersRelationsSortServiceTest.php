@@ -328,6 +328,7 @@ class FoldersRelationsSortServiceTest extends FoldersTestCase
      * C (Any:O)
      * With Ada as operator the sort should return A, B, C
      */
+
     public function testSortByPriorityCreatedOldestTree()
     {
         $userA = UserFactory::make()->persist();
@@ -341,5 +342,50 @@ class FoldersRelationsSortServiceTest extends FoldersTestCase
         $this->assertEquals($folderRelationA->id, $foldersRelations[0]->id);
         $this->assertEquals($folderRelationB->id, $foldersRelations[1]->id);
         $this->assertEquals($folderRelationC->id, $foldersRelations[2]->id);
+    }
+
+    /*
+     * Sort by priority "Shared Parent"
+     */
+
+    /*
+     * Ensure a relation whose parent is a shared folder has priority over a relation whose parent is a personal
+     * folder, once the "in operator tree", "most used" and "in user tree" rules all tie. This is the tie-breaker
+     * that keeps cycle repairs deterministic: personal-parent edges are broken first (see `repairPersonal`).
+     * A (Other:O) - parent is a shared folder
+     * B (Other:O) - parent is a personal folder
+     * With Ada as operator the sort should return A, B
+     */
+
+    public function testSortByPrioritySharedParent()
+    {
+        /** @var \App\Model\Entity\User $userA */
+        $userA = UserFactory::make()->persist();
+        $uac = new UserAccessControl($userA->role->name, $userA->id);
+
+        // Shared parent: referenced by more than one relation -> not personal.
+        $sharedParentFolder = FolderFactory::make()->persist();
+        FoldersRelationFactory::make(2)->foreignModelFolder($sharedParentFolder)->persist();
+
+        // Personal parent: referenced by a single relation -> personal.
+        $personalParentFolder = FolderFactory::make()->persist();
+        FoldersRelationFactory::make()->foreignModelFolder($personalParentFolder)->persist();
+
+        /** @var \Passbolt\Folders\Model\Entity\FoldersRelation $folderRelationSharedParent */
+        $folderRelationSharedParent = FoldersRelationFactory::make()
+            ->foreignModelFolder(FolderFactory::make()->persist())
+            ->folderParent($sharedParentFolder)
+            ->persist();
+        /** @var \Passbolt\Folders\Model\Entity\FoldersRelation $folderRelationPersonalParent */
+        $folderRelationPersonalParent = FoldersRelationFactory::make()
+            ->foreignModelFolder(FolderFactory::make()->persist())
+            ->folderParent($personalParentFolder)
+            ->persist();
+
+        $foldersRelations = [$folderRelationPersonalParent, $folderRelationSharedParent];
+
+        $this->service->sort($foldersRelations, $uac);
+        $this->assertEquals($folderRelationSharedParent->id, $foldersRelations[0]->id);
+        $this->assertEquals($folderRelationPersonalParent->id, $foldersRelations[1]->id);
     }
 }

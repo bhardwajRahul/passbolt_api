@@ -21,6 +21,7 @@ use Cake\Core\PluginCollection;
 use Cake\TestSuite\IntegrationTestTrait;
 use Cake\TestSuite\TestCase;
 use Cake\Utility\Hash;
+use CakephpTestSuiteLight\Fixture\TruncateDirtyTables;
 use Passbolt\EmailDigest\Utility\Digest\DigestTemplateRegistry;
 use Passbolt\EmailNotificationSettings\Utility\EmailNotificationSettings;
 
@@ -28,6 +29,7 @@ abstract class SolutionBootstrapperTestCase extends TestCase
 {
     use FeaturePluginAwareTrait;
     use IntegrationTestTrait;
+    use TruncateDirtyTables;
 
     /**
      * @var \App\Application

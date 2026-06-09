@@ -113,7 +113,7 @@ class TotpSetupForm extends MfaForm
      * @param array $data user submited data
      * @return bool
      */
-    protected function _execute(array $data): bool
+    protected function process(array $data): bool
     {
         try {
             $data = ['otpProvisioningUri' => $data['otpProvisioningUri']];

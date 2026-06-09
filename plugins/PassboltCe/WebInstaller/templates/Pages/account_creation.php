@@ -1,3 +1,6 @@
+<?php
+use Cake\Routing\Router;
+?>
 <?= $this->element('header', ['title' => __('Create your user account!')]) ?>
 <div class="panel main ">
     <!-- wizard steps -->
@@ -56,6 +59,7 @@
             </div>
             <div class="row last">
                 <div class="input-wrapper">
+                    <a href="<?= Router::url($stepInfo['previous'], true); ?>" class="button cancel medium"><?= __('Cancel'); ?></a>
                     <input type="submit" class="button primary next medium" value="<?= __('Next'); ?>">
                 </div>
             </div>

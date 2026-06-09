@@ -71,6 +71,7 @@ class PasswordExpirySetSettingsServiceTest extends AppTestCase
         $this->assertNotNull($result->created_by);
         $this->assertNotNull($result->modified);
         $this->assertNotNull($result->modified_by);
+        /** @var array<\Passbolt\PasswordExpiry\Model\Entity\PasswordExpirySetting> $settings */
         $settings = PasswordExpirySettingFactory::find()->toArray();
         $this->assertCount(1, $settings);
         $this->assertSame($this->getDefaultPasswordExpirySettings(), $settings[0]->value);

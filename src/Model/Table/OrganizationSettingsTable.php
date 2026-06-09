@@ -177,6 +177,7 @@ class OrganizationSettingsTable extends Table
             ->first();
         if ($settingItem) {
             $settingValues['modified_by'] = $control->getId();
+            /** @var \App\Model\Entity\OrganizationSetting $settingItem */
             $settingItem = $this->patchEntity($settingItem, $settingValues);
         } else {
             $settingValues['created_by'] = $settingValues['modified_by'] = $control->getId();

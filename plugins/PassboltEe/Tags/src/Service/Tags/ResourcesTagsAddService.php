@@ -149,6 +149,7 @@ class ResourcesTagsAddService
         // The tag the user is adding already exist, associate it to the resource.
         $encryptedTagsIds = Hash::extract($encryptedTags, '{n}.id');
         if ($clearTextTags || $encryptedTagsIds) {
+            /** @var array<\Passbolt\Tags\Model\Entity\Tag> $existingTags */
             $existingTags = $this->Tags->findAllBySlugsOrIds($uac, $clearTextTags, $encryptedTagsIds)->all()->toArray();
             foreach ($existingTags as $existingTag) {
                 $tagDto = MetadataTagDto::fromArray($existingTag->toArray());
@@ -162,9 +163,9 @@ class ResourcesTagsAddService
                 }
 
                 if ($tagDto->isPersonal()) {
-                    $existingTag->_joinData = $this->Tags->ResourcesTags->newEntity([
+                    $existingTag->set('_joinData', $this->Tags->ResourcesTags->newEntity([
                         'user_id' => $userId,
-                    ]);
+                    ]));
                 }
 
                 $tags = $resource->get('tags') ?? [];

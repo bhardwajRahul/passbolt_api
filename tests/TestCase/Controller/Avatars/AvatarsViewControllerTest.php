@@ -65,7 +65,7 @@ class AvatarsViewControllerTest extends AppIntegrationTestCase
      */
     public function testAvatarsViewController_ViewNonExistentAvatar(string $format)
     {
-        $this->get('avatars/view/' . UuidFactory::Uuid() . '/' . $format . AvatarHelper::IMAGE_EXTENSION);
+        $this->get('avatars/view/' . UuidFactory::uuid() . '/' . $format . AvatarHelper::IMAGE_EXTENSION);
         $defaultAvatarFileName = $this->avatarsCacheService->getFallBackFileName();
         $this->assertResponseEquals(file_get_contents($defaultAvatarFileName));
         $this->assertContentType('jpg');
@@ -128,5 +128,38 @@ class AvatarsViewControllerTest extends AppIntegrationTestCase
 
         $this->get('avatars/view/' . $avatar->id . '/' . $format . '.wrong_extension');
         $this->assertResponseEquals($expectedFileContent);
+    }
+
+    /**
+     * Safari processes Set-Cookie on <img> responses natively and overwrites the user's active
+     * session cookie. Avatar responses must not carry Set-Cookie — the endpoint is public and has
+     * no need to update client cookie state.
+     *
+     * @dataProvider validFormatDataProvider
+     * @param string $format
+     * @return void
+     */
+    public function testAvatarsViewController_ViewExistentAvatar_HasNoSetCookieHeader(string $format)
+    {
+        $avatar = $this->createAvatar();
+
+        $this->get('avatars/view/' . $avatar->id . '/' . $format . AvatarHelper::IMAGE_EXTENSION);
+
+        $this->assertSame([], $this->_response->getHeader('Set-Cookie'));
+    }
+
+    /**
+     * The Set-Cookie header must also be absent on the fallback (non-existent avatar) response
+     * since the middleware strips it unconditionally once the route matches.
+     *
+     * @dataProvider validFormatDataProvider
+     * @param string $format
+     * @return void
+     */
+    public function testAvatarsViewController_ViewNonExistentAvatar_HasNoSetCookieHeader(string $format)
+    {
+        $this->get('avatars/view/' . UuidFactory::uuid() . '/' . $format . AvatarHelper::IMAGE_EXTENSION);
+
+        $this->assertSame([], $this->_response->getHeader('Set-Cookie'));
     }
 }

@@ -327,7 +327,7 @@ return [
                 'enabled' => filter_var(env('PASSBOLT_PLUGINS_EXPORT_POLICIES_ENABLED', true), FILTER_VALIDATE_BOOLEAN),
             ],
             'safari' => [
-                'enabled' => filter_var(env('PASSBOLT_PLUGINS_SAFARI_ENABLED', false), FILTER_VALIDATE_BOOLEAN),
+                'enabled' => filter_var(env('PASSBOLT_PLUGINS_SAFARI_ENABLED', true), FILTER_VALIDATE_BOOLEAN),
                 'settingsVisibility' => [
                     'whiteListPublic' => [
                         'enabled',
@@ -375,6 +375,10 @@ return [
             // Disable SMTP setting endpoint to prevent/lock down SMTP configuration via the administration workspace
             'smtpSettings' => [
                 'endpointsDisabled' => filter_var(env('PASSBOLT_SECURITY_SMTP_SETTINGS_ENDPOINTS_DISABLED', false), FILTER_VALIDATE_BOOLEAN)
+            ],
+            // Disable the edition downgrade entry points (DELETE /edition/subscription/key and the edition_downgrade CLI command).
+            'edition' => [
+                'downgradeDisabled' => filter_var(env('PASSBOLT_SECURITY_EDITION_DOWNGRADE_DISABLED', false), FILTER_VALIDATE_BOOLEAN),
             ],
             // Enables trusting of HTTP_X headers set by most load balancers.
             // Only set to true if your instance runs behind load balancers/proxies that you control.

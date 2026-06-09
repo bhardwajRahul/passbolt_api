@@ -41,6 +41,8 @@ class EeSolutionBootstrapper extends BaseSolutionBootstrapper
         $this->addFeaturePluginIfEnabled($app, 'Subscription');
         $this->addFeaturePluginIfEnabled($app, 'JwtAuthentication');
 
+        $app->addPlugin('Passbolt/Edition', ['bootstrap' => true, 'routes' => true]);
+
         // Add tags plugin if not configured.
         if (!WebInstallerMiddleware::isConfigured()) {
             $app->addPlugin('Passbolt/WebInstaller', ['bootstrap' => true, 'routes' => true]);

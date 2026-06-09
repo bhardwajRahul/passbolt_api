@@ -118,6 +118,7 @@ class UserPromoteToAdministratorCommand extends PassboltCommand
         }
 
         // $adminUser = $usersTable->find()->where(['username' => $providedAdminUsername])->first();
+        /** @var \App\Model\Entity\User|null $adminUser */
         $adminUser = $this->UsersTable->findByUsername($providedAdminUsername)->first();
 
         if (!$adminUser) {
@@ -144,6 +145,7 @@ class UserPromoteToAdministratorCommand extends PassboltCommand
             $this->abort();
         }
 
+        /** @var \App\Model\Entity\User|null $userToPromote */
         $userToPromote = $this->UsersTable->findByUsername($providedUserUsername)->first();
 
         if (!$userToPromote) {
@@ -160,6 +162,7 @@ class UserPromoteToAdministratorCommand extends PassboltCommand
         $this->UsersTable->save($userToPromote);
 
         // Now ensure the user has been promoted
+        /** @var \App\Model\Entity\User|null $userToPromote */
         $userToPromote = $this->UsersTable->findByUsername($providedUserUsername)->first();
         if ($userToPromote->role->name !== ROLE::ADMIN) {
             $io->out(__('Warning: the user has NOT been promoted!'));
