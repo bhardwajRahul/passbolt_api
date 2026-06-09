@@ -79,7 +79,7 @@ class NoActiveMetadataKeyHealthcheck implements HealthcheckServiceInterface, Hea
             $this->fetchTable('Passbolt/Metadata.MetadataKeys')
                 ->find('active')
                 ->innerJoinWith('MetadataPrivateKeys', function (SelectQuery $q) {
-                    $expr = $q->newExpr()->isNull('MetadataPrivateKeys.user_id');
+                    $expr = $q->expr()->isNull('MetadataPrivateKeys.user_id');
 
                     return $q->where([$expr]);
                 })

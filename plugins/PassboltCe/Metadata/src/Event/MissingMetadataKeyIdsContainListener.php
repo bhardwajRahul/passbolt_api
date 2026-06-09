@@ -132,7 +132,7 @@ class MissingMetadataKeyIdsContainListener implements EventListenerInterface
         $metadataKeysQuery = TableRegistry::getTableLocator()->get('Passbolt/Metadata.MetadataKeys')->find();
         $metadataKeys = $metadataKeysQuery
             ->select(['id'])
-            ->where([$metadataKeysQuery->newExpr()->isNull('deleted')])
+            ->where([$metadataKeysQuery->expr()->isNull('deleted')])
             ->toArray();
         $metadataKeysIds = Hash::extract($metadataKeys, '{n}.id');
 
@@ -145,7 +145,7 @@ class MissingMetadataKeyIdsContainListener implements EventListenerInterface
                 }
                 if ($entity->get('active')) {
                     // get missing metadata keys
-                    $userMetadataKeysIds = Hash::extract($entity, 'metadata_private_keys.{n}.metadata_key_id');
+                    $userMetadataKeysIds = Hash::extract($entity->toArray(), 'metadata_private_keys.{n}.metadata_key_id'); // phpcs:ignore
                     if (empty($userMetadataKeysIds)) {
                         $missingUserMetadataKeysIds = $metadataKeysIds;
                     } else {

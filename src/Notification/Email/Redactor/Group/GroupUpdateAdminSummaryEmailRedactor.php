@@ -206,7 +206,8 @@ class GroupUpdateAdminSummaryEmailRedactor implements SubscribedEmailRedactorInt
      */
     private function getGroupManagers(Group $group, array $excludeUsersIds): array
     {
-        return $this->usersTable->find('locale')
+        /** @var array<\App\Model\Entity\User> $managers */
+        $managers = $this->usersTable->find('locale')
             ->find('notDisabled')
             ->select([
                 'Users.username',
@@ -221,5 +222,7 @@ class GroupUpdateAdminSummaryEmailRedactor implements SubscribedEmailRedactorInt
                 ]
             )
             ->toArray();
+
+        return $managers;
     }
 }

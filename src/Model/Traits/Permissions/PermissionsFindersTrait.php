@@ -426,6 +426,7 @@ trait PermissionsFindersTrait
                 'aro_foreign_key' => $groupId,
             ]);
 
+        /** @psalm-suppress ImplicitToStringCast */
         return $groupUsersAccessesQuery
             ->leftJoin(['DirectUsersAccesses' => $directUsersAccessesQuery], [
                 'DirectUsersAccesses.resource_id' => new IdentifierExpression('Permissions.aco_foreign_key'),

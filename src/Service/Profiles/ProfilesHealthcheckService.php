@@ -50,6 +50,7 @@ class ProfilesHealthcheckService extends AbstractHealthcheckService
      */
     public function check(): array
     {
+        /** @var array<\App\Model\Entity\Profile> $records */
         $records = $this->table->find()->all();
 
         foreach ($records as $record) {

@@ -257,6 +257,7 @@ class FoldersRelationsTable extends Table implements TableCleanupProviderInterfa
                 'FoldersRelations.foreign_model' => ucfirst(Inflector::singularize($modelName)),
             ]);
 
+        /** @psalm-suppress InvalidArgument */
         return $this->cleanupHardDeleted($modelName, $dryRun, $query);
     }
 
@@ -286,6 +287,7 @@ class FoldersRelationsTable extends Table implements TableCleanupProviderInterfa
             ->whereNull($modelName . '.id')
             ->where(['FoldersRelations.foreign_model' => ucfirst(Inflector::singularize($modelName)),]);
 
+        /** @psalm-suppress InvalidArgument */
         return $this->cleanupHardDeleted($modelName, $dryRun, $query);
     }
 

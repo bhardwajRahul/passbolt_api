@@ -168,10 +168,11 @@ class MetadataPrivateKeysTable extends Table implements TableCleanupProviderInte
             ->select(['id'])
             ->leftJoinWith($association)
             ->where([
-                $query->newExpr()->isNull($this->getModelNameFromAssociation($association) . '.id'),
-                $query->newExpr()->isNotNull($this->aliasField('user_id')), // Do not remove metadata server key
+                $query->expr()->isNull($this->getModelNameFromAssociation($association) . '.id'),
+                $query->expr()->isNotNull($this->aliasField('user_id')), // Do not remove metadata server key
             ]);
 
+        /** @psalm-suppress InvalidArgument */
         return $this->cleanupHardDeleted('Users', $dryRun, $query);
     }
 
@@ -191,9 +192,10 @@ class MetadataPrivateKeysTable extends Table implements TableCleanupProviderInte
             ->leftJoinWith($association)
             ->where([
                 $this->getModelNameFromAssociation($association) . '.deleted' => true,
-                $query->newExpr()->isNotNull($this->aliasField('user_id')), // Do not remove metadata server key
+                $query->expr()->isNotNull($this->aliasField('user_id')), // Do not remove metadata server key
             ]);
 
+        /** @psalm-suppress InvalidArgument */
         return $this->cleanupSoftDeleted('Users', $dryRun, $query);
     }
 

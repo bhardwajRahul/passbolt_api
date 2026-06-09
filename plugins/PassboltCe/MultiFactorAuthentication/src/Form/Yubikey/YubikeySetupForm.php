@@ -54,7 +54,7 @@ class YubikeySetupForm extends YubikeyVerifyForm
      * @param array $data user submited data
      * @return bool
      */
-    protected function _execute(array $data): bool
+    protected function process(array $data): bool
     {
         try {
             // Save yubikey id to ensure next time use

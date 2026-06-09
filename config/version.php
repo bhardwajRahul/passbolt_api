@@ -1,9 +1,8 @@
 <?php
 return [
     'passbolt' => [
-        'version' => '5.12.0-test.1',
-        'name' => 'TBD',
-        'edition' => 'ce',
+        'version' => '5.13.0-test.1',
+        'name' => 'Natural Blues',
     ],
     'php' => [
         'minVersion' => '8.2',

@@ -35,13 +35,24 @@ class ScimErrorResponse implements ScimObjectInterface
     protected Exception $exception;
 
     /**
+     * Resolved HTTP status. When null, the exception code is used.
+     *
+     * @var int|null
+     */
+    protected ?int $status;
+
+    /**
      * Constructor
      *
-     * @param \Exception $exception
+     * @param \Exception $exception Source exception
+     * @param int|null $status Resolved HTTP status to surface in the body.
+     *  Pass when the exception code is not a valid HTTP status (e.g. PDOException
+     *  carrying a SQLSTATE) so the body matches the HTTP response status.
      */
-    public function __construct(Exception $exception)
+    public function __construct(Exception $exception, ?int $status = null)
     {
         $this->exception = $exception;
+        $this->status = $status;
     }
 
     /**
@@ -51,7 +62,7 @@ class ScimErrorResponse implements ScimObjectInterface
     {
         $data = [
             'schemas' => [SchemaIdentifier::API_ERROR],
-            'status' => $this->exception->getCode(),
+            'status' => $this->status ?? $this->exception->getCode(),
             'detail' => $this->exception->getMessage(),
         ];
         if ($this->exception instanceof ScimException && $this->exception->getScimType()) {

@@ -100,8 +100,10 @@ class UserComponent extends Component
         if (is_null($role)) {
             /** @var \App\Model\Table\RolesTable $Roles */
             $Roles = TableRegistry::getTableLocator()->get('Roles');
+            /** @var \App\Model\Entity\Role $guestRole */
+            $guestRole = $Roles->find()->where(['name' => Role::GUEST])->first();
 
-            return $Roles->find()->where(['name' => Role::GUEST])->first();
+            return $guestRole;
         }
 
         return $role;

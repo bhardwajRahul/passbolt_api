@@ -96,11 +96,18 @@ class GroupsUpdateController extends AppController
 
         $groupsUpdateService->update($uac, $id, $metaData, $changes, $secrets);
 
-        // The v1 expect the updated group to be returned.
-        $viewOptions = [
-            'contain' => ['groups_users' => 1, 'groups_users.user.profile' => 1],
+        // Retrieve the updated group with requested contains.
+        $whitelist = [
+            'contain' => ['my_group_user'],
         ];
-        $group = $this->Groups->findView($id, $viewOptions)->first();
+        $options = $this->QueryString->get($whitelist);
+        // The v1 expect the updated group to be returned.
+        $options['contain']['groups_users'] = 1;
+        $options['contain']['groups_users.user.profile'] = 1;
+        if (isset($options['contain']['my_group_user'])) {
+            $options['my_user_id'] = $this->User->id();
+        }
+        $group = $this->Groups->findView($id, $options)->first();
         $this->success(__('The operation was successful.'), $group);
     }
 

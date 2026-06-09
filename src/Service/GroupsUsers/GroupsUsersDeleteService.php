@@ -127,6 +127,7 @@ class GroupsUsersDeleteService
             'user_id' => $groupUser->user_id,
             'resource_id IN' => $this->findLostAccessResourcesIdsQuery($groupUser),
         ];
+        /** @var array<\App\Model\Entity\Secret> $lostAccessSecrets */
         $lostAccessSecrets = $this->secretsTable->find()
             ->select(['id', 'resource_id', 'user_id'])
             ->where($lostAccessSecretsConditions)

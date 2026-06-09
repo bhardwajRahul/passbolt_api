@@ -50,6 +50,7 @@ class CommentsHealthcheckService extends AbstractHealthcheckService
      */
     public function check(): array
     {
+        /** @var array<\App\Model\Entity\Comment> $records */
         $records = $this->table->find()->all();
 
         foreach ($records as $record) {

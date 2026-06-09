@@ -38,10 +38,6 @@ $routes->plugin('Passbolt/Subscription', ['path' => '/ee'], function (RouteBuild
         ])->setMethods(['GET']);
 
     $routes->connect('/subscription/key', [
-            'prefix' => 'Subscriptions', 'controller' => 'SubscriptionsCreate', 'action' => 'create',
-        ])->setMethods(['POST']);
-
-    $routes->connect('/subscription/key', [
             'prefix' => 'Subscriptions', 'controller' => 'SubscriptionsUpdate', 'action' => 'update',
-        ])->setMethods(['PUT']);
+        ])->setMethods(['POST', 'PUT']);
 });

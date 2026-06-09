@@ -47,7 +47,7 @@ class FoldersRelationsDetectStronglyConnectedComponentsService
      */
     public function detectFirstInSharedFolders(): array
     {
-        $foldersRelationsDtos = $this->getAllNotPersonalFoldersRelationsDtos();
+        $foldersRelationsDtos = $this->getAllFoldersRelationsDtos();
         $sccSets = $this->detectInFoldersRelations($foldersRelationsDtos);
 
         foreach ($sccSets as $sccSet) {
@@ -131,6 +131,8 @@ class FoldersRelationsDetectStronglyConnectedComponentsService
 
     /**
      * Retrieve all the folders relations tuple foreign_id and folder_parent_id.
+     * Personal folders are included: a cycle traversing one still corrupts the owner's
+     * tree and must be detected so the repair service can break it.
      * The function doesn't return an array of entities for performance reasons.
      *
      * @return array<array> Return an array of folders relations dtos represented as following.
@@ -142,11 +144,10 @@ class FoldersRelationsDetectStronglyConnectedComponentsService
      *   ...
      * ]
      */
-    private function getAllNotPersonalFoldersRelationsDtos(): array
+    private function getAllFoldersRelationsDtos(): array
     {
         $query = $this->foldersRelationsTable->find();
         $query = $this->foldersRelationsTable->filterByForeignModel($query, FoldersRelation::FOREIGN_MODEL_FOLDER);
-        $query = $this->foldersRelationsTable->filterQueryByIsNotPersonalFolder($query);
 
         return $query->select(['foreign_id', 'folder_parent_id'])
             ->distinct()

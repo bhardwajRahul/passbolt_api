@@ -667,6 +667,55 @@ hcciUFw5
         $this->assertnotEmpty($groupUser);
     }
 
+    public function testGroupsUpdateController_Success_ContainMyGroupUser_WhenUserIsNotMember(): void
+    {
+        $group = GroupFactory::make()->withGroupsManagersFor([UserFactory::make()->user()->persist()])->persist();
+        $groupId = $group->id;
+
+        $this->logInAsAdmin();
+        $this->putJson("/groups/$groupId.json?contain[my_group_user]=1", ['name' => 'New name']);
+        $this->assertSuccess();
+
+        $response = $this->_responseJsonBody;
+        $this->assertObjectHasAttribute('my_group_user', $response);
+        $this->assertNull($response->my_group_user);
+    }
+
+    public function testGroupsUpdateController_Success_ContainMyGroupUser_WhenUserIsMember(): void
+    {
+        $admin = UserFactory::make()->admin()->persist();
+        $group = GroupFactory::make()
+            ->withGroupsManagersFor([$admin])
+            ->withGroupsUsersFor([UserFactory::make()->user()->persist()])
+            ->persist();
+        $groupId = $group->id;
+        $adminGroupsUserId = $group->groups_users[0]->id;
+
+        $this->logInAs($admin);
+        $this->putJson("/groups/$groupId.json?contain[my_group_user]=1", ['name' => 'New name']);
+        $this->assertSuccess();
+
+        $response = $this->_responseJsonBody;
+        $this->assertObjectHasAttribute('my_group_user', $response);
+        $this->assertNotNull($response->my_group_user);
+        $this->assertEquals($adminGroupsUserId, $response->my_group_user->id);
+        $this->assertEquals($admin->id, $response->my_group_user->user_id);
+        $this->assertEquals($groupId, $response->my_group_user->group_id);
+        $this->assertTrue($response->my_group_user->is_admin);
+    }
+
+    public function testGroupsUpdateController_Success_DoNotContainMyGroupUserByDefault(): void
+    {
+        $groupId = GroupFactory::make()->persist()->id;
+
+        $this->logInAsAdmin();
+        $this->putJson("/groups/$groupId.json", ['name' => 'New name']);
+        $this->assertSuccess();
+
+        $response = $this->_responseJsonBody;
+        $this->assertObjectNotHasAttribute('my_group_user', $response);
+    }
+
     public function testGroupsUpdateController_Error_NotValidGroupId(): void
     {
         $this->logInAsUser();

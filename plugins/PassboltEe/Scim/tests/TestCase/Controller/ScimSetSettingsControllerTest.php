@@ -163,7 +163,9 @@ class ScimSetSettingsControllerTest extends ScimSettingsIntegrationTestCase
         $this->assertObjectHasAttribute('id', $response);
 
         //Check if secret token was correctly set
-        $this->current = $this->fetchTable('Passbolt/Scim.ScimSettings')->find()->first();
+        /** @var \Passbolt\Scim\Model\Entity\ScimSetting $current */
+        $current = $this->fetchTable('Passbolt/Scim.ScimSettings')->find()->firstOrFail();
+        $this->current = $current;
         $gpg = OpenPGPBackendFactory::get();
         $gpg = $this->setDecryptKeyWithServerKey($gpg);
         $values = json_decode($gpg->decrypt($this->current->value), associative: true);
@@ -356,7 +358,9 @@ class ScimSetSettingsControllerTest extends ScimSettingsIntegrationTestCase
         $this->assertObjectHasAttribute('id', $response);
 
         //Check if secret token was correctly updated
-        $this->current = $this->fetchTable('Passbolt/Scim.ScimSettings')->find()->first();
+        /** @var \Passbolt\Scim\Model\Entity\ScimSetting $current */
+        $current = $this->fetchTable('Passbolt/Scim.ScimSettings')->find()->firstOrFail();
+        $this->current = $current;
         $gpg = OpenPGPBackendFactory::get();
         $gpg = $this->setDecryptKeyWithServerKey($gpg);
         $newValues = json_decode($gpg->decrypt($this->current->value), associative: true);
@@ -396,7 +400,9 @@ class ScimSetSettingsControllerTest extends ScimSettingsIntegrationTestCase
         $this->assertObjectHasAttribute('id', $response);
 
         //Check if secret token was correctly updated
-        $this->current = ScimSettingFactory::find()->first();
+        /** @var \Passbolt\Scim\Model\Entity\ScimSetting $current */
+        $current = ScimSettingFactory::find()->firstOrFail();
+        $this->current = $current;
         $gpg = OpenPGPBackendFactory::get();
         $gpg = $this->setDecryptKeyWithServerKey($gpg);
         $newValues = json_decode($gpg->decrypt($this->current->value), associative: true);

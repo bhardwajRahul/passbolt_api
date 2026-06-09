@@ -153,7 +153,7 @@ class SubscriptionKeyDtoForm extends Form
      * @param array $data form data
      * @return bool
      */
-    protected function _execute(array $data): bool
+    protected function process(array $data): bool
     {
         return true;
     }

@@ -81,7 +81,7 @@ class ServerCanDecryptMetadataPrivateKeyHealthcheck implements HealthcheckServic
                 ->find()
                 ->contain('MetadataKeys')
                 ->innerJoinWith('MetadataKeys', function (SelectQuery $q) {
-                    $expr = $q->newExpr()->isNull('MetadataKeys.deleted');
+                    $expr = $q->expr()->isNull('MetadataKeys.deleted');
 
                     return $q->where([$expr]);
                 })

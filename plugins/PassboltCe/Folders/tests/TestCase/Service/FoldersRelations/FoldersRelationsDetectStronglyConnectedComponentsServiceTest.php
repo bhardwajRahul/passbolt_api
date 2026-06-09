@@ -298,7 +298,7 @@ class FoldersRelationsDetectStronglyConnectedComponentsServiceTest extends Folde
 
     public function testFoldersRelationsDetectStronglyConnectedComponentsService_SCCNotFound_InMultipleUserTrees_Ada_ABC_Betty_ABC()
     {
-        $this->insertFixture_Ada_ABC_Betty_CA();
+        $this->insertFixture_Ada_ABC_Betty_ABC();
 
         $result = $this->service->detectFirstInSharedFolders();
         $this->assertEmpty($result);
@@ -323,15 +323,23 @@ class FoldersRelationsDetectStronglyConnectedComponentsServiceTest extends Folde
     }
 
     /*
-     * No SCC found in one user tree if it includes a personal folder.
+     * SCC found in one user tree even if it traverses a personal folder.
+     * A cycle in a single user's tree silently corrupts that user's view (the cyclic
+     * folders disappear from the UI), so it must be detected and repaired even when
+     * the cycle's intermediary is a personal folder.
      */
 
-    public function testFoldersRelationsDetectStronglyConnectedComponentsService_SCCNotFound_InOneUserTreesWithOnePersonalIntermediaryFolder_Ada_ABCA_Betty_A_Carole_C()
+    public function testFoldersRelationsDetectStronglyConnectedComponentsService_SCCFound_InOneUserTreeWithOnePersonalIntermediaryFolder_Ada_ABCA_Betty_A_Carole_C()
     {
-        $this->insertFixture_Ada_ABCA_Betty_A_Carole_C();
+        [$folderA, $folderB, $folderC] = $this->insertFixture_Ada_ABCA_Betty_A_Carole_C();
+        $expectedScc = [
+            new FolderRelationDto(FoldersRelation::FOREIGN_MODEL_FOLDER, $folderB->id, $folderA->id),
+            new FolderRelationDto(FoldersRelation::FOREIGN_MODEL_FOLDER, $folderC->id, $folderB->id),
+            new FolderRelationDto(FoldersRelation::FOREIGN_MODEL_FOLDER, $folderA->id, $folderC->id),
+        ];
 
         $result = $this->service->detectFirstInSharedFolders();
-        $this->assertEmpty($result);
+        $this->assertScc($result, $expectedScc);
     }
 
     public function insertFixture_Ada_ABCA_Betty_A_Carole_C()
@@ -360,15 +368,23 @@ class FoldersRelationsDetectStronglyConnectedComponentsServiceTest extends Folde
     }
 
     /*
-     * No SCC found in two users trees if it includes a personal folder in one user tree.
+     * SCC found across two users' trees when the cycle traverses one user's personal
+     * folder. This is the exact shape produced by the cooperating-users exploit:
+     * Ada has a chain through her personal folder, Betty completes the loop with a
+     * shared edge. Detection must succeed so the repair service can break it.
      */
 
-    public function testFoldersRelationsDetectStronglyConnectedComponentsService_SCCNotFound_InTwoUserTreesWithOnePersonalIntermediaryFolders_Ada_ABC_Betty_CA()
+    public function testFoldersRelationsDetectStronglyConnectedComponentsService_SCCFound_InTwoUserTreesWithOnePersonalIntermediaryFolders_Ada_ABC_Betty_CA()
     {
-        $this->insertFixture_Ada_ABC_Betty_CA();
+        [$folderA, $folderB, $folderC] = $this->insertFixture_Ada_ABC_Betty_CA();
+        $expectedScc = [
+            new FolderRelationDto(FoldersRelation::FOREIGN_MODEL_FOLDER, $folderB->id, $folderA->id),
+            new FolderRelationDto(FoldersRelation::FOREIGN_MODEL_FOLDER, $folderC->id, $folderB->id),
+            new FolderRelationDto(FoldersRelation::FOREIGN_MODEL_FOLDER, $folderA->id, $folderC->id),
+        ];
 
         $result = $this->service->detectFirstInSharedFolders();
-        $this->assertEmpty($result);
+        $this->assertScc($result, $expectedScc);
     }
 
     public function insertFixture_Ada_ABC_Betty_CA()
@@ -434,5 +450,55 @@ class FoldersRelationsDetectStronglyConnectedComponentsServiceTest extends Folde
             ->foreignModelFolder($folderA)->folderParent($folderC)->persist();
 
         return [$folderA, $folderB, $folderC, $userA, $userB, $userC];
+    }
+
+    /*
+     * Reproduces the exact database state produced by the cooperating-users exploit:
+     * Ada and Carol both own shared folders Alpha and Charlie. Bravo is personal to Ada
+     * and sits between them in Ada's tree. Carol moves Alpha into Charlie, which silently
+     * builds a 3-edge cycle visible only in Ada's tree (Charlie -> Alpha -> Bravo -> Charlie).
+     * Detection must succeed so the repair service can break one edge and restore Ada's tree.
+     */
+
+    public function testFoldersRelationsDetectStronglyConnectedComponentsService_SCCFound_ExploitFinalState_Ada_CharlieAlphaBravoCharlie_Carol_CharlieAlpha()
+    {
+        [$folderAlpha, $folderBravo, $folderCharlie] = $this->insertFixture_ExploitFinalState();
+        $expectedScc = [
+            new FolderRelationDto(FoldersRelation::FOREIGN_MODEL_FOLDER, $folderBravo->id, $folderAlpha->id),
+            new FolderRelationDto(FoldersRelation::FOREIGN_MODEL_FOLDER, $folderCharlie->id, $folderBravo->id),
+            new FolderRelationDto(FoldersRelation::FOREIGN_MODEL_FOLDER, $folderAlpha->id, $folderCharlie->id),
+        ];
+
+        $result = $this->service->detectFirstInSharedFolders();
+        $this->assertScc($result, $expectedScc);
+    }
+
+    public function insertFixture_ExploitFinalState()
+    {
+        // Ada (victim): Charlie -> Alpha -> Bravo -> Charlie (3-edge cycle, only Ada sees it)
+        // Carol (attacker): Charlie at root, Alpha under Charlie
+        // ---
+        // Alpha   (Ada:O, Carol:O) - parent: Charlie
+        // Bravo   (Ada:O)          - parent: Alpha (personal intermediary)
+        // Charlie (Ada:O, Carol:O) - parent: Bravo for Ada, NULL (root) for Carol
+
+        $userAda = UserFactory::make()->persist();
+        $userCarol = UserFactory::make()->persist();
+
+        // Charlie at root for Carol; will be re-parented to Bravo for Ada below.
+        $folderCharlie = FolderFactory::make()->withFoldersRelationsFor([$userCarol])->persist();
+        // Alpha under Charlie for both Ada and Carol.
+        $folderAlpha = FolderFactory::make()
+            ->withFoldersRelationsFor([$userAda, $userCarol], $folderCharlie)
+            ->persist();
+        // Bravo personal to Ada, parent = Alpha.
+        $folderBravo = FolderFactory::make()
+            ->withFoldersRelationsFor([$userAda], $folderAlpha)
+            ->persist();
+        // Ada's Charlie has parent = Bravo (closes the cycle in Ada's tree only).
+        FoldersRelationFactory::make()->user($userAda)
+            ->foreignModelFolder($folderCharlie)->folderParent($folderBravo)->persist();
+
+        return [$folderAlpha, $folderBravo, $folderCharlie, $userAda, $userCarol];
     }
 }

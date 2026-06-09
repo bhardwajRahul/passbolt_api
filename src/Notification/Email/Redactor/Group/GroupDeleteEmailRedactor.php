@@ -84,6 +84,7 @@ class GroupDeleteEmailRedactor implements SubscribedEmailRedactorInterface
         $admin = $this->usersTable->findFirstForEmail($deletedBy);
         $usersIds = Hash::extract($group->groups_users, '{n}.user_id');
         // Don't send notification if user is the one who deleted the group
+        /** @var array<\App\Model\Entity\User> $users */
         $users = $this->usersTable->find('locale')
             ->find('notDisabled')
             ->where(['Users.id IN' => $usersIds])

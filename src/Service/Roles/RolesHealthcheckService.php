@@ -50,6 +50,7 @@ class RolesHealthcheckService extends AbstractHealthcheckService
      */
     public function check(): array
     {
+        /** @var array<\App\Model\Entity\Role> $records */
         $records = $this->table->find()->all();
         if (count($records) != 4) {
             $this->checks[self::CHECK_VALIDATES]

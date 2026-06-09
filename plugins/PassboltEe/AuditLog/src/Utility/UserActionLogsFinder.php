@@ -36,7 +36,7 @@ class UserActionLogsFinder extends BaseActionLogsFinder
             ->contain(['Actions' => [
                 'fields' => ['Actions.name'],
             ]])
-            ->groupBy(['ActionLogs.id', 'Actions.name']);
+            ->groupBy(['ActionLogs.id', 'Actions.name', 'Actions.id']);
 
         $this->_filterQueryByUserId($query, $entityId);
 

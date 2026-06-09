@@ -323,6 +323,7 @@ class PermissionsTable extends Table implements TableCleanupProviderInterface
                 'aro' => ucfirst(Inflector::singularize($modelName)),
             ]);
 
+        /** @psalm-suppress InvalidArgument */
         return $this->cleanupSoftDeleted($modelName, $dryRun, $query);
     }
 
@@ -344,6 +345,7 @@ class PermissionsTable extends Table implements TableCleanupProviderInterface
                     ->eq('aro', ucfirst(Inflector::singularize($modelName)));
             });
 
+        /** @psalm-suppress InvalidArgument */
         return $this->cleanupHardDeleted($modelName, $dryRun, $query);
     }
 
@@ -364,6 +366,7 @@ class PermissionsTable extends Table implements TableCleanupProviderInterface
                 'aco' => ucfirst(Inflector::singularize($modelName)),
             ]);
 
+        /** @psalm-suppress InvalidArgument */
         return $this->cleanupSoftDeleted($modelName, $dryRun, $query);
     }
 
@@ -385,6 +388,7 @@ class PermissionsTable extends Table implements TableCleanupProviderInterface
                     ->eq('aco', ucfirst(Inflector::singularize($modelName)));
             });
 
+        /** @psalm-suppress InvalidArgument */
         return $this->cleanupHardDeleted($modelName, $dryRun, $query);
     }
 

@@ -233,6 +233,7 @@ class ResourcesShareService
         if (empty($data)) {
             return $data;
         }
+        /** @var \Passbolt\SecretRevisions\Model\Entity\SecretRevision $secretRevision */
         $secretRevision = $this->Resources->SecretRevisions
             ->find('notDeleted')
             ->select('id')

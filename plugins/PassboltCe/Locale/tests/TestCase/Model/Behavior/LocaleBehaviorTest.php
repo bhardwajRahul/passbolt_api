@@ -85,6 +85,7 @@ class LocaleBehaviorTest extends TestCase
 
     public function testLocaleBehavior_findLocale_With_Collection()
     {
+        /** @var array<\App\Model\Entity\User> $usersWithLocale */
         $usersWithLocale = [
             UserFactory::make()->withLocale('fr-FR')->persist(),
             UserFactory::make()->withLocale('es-ES')->persist(),
@@ -92,7 +93,9 @@ class LocaleBehaviorTest extends TestCase
 
         $users = $this->usersTable->find('locale')
             ->all();
+        /** @var \App\Model\Entity\User $user */
         foreach ($users as $user) {
+            /** @var \App\Model\Entity\User $user */
             $user = $users->firstMatch(['id' => $user->id]);
             if ($user->id === $usersWithLocale[0]['id']) {
                 $this->assertSame('fr-FR', $user->get('locale'));
@@ -120,6 +123,8 @@ class LocaleBehaviorTest extends TestCase
                 ->find('notDisabled');
         });
 
-        $this->assertNull($groupUsers->all()->first()->user);
+        /** @var \App\Model\Entity\GroupsUser $groupUser */
+        $groupUser = $groupUsers->all()->first();
+        $this->assertNull($groupUser->user);
     }
 }

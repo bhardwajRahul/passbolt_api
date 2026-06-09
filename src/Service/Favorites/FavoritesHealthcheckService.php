@@ -50,6 +50,7 @@ class FavoritesHealthcheckService extends AbstractHealthcheckService
      */
     public function check(): array
     {
+        /** @var array<\App\Model\Entity\Favorite> $records */
         $records = $this->table->find()->all();
 
         foreach ($records as $record) {
