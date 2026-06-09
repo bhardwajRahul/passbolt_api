@@ -25,16 +25,6 @@ class VersionCommandTest extends TestCase
     use ConsoleIntegrationTestTrait;
 
     /**
-     * setUp method
-     *
-     * @return void
-     */
-    public function setUp(): void
-    {
-        parent::setUp();
-    }
-
-    /**
      * Basic help test
      */
     public function testVersionCommandHelp()
