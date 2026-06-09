@@ -105,24 +105,11 @@ Coming soon [see the pre-alpha version here](https://github.com/passbolt/passbol
 
 # Contributing
 
-Contributing to passbolt with code starts by reading [Contributing.md](https://github.com/passbolt/passbolt_api/blob/master/CONTRIBUTING.md). Join the [community forum](https://community.passbolt.com) to join discussions about feature requests, translations, development, and more.
+Please check [CONTRIBUTING.md](CONTRIBUTING.md) for more information about how to get involved.
 
-<br>
+# Reporting a security Issue
 
-# Reporting a security issue
-
-If you've found a security-related issue with passbolt, please email [security@passbolt.com](mailto:security@passbolt.com). Submitting to GitHub makes the vulnerability public, making it easy to exploit. We'll do a public disclosure of the security issue once it's been fixed.
-
-After receiving a report, passbolt will take the following steps:
-
-- Confirmation that the issue has been received and that it's in the process of being addressed.
-- Attempt to reproduce the problem and confirm the vulnerability.
-- Prepare a patch/fix and associated automated tests.
-- Release a new version of all the affected versions.
-- Prominently announce the problem in the release notes.
-- If requested, give credit to the reporter.
-
-<br>
+If you've found a security related issue in Passbolt, please don't open an issue on GitHub. Follow our responsible disclosure process: https://www.passbolt.com/docs/contribute/security/vulnerability/.
 
 # License
 
