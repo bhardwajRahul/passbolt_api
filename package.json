@@ -21,7 +21,7 @@
     "@babel/runtime-corejs3": "^7.26.10",
     "lockfile-lint": "^4.14.1",
     "openpgp": "^5.11.3",
-    "passbolt-styleguide": "^5.13.0-alpha.2"
+    "passbolt-styleguide": "^5.13.0"
   },
   "scripts": {
     "copy:dependencies": "node ./scripts/copy-dependencies.js",
