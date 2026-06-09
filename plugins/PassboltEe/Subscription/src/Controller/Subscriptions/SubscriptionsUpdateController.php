@@ -25,32 +25,40 @@ use Passbolt\Subscription\Error\Exception\Subscriptions\SubscriptionSignatureExc
 use Passbolt\Subscription\Service\Subscriptions\SubscriptionKeySaveService;
 
 /**
- * Class SubscriptionsCreateController
+ * Class SubscriptionsUpdateController
  */
 class SubscriptionsUpdateController extends AppController
 {
     /**
      * @return void
      */
-    public function update()
+    public function update(): void
     {
         if (!$this->User->isAdmin()) {
             throw new ForbiddenException(__('You are not allowed to access this location.'));
         }
-        $keyString = $this->getRequest()->getData('data', '');
-        if (empty($keyString)) {
+
+        $keyString = $this->getRequest()->getData('data');
+        if (!is_string($keyString) || trim($keyString) === '') {
             throw new BadRequestException(__('Subscription key data is required.'));
         }
 
         try {
-            $service = new SubscriptionKeySaveService();
-            $subscriptionKey = $service->save($keyString, $this->User->getAccessControl());
+            $keyDto = (new SubscriptionKeySaveService())->save($keyString, $this->User->getAccessControl());
         } catch (SubscriptionSignatureException $e) {
             throw new BadRequestException($e->getMessage());
         } catch (SubscriptionException $e) {
             throw new PaymentRequiredException($e->getMessage(), $e->getErrors());
         }
 
-        $this->success(__('The subscription was updated.'), $subscriptionKey->toArray());
+        // POST and PUT both land here for backwards compatibility.
+        // Preserve the historical success messages of the now-deleted
+        // SubscriptionsCreateController (POST) and this controller (PUT) so the
+        // legacy SubscriptionsCreateControllerTest keeps passing unchanged.
+        $message = $this->getRequest()->is('post')
+            ? __('The subscription was created.')
+            : __('The subscription was updated.');
+
+        $this->success($message, $keyDto->toArray());
     }
 }

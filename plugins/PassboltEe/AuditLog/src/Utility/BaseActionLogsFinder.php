@@ -61,6 +61,7 @@ abstract class BaseActionLogsFinder
         $query->groupBy([
             'ActionLogs.id',
             'Actions.name',
+            'Actions.id',
         ]);
 
         $query->contain(['Actions' => [
@@ -185,7 +186,9 @@ abstract class BaseActionLogsFinder
         $query->contain(['Users' => [
             'fields' => [
                 'Users.id',
-                'Users.username']]]);
+                'Users.username',
+            ],
+        ]]);
 
         $query->contain(['Users.Profiles' => [
             'Avatars' => [
@@ -197,7 +200,9 @@ abstract class BaseActionLogsFinder
             ],
             'fields' => [
                 'Profiles.first_name',
-                'Profiles.last_name']]]);
+                'Profiles.last_name',
+            ],
+        ]]);
 
         $query->innerJoinWith('Users.Profiles');
     }

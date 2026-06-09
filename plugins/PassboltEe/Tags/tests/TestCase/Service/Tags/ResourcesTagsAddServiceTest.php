@@ -105,6 +105,7 @@ class ResourcesTagsAddServiceTest extends TagTestCase
 
         $uac = $this->makeUac($user2);
 
+        /** @var \App\Model\Entity\Resource $resource */
         $resource = $this->Resources->findView(
             $user2->id,
             $resource->id,

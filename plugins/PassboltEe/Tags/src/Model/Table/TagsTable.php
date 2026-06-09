@@ -257,7 +257,7 @@ class TagsTable extends Table
              ->where([
                  'OR' => [
                      'ResourcesTags.user_id' => $userId,
-                     $query->newExpr()->isNull('ResourcesTags.user_id'),
+                     $query->expr()->isNull('ResourcesTags.user_id'),
                  ],
              ]);
          $this->Resources->filterResourcesByPermissions($query, $userId);
@@ -281,7 +281,7 @@ class TagsTable extends Table
                 return $q->where([
                     'OR' => [
                         'ResourcesTags.user_id' => $uac->getId(),
-                        $q->newExpr()->isNull('ResourcesTags.user_id'),
+                        $q->expr()->isNull('ResourcesTags.user_id'),
                     ],
                 ]);
             })
@@ -618,7 +618,7 @@ class TagsTable extends Table
     public function findV4(Query $query): Query
     {
         return $query->where([
-            $query->newExpr()->isNull($this->aliasField('metadata')),
+            $query->expr()->isNull($this->aliasField('metadata')),
         ]);
     }
 
@@ -634,12 +634,12 @@ class TagsTable extends Table
         return $query
             ->where([
                 'Tags.metadata_key_type' => MetadataKey::TYPE_SHARED_KEY,
-                $query->newExpr()->isNotNull('Tags.metadata'),
-                $query->newExpr()->isNotNull('Tags.metadata_key_id'),
+                $query->expr()->isNotNull('Tags.metadata'),
+                $query->expr()->isNotNull('Tags.metadata_key_id'),
             ])
             ->innerJoin(['MetadataKeys' => 'metadata_keys'], [
                 'MetadataKeys.id' => new IdentifierExpression('Tags.metadata_key_id'),
-                $query->newExpr()->isNotNull('MetadataKeys.expired'),
+                $query->expr()->isNotNull('MetadataKeys.expired'),
             ])
             ->disableHydration();
     }

@@ -203,6 +203,7 @@ class RefreshTokenControllerTest extends JwtAuthenticationIntegrationTestCase
     public function testAuthRefreshTokenControllerWithExpiredPayload()
     {
         UserFactory::make(3)->admin()->persist();
+        /** @var array<\App\Model\Entity\User> $admins */
         $admins = $this->Users->findAdmins()->toArray();
         $user = $admins[0];
 

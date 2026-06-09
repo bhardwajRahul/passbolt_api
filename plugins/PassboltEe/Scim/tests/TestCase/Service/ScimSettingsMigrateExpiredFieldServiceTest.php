@@ -62,6 +62,7 @@ class ScimSettingsMigrateExpiredFieldServiceTest extends AppTestCase
 
         $this->service->migrate();
 
+        /** @var \Passbolt\Scim\Model\Entity\ScimSetting $updated */
         $updated = ScimSettingFactory::find()->firstOrFail();
         $gpg = OpenPGPBackendFactory::get();
         $gpg = $this->setDecryptKeyWithServerKey($gpg);
@@ -83,6 +84,7 @@ class ScimSettingsMigrateExpiredFieldServiceTest extends AppTestCase
 
         $this->service->migrate();
 
+        /** @var \Passbolt\Scim\Model\Entity\ScimSetting $updated */
         $updated = ScimSettingFactory::find()->firstOrFail();
         $gpg = OpenPGPBackendFactory::get();
         $gpg = $this->setDecryptKeyWithServerKey($gpg);
@@ -110,6 +112,7 @@ class ScimSettingsMigrateExpiredFieldServiceTest extends AppTestCase
 
         $this->service->migrate();
 
+        /** @var \Passbolt\Scim\Model\Entity\ScimSetting $updated */
         $updated = ScimSettingFactory::find()->firstOrFail();
         $gpg = OpenPGPBackendFactory::get();
         $gpg = $this->setDecryptKeyWithServerKey($gpg);

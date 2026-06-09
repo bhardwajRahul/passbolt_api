@@ -121,7 +121,7 @@ class ActionLogsPurgeService
             ->whereInList('ActionLogs.action_id', array_keys($this->getActionUuidsToPurge()))
             ->where([
                 'ActionLogs.created < ' => $createdBefore,
-                $actionLogsQuery->newExpr()->notExists($subquery),
+                $actionLogsQuery->expr()->notExists($subquery),
             ]);
     }
 

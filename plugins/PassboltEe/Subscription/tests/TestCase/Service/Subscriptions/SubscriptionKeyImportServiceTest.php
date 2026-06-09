@@ -17,7 +17,7 @@ declare(strict_types=1);
 
 namespace Passbolt\Subscription\Test\TestCase\Service\Subscriptions;
 
-use App\Test\Factory\UserFactory;
+use App\Test\Lib\Utility\UserAccessControlTrait;
 use Cake\ORM\Locator\LocatorAwareTrait;
 use Cake\TestSuite\TestCase;
 use CakephpTestSuiteLight\Fixture\TruncateDirtyTables;
@@ -27,15 +27,14 @@ use Passbolt\Subscription\Service\Subscriptions\SubscriptionKeyImportService;
 use Passbolt\Subscription\Test\DummySubscriptionTrait;
 
 /**
- * Class SubscriptionsTableTest
- *
- * @package Passbolt\Ee\Test\TestCase\Service
+ * @uses \Passbolt\Subscription\Service\Subscriptions\SubscriptionKeyImportService
  */
 class SubscriptionKeyImportServiceTest extends TestCase
 {
     use DummySubscriptionTrait;
     use LocatorAwareTrait;
     use TruncateDirtyTables;
+    use UserAccessControlTrait;
 
     public SubscriptionKeyImportService $service;
 
@@ -52,15 +51,11 @@ class SubscriptionKeyImportServiceTest extends TestCase
         $this->Subscriptions = $this->fetchTable('Passbolt/Subscription.Subscriptions');
     }
 
-    /**
-     * Import a valid subscription key
-     */
     public function testSubscriptionKeyImportServiceImportValidKey(): void
     {
-        UserFactory::make()->admin()->persist();
         $subscriptionKey = $this->getValidSubscriptionKey();
 
-        $this->service->import($subscriptionKey);
+        $this->service->import($subscriptionKey, $this->mockAdminAccessControl());
 
         $this->assertInstanceOf(
             Subscription::class,
@@ -68,27 +63,19 @@ class SubscriptionKeyImportServiceTest extends TestCase
         );
     }
 
-    /**
-     * Import an invalid subscription key
-     */
     public function testSubscriptionKeyImportServiceImportInvalidKey(): void
     {
-        UserFactory::make()->admin()->persist();
         $subscriptionKey = $this->getExpiredSubscriptionKey();
 
         $this->expectException(SubscriptionException::class);
-        $this->service->import($subscriptionKey);
+        $this->service->import($subscriptionKey, $this->mockAdminAccessControl());
     }
 
-    /**
-     * Import a valid subscription file
-     */
     public function testSubscriptionKeyImportServiceImportValidFilename(): void
     {
-        UserFactory::make()->admin()->persist();
         $filename = $this->getValidSubscriptionFileName();
 
-        $this->service->importFromFile($filename);
+        $this->service->importFromFile($filename, $this->mockAdminAccessControl());
 
         $this->assertInstanceOf(
             Subscription::class,
@@ -96,17 +83,13 @@ class SubscriptionKeyImportServiceTest extends TestCase
         );
     }
 
-    /**
-     * Import an invalid subscription file
-     */
     public function testSubscriptionKeyImportServiceImportInvalidFilename(): void
     {
-        UserFactory::make()->admin()->persist();
         $filename = $this->getExpiredSubscriptionKey();
 
         $this->expectException(SubscriptionException::class);
 
-        $this->service->importFromFile($filename);
+        $this->service->importFromFile($filename, $this->mockAdminAccessControl());
 
         $this->assertSame(
             0,

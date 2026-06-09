@@ -158,41 +158,11 @@ return [
                         FoldersRelationsDataCommand::class,
                     ],
                 ],
-                'fixturize' => [
-                    'shellTasks' => [
-                        RolesDataCommand::class,
-                        BaseUsersDataCommand::class,
-                        BaseProfilesDataCommand::class,
-                        AvatarsDataCommand::class,
-                        GpgkeysDataCommand::class,
-                        BaseGroupsDataCommand::class,
-                        BaseGroupsUsersDataCommand::class,
-                        BaseResourcesDataCommand::class,
-                        BasePermissionsDataCommand::class,
-                        BaseFavoritesDataCommand::class,
-                        BaseCommentsDataCommand::class,
-                        BaseSecretsDataCommand::class,
-                        EmailQueueDataCommand::class,
-                    ],
-                ],
             ],
             'alt0' => [
                 'install' => [
                     'shellTasks' => [
                         ResourceTypesDataCommand::class,
-                        BaseGroupsDataCommand::class,
-                        BaseUsersDataCommand::class,
-                        BaseProfilesDataCommand::class,
-                        GpgkeysDataCommand::class,
-                        RolesDataCommand::class,
-                        Alt0GroupsUsersDataCommand::class,
-                        Alt0PermissionsDataCommand::class,
-                        BaseResourcesDataCommand::class,
-                        Alt0SecretsDataCommand::class,
-                    ],
-                ],
-                'fixturize' => [
-                    'shellTasks' => [
                         BaseGroupsDataCommand::class,
                         BaseUsersDataCommand::class,
                         BaseProfilesDataCommand::class,

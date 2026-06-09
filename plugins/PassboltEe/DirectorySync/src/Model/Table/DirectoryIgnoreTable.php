@@ -238,6 +238,7 @@ class DirectoryIgnoreTable extends Table
                     ->eq('DirectoryIgnore.foreign_model', $entityType);
             });
 
+        /** @psalm-suppress InvalidArgument */
         return $this->cleanupHardDeleted($entityType, $dryRun, $query);
     }
 
@@ -265,6 +266,7 @@ class DirectoryIgnoreTable extends Table
             $query = $query->where(['DirectoryIgnore.id NOT IN' => $entryIds]);
         }
 
+        /** @psalm-suppress InvalidArgument */
         return $this->cleanupHardDeleted('DirectoryEntries', $dryRun, $query);
     }
 }

@@ -30,6 +30,7 @@ use Cake\ORM\TableRegistry;
 use Cake\Utility\Hash;
 use Exception;
 use Migrations\Migrations;
+use Passbolt\Edition\Service\EditionSetService;
 use Passbolt\SmtpSettings\Service\SmtpSettingsSetService;
 use Passbolt\Subscription\SubscriptionPlugin;
 use Passbolt\WebInstaller\Form\DatabaseConfigurationForm;
@@ -171,6 +172,7 @@ class WebInstaller
         if ($this->isFeaturePluginEnabled(SubscriptionPlugin::class)) {
             $this->importSubscription(); // Pro Only
         }
+        $this->persistEditionFlag();
         $this->saveSettings();
         $this->deleteTmpFiles();
         $configFolderPermissionService->changeConfigFolderPermission();
@@ -223,25 +225,61 @@ class WebInstaller
     }
 
     /**
-     * Store the subscription in the DB.
+     * Persist the subscription key when one was provided. A blank key (Skip
+     * on the subscription page) is a no-op. The edition flag is written by
+     * persistEditionFlag() after this method, so that the row exists even
+     * when no key was provided or the Subscription plugin is disabled.
      *
      * @return void
      */
     public function importSubscription(): void
     {
         $asciiKey = $this->getSettings('subscription.subscription_key');
-        /** @var \Passbolt\Subscription\Model\Table\SubscriptionsTable $Subscriptions */
-        $Subscriptions = TableRegistry::getTableLocator()->get('Passbolt/Subscription.Subscriptions');
-        $userId = $this->getSettings('user.user_id');
-        if (is_null($userId)) {
-            /** @var \App\Model\Table\UsersTable $Users */
-            $Users = TableRegistry::getTableLocator()->get('Users');
-            $admin = $Users->findFirstAdmin();
-            $userId = $admin->get('id');
+        if (empty($asciiKey)) {
+            return;
         }
 
-        $uac = new UserAccessControl(Role::ADMIN, $userId);
+        /** @var \Passbolt\Subscription\Model\Table\SubscriptionsTable $Subscriptions */
+        $Subscriptions = TableRegistry::getTableLocator()->get('Passbolt/Subscription.Subscriptions');
+        $uac = new UserAccessControl(Role::ADMIN, $this->resolveAdminUserId());
         $Subscriptions->createOrUpdate($asciiKey, $uac);
+    }
+
+    /**
+     * Writes the edition row in `organization_settings`: PRO when the
+     * Subscription plugin is enabled AND a subscription key was provided,
+     * otherwise CE. The row is always present after install, so the rest of
+     * the application (Edition healthcheck, EditionGetService) has a clear
+     * source of truth and never has to fall back to defaults.
+     *
+     * @return void
+     */
+    public function persistEditionFlag(): void
+    {
+        $isPro = !empty($this->getSettings('subscription.subscription_key'));
+        $uac = new UserAccessControl(Role::ADMIN, $this->resolveAdminUserId());
+        $service = new EditionSetService();
+        $isPro ? $service->setToPro($uac) : $service->setToCe($uac);
+    }
+
+    /**
+     * Returns the admin user id for service calls during install: prefers
+     * the id captured by createFirstUser(), falling back to the first admin
+     * already in the DB when first_user was empty.
+     *
+     * @return string
+     */
+    private function resolveAdminUserId(): string
+    {
+        $userId = $this->getSettings('user.user_id');
+        if (!is_null($userId)) {
+            return $userId;
+        }
+
+        /** @var \App\Model\Table\UsersTable $Users */
+        $Users = TableRegistry::getTableLocator()->get('Users');
+
+        return $Users->findFirstAdmin()->get('id');
     }
 
     /**

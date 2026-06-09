@@ -50,6 +50,7 @@ class UsersHealthcheckService extends AbstractHealthcheckService
      */
     public function check(): array
     {
+        /** @var array<\App\Model\Entity\User> $records */
         $records = $this->Users->find()->all();
         $this->usernameDuplicates = $this->Users->listDuplicateUsernames()->toArray();
 

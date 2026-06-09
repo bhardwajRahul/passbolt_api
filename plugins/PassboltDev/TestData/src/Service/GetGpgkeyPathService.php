@@ -32,6 +32,7 @@ class GetGpgkeyPathService
     public function get(string $userId): string
     {
         $usersTable = $this->fetchTable('Users');
+        /** @var \App\Model\Entity\User|null $user */
         $user = $usersTable
             ->find()
             ->contain(['Profiles'])

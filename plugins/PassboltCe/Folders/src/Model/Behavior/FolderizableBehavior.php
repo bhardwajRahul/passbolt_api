@@ -134,24 +134,20 @@ class FolderizableBehavior extends Behavior
      */
     public function formatResults(SelectQuery $query, string $userId): SelectQuery
     {
-        if (!$this->table()->hasAssociation('FolderParentId')) {
-            $this->table()->hasOne('FolderParentId')
-                ->setClassName('Passbolt/Folders.FoldersRelations')
-                ->setForeignKey('foreign_id')
-                ->setConditions([
-                    'FolderParentId.user_id' => $userId,
-                    $query->expr()->isNotNull('FolderParentId.folder_parent_id'),
-                ]);
-        }
-
-        $query->contain('FolderParentId', function (SelectQuery $q) {
-            return $q->select([
-                'folder_parent_id' => 'FolderParentId.folder_parent_id',
-            ]);
-        });
-
         // Get the alias of the current table
         $foreignId = new IdentifierExpression($this->table()->aliasField('id'));
+
+        // Use a correlated subquery to get folder_parent_id as a scalar value.
+        // This avoids CakePHP 5.3's contain() entity hydration which returns objects instead of scalars.
+        $folderParentIdSubQuery = $this->foldersRelationsTable->selectQuery()
+            ->select(['FoldersRelations.folder_parent_id'])
+            ->where([
+                'FoldersRelations.foreign_id' => $foreignId,
+                'FoldersRelations.user_id' => $userId,
+            ])
+            ->whereNotNull('FoldersRelations.folder_parent_id')
+            ->limit(1);
+
         // Count the number of folder relations for each entry (resource or folder, depending on the table being queried)
         // If the entry has only one folder relation, it is then known as personal. The personal property is set to 1.
         // If it has more than one folder relation, it is not personal, the property is set to 0
@@ -159,16 +155,22 @@ class FolderizableBehavior extends Behavior
         $countSubQuery = $this->foldersRelationsTable->selectQuery();
         $personal = $query->expr()->case()
             ->when($query->expr()->eq('COUNT(*)', 1, 'integer'))
-            ->then($query->newExpr('TRUE'), 'boolean')
+            ->then($query->expr('TRUE'), 'boolean')
             ->when($query->expr()->gt('COUNT(*)', 1, 'integer'))
             ->then($query->expr('FALSE'), 'boolean');
         $countSubQuery->select([
             self::PERSONAL_PROPERTY => $personal,
         ])->where(['FoldersRelations.foreign_id' => $foreignId]);
         $selectTypeMap = $query->getSelectTypeMap();
-        $selectTypeMap->addDefaults([self::PERSONAL_PROPERTY => 'boolean']);
+        $selectTypeMap->addDefaults([
+            self::PERSONAL_PROPERTY => 'boolean',
+            self::FOLDER_PARENT_ID_PROPERTY => 'string',
+        ]);
 
-        return $query->selectAlso([self::PERSONAL_PROPERTY => $countSubQuery]);
+        return $query->selectAlso([
+            self::FOLDER_PARENT_ID_PROPERTY => $folderParentIdSubQuery,
+            self::PERSONAL_PROPERTY => $countSubQuery,
+        ]);
     }
 
     /**

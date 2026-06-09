@@ -66,11 +66,11 @@
         "ext-curl": "*",
         "ext-ldap": "*",
         "ext-iconv": "*",
-        "composer/composer": "^2.9.7",
-        "cakephp/cakephp": "^5.2.12",
+        "composer/composer": "^2.9.8",
+        "cakephp/cakephp": "^5.3.6",
         "cakephp/migrations": "^4.0.0",
         "cakephp/plugin-installer": "^2.0",
-        "mobiledetect/mobiledetectlib": "^4.8.03",
+        "mobiledetect/mobiledetectlib": "^4.11.0",
         "ramsey/uuid": "^4.2.3",
         "singpolyma/openpgp-php": "^0.7",
         "donatj/phpuseragentparser": "^1.10.0",
@@ -91,7 +91,6 @@
         "phpstan/phpstan": "^1.12.10",
         "psy/psysh": "@stable",
         "cakephp/debug_kit": "^5.0.0",
-        "cakephp/bake": "^3.0.0",
         "phpunit/phpunit": "^11.5.50",
         "cakephp/cakephp-codesniffer": "^5.0",
         "passbolt/passbolt-selenium-api": "dev-cakephp5#861bc4fe19b5ed58e50dd9a9c52909c997f2934a",
@@ -144,7 +143,8 @@
             "Passbolt\\Metadata\\": "./plugins/PassboltCe/Metadata/src",
             "Passbolt\\UserKeyPolicies\\": "./plugins/PassboltCe/UserKeyPolicies/src",
             "Passbolt\\ExportPolicies\\": "./plugins/PassboltCe/ExportPolicies/src",
-            "Passbolt\\Scim\\": "./plugins/PassboltEe/Scim/src"
+            "Passbolt\\Scim\\": "./plugins/PassboltEe/Scim/src",
+            "Passbolt\\Edition\\": "./plugins/PassboltCe/Edition/src"
         }
     },
     "autoload-dev": {
@@ -189,7 +189,8 @@
             "Passbolt\\Metadata\\Test\\": "./plugins/PassboltCe/Metadata/tests",
             "Passbolt\\UserKeyPolicies\\Test\\": "./plugins/PassboltCe/UserKeyPolicies/tests",
             "Passbolt\\ExportPolicies\\Test\\": "./plugins/PassboltCe/ExportPolicies/tests",
-            "Passbolt\\Scim\\Test\\": "./plugins/PassboltEe/Scim/tests"
+            "Passbolt\\Scim\\Test\\": "./plugins/PassboltEe/Scim/tests",
+            "Passbolt\\Edition\\Test\\": "./plugins/PassboltCe/Edition/tests"
         }
     },
     "scripts": {
@@ -204,8 +205,8 @@
         "install-dev": [
             "@composer install",
             "npm install",
-            "./node_modules/.bin/grunt appjs-update",
-            "./node_modules/.bin/grunt styleguide-update"
+            "npm run copy:dependencies",
+            "npm run copy:styleguide"
         ],
         "stan": "phpstan analyse --memory-limit=-1",
         "psalm": "psalm.phar",

@@ -92,7 +92,9 @@ class GroupsDeleteController extends AppController
         $group = $this->_validateRequestData($id);
         $this->_validateDelete($group);
         $resources = $this->Resources->findAllByGroupAccess($id);
-        $resources = $this->formatResources($resources->toArray());
+        /** @var array<\App\Model\Entity\Resource> $resourcesList */
+        $resourcesList = $resources->toArray();
+        $resources = $this->formatResources($resourcesList);
         $this->success(__('The group can be deleted.'), $resources);
     }
 
@@ -186,7 +188,9 @@ class GroupsDeleteController extends AppController
                     $findResourcesOptions['contain']['permissions.user.profile'] = true;
                     $findResourcesOptions['contain']['permissions.group'] = true;
                     $resources = $this->Resources->findAllByIds($group->id, $resourcesIds, $findResourcesOptions);
-                    $resources = $this->formatResources($resources->toArray());
+                    /** @var array<\App\Model\Entity\Resource> $resourcesList */
+                    $resourcesList = $resources->toArray();
+                    $resources = $this->formatResources($resourcesList);
                     $body['errors']['resources']['sole_owner'] = $resources;
                     $msg .= $errors['id']['soleOwnerOfSharedContent'];
                 }

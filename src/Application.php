@@ -42,8 +42,9 @@ use App\Notification\NotificationSettings\CoreNotificationSettingsDefinition;
 use App\Service\Avatars\AvatarsConfigurationService;
 use App\Service\Cookie\AbstractSecureCookieService;
 use App\Service\Cookie\DefaultSecureCookieService;
+use App\Service\HealthcheckStatus\DefaultHealthcheckStatusService;
+use App\Service\HealthcheckStatus\HealthcheckStatusServiceInterface;
 use App\Service\Subscriptions\DefaultSubscriptionCheckInCommandService;
-use App\Service\Subscriptions\EditionManager;
 use App\Service\Subscriptions\SubscriptionCheckInCommandServiceInterface;
 use App\ServiceProvider\CommandServiceProvider;
 use App\ServiceProvider\HealthcheckServiceProvider;
@@ -59,7 +60,6 @@ use Authentication\Plugin as AuthenticationPlugin;
 use Cake\Console\CommandCollection;
 use Cake\Core\Configure;
 use Cake\Core\ContainerInterface;
-use Cake\Core\Exception\MissingPluginException;
 use Cake\Error\Middleware\ErrorHandlerMiddleware;
 use Cake\Http\BaseApplication;
 use Cake\Http\Client;
@@ -75,6 +75,7 @@ use DebugKit\DebugKitPlugin;
 use EmailQueue\Command\SenderCommand;
 use EmailQueue\EmailQueuePlugin;
 use Migrations\MigrationsPlugin;
+use Passbolt\Edition\Service\EditionManager;
 use Passbolt\EmailDigest\EmailDigestPlugin;
 use Passbolt\Rbacs\Service\ActionAccessControl\AdminOnlyRoleActionAccessControlService;
 use Passbolt\Rbacs\Service\ActionAccessControl\RoleActionAccessControlServiceInterface;
@@ -186,10 +187,6 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
         $this->initEdition();
         $this->initSolutionBootstrapper();
 
-        if (PHP_SAPI === 'cli') {
-            $this->addCliDevelopmentPlugins();
-        }
-
         $this->initEmails();
         (new AvatarsConfigurationService())->loadConfiguration();
     }
@@ -201,7 +198,7 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
      */
     private function initEdition(): void
     {
-        $this->editionManager = new EditionManager();
+        $this->editionManager = EditionManager::getInstance();
         $this->editionManager->boot();
     }
 
@@ -280,30 +277,6 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
     }
 
     /**
-     * Add plugins relevant in CLI development mode
-     * - Bake
-     * - Migrations
-     *
-     * @return $this
-     */
-    protected function addCliDevelopmentPlugins()
-    {
-        if (!Configure::read('debug')) {
-            return $this;
-        }
-        try {
-            $this
-                ->addPlugin('Bake')
-                ->addPlugin('CakephpFixtureFactories')
-                ->addPlugin('IdeHelper');
-        } catch (MissingPluginException $e) {
-            // Do not halt if the plugin is missing
-        }
-
-        return $this;
-    }
-
-    /**
      * @inheritDoc
      */
     public function services(ContainerInterface $container): void
@@ -327,6 +300,7 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
             DefaultSubscriptionCheckInCommandService::class
         );
         $container->addServiceProvider(new HealthcheckServiceProvider());
+        $container->add(HealthcheckStatusServiceInterface::class, DefaultHealthcheckStatusService::class);
     }
 
     /**

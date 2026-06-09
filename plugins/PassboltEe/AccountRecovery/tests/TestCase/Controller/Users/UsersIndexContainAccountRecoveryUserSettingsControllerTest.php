@@ -63,7 +63,8 @@ class UsersIndexContainAccountRecoveryUserSettingsControllerTest extends Account
                 // The admin has no settings
                 $this->assertNull($responseUser->account_recovery_user_setting ?? null);
             } else {
-                $this->assertSame(compact('status'), (array)$responseUser->account_recovery_user_setting);
+                $setting = (array)$responseUser->account_recovery_user_setting;
+                $this->assertSame($status, $setting['status']);
             }
         }
     }

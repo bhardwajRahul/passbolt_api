@@ -45,6 +45,8 @@ class BaseSolutionBootstrapper
 
         $this->addFeaturePluginIfEnabled($app, 'JwtAuthentication');
 
+        $app->addPlugin('Passbolt/Edition', ['bootstrap' => true, 'routes' => true]);
+
         // Add webinstaller plugin if not configured.
         if (!WebInstallerMiddleware::isConfigured()) {
             $app->addPlugin('Passbolt/WebInstaller', ['bootstrap' => true, 'routes' => true]);
