@@ -72,12 +72,12 @@ class InsertCommand extends PassboltCommand
                 $command = new $command();
                 $options = [];
                 $options['connection'] = $args->getOption('connection') ?? 'default';
-                if (method_exists($command, 'beforeExecute')) {
-                    $command->beforeExecute();
+                if (method_exists($command, 'beforeDataExecute')) {
+                    $command->beforeDataExecute();
                 }
                 $this->executeCommand($command, $this->formatOptions($args, $options));
-                if (method_exists($command, 'afterExecute')) {
-                    $command->afterExecute();
+                if (method_exists($command, 'afterDataExecute')) {
+                    $command->afterDataExecute();
                 }
             } catch (Exception $exception) {
                 $message = __('Could not load command {0}, skipping.', get_class($command));

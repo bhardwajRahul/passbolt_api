@@ -92,6 +92,7 @@ class ShareEmailRedactor implements SubscribedEmailRedactorInterface
         if (!empty($userIds)) {
             // Get the details of whoever did the changes
             $owner = $this->usersTable->findFirstForEmail($ownerId);
+            /** @var array<\App\Model\Entity\User> $users */
             $users = $this->getUserFromIds($userIds)->all()->toArray();
 
             if (empty($users)) {

@@ -200,10 +200,13 @@ class FoldersRelationsAddItemsToUserTreeService
         // R = POTENTIAL_PARENTS ⋂ USERS_FOLDERS
         $query->where(['folder_parent_id IN' => $userFolders]);
 
-        return $query->select(['foreign_id', 'folder_parent_id'])
+        /** @var array<\Passbolt\Folders\Model\Entity\FoldersRelation> $result */
+        $result = $query->select(['foreign_id', 'folder_parent_id'])
             ->groupBy(['foreign_id', 'folder_parent_id'])
             ->all()
             ->toArray();
+
+        return $result;
     }
 
     /**
@@ -243,6 +246,7 @@ class FoldersRelationsAddItemsToUserTreeService
         $userItems = $this->foldersRelationsTable->findByUserId($userId);
         $query->where(['foreign_id IN' => $userItems->select('foreign_id')]);
 
+        /** @var array<\Passbolt\Folders\Model\Entity\FoldersRelation> $foldersRelations */
         $foldersRelations = $query->select(['foreign_id', 'folder_parent_id'])
             ->groupBy(['foreign_id', 'folder_parent_id'])
             ->all()

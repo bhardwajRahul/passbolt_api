@@ -188,6 +188,7 @@ class MfaUserSettingsDisableCommand extends PassboltCommand
             $simulatedUuid
         );
 
+        /** @var \App\Model\Entity\User|null $user */
         $user = $findUserQuery->all()->first();
 
         if (empty($user)) {

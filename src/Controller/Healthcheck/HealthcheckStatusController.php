@@ -17,7 +17,9 @@ declare(strict_types=1);
 namespace App\Controller\Healthcheck;
 
 use App\Controller\AppController;
+use App\Service\HealthcheckStatus\HealthcheckStatusServiceInterface;
 use Cake\Event\EventInterface;
+use Cake\Http\Exception\ServiceUnavailableException;
 
 class HealthcheckStatusController extends AppController
 {
@@ -35,13 +37,18 @@ class HealthcheckStatusController extends AppController
      * A lightweight method that returns OK
      * Useful to know if the site is up or not
      *
+     * @param \App\Service\HealthcheckStatus\HealthcheckStatusServiceInterface $healthcheckStatusService Healthcheck status service.
      * @return void
      */
-    public function status()
+    public function status(HealthcheckStatusServiceInterface $healthcheckStatusService)
     {
-        $this->viewBuilder()
-            ->setLayout('ajax')
-            ->setTemplatePath('Healthcheck');
+        $this->viewBuilder()->setLayout('ajax')->setTemplatePath('Healthcheck');
+
+        $isUp = $healthcheckStatusService->check();
+        if (!$isUp) {
+            throw new ServiceUnavailableException();
+        }
+
         $this->success(__('OK'), 'OK');
     }
 }

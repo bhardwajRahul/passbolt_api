@@ -88,6 +88,7 @@ class CommentAddEmailRedactor implements SubscribedEmailRedactorInterface
 
         // Find the users that have access to the resource (including via their groups)
         $options = ['contain' => ['role'], 'filter' => ['has-access' => [$comment->foreign_key]]];
+        /** @var array<\App\Model\Entity\User> $users */
         $users = $this->usersTable
             ->findIndex(Role::USER, $options)
             ->find('locale')

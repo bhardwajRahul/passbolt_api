@@ -64,7 +64,7 @@ class ServerMetadataKeyAccessInZeroKnowledgeModeHealthcheck implements Healthche
 
         $query = $this->fetchTable('Passbolt/Metadata.MetadataPrivateKeys')->find();
         $count = $query
-            ->where([$query->newExpr()->isNull('user_id')])
+            ->where([$query->expr()->isNull('user_id')])
             ->count();
 
         if ($count === 0) {

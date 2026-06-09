@@ -21,27 +21,9 @@ use App\Model\Table\PermissionsTable;
 use Cake\Database\Expression\IdentifierExpression;
 use Cake\Database\Expression\QueryExpression;
 use Cake\ORM\Query\SelectQuery;
-use Passbolt\Folders\Model\Entity\FoldersRelation;
 
 trait FoldersRelationsFindersTrait
 {
-    /**
-     * Filter out personal folders from a query.
-     *
-     * @param \Cake\ORM\Query\SelectQuery $query The folders relations query to decorate
-     * @return \Cake\ORM\Query\SelectQuery
-     */
-    public function filterQueryByIsNotPersonalFolder(SelectQuery $query): SelectQuery
-    {
-        $foldersIdsNotPersonalQuery = $this->find()
-            ->select(['foreign_id'])
-            ->where(['foreign_model' => FoldersRelation::FOREIGN_MODEL_FOLDER])
-            ->groupBy('foreign_id')
-            ->having('count(foreign_id) > 1');
-
-        return $query->where(['foreign_id IN' => $foldersIdsNotPersonalQuery]);
-    }
-
     /**
      * Filter a query by users ids
      *

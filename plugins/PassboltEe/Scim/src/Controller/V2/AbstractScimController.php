@@ -21,6 +21,7 @@ use App\Controller\AppController;
 use Cake\Event\EventInterface;
 use Cake\Routing\Router;
 use Exception;
+use Passbolt\Scim\Log\ScimLog;
 use Passbolt\Scim\Utility\Object\ScimErrorResponse;
 use Passbolt\Scim\Utility\ScimConstants;
 use Passbolt\Scim\Utility\ScimObjectInterface;
@@ -54,8 +55,38 @@ abstract class AbstractScimController extends AppController
      */
     protected function processException(string $settingId, Exception $e): void
     {
-        $status = $e->getCode();
-        $this->processResponse($settingId, new ScimErrorResponse($e), $status);
+        $status = $this->resolveHttpStatus($e);
+        $this->processResponse($settingId, new ScimErrorResponse($e, $status), $status);
+    }
+
+    /**
+     * Resolve a valid HTTP status code from a caught exception.
+     *
+     * Non-HTTP exceptions (e.g. PDOException carrying a SQLSTATE such as 40001)
+     * expose `getCode()` values that are not valid HTTP statuses. Passing those
+     * to Response::withStatus() raises InvalidArgumentException and masks the
+     * real failure. Map anything outside 100-599 to 500 and log the original
+     * exception for debugging.
+     *
+     * @param \Exception $e Caught exception
+     * @return int
+     */
+    private function resolveHttpStatus(Exception $e): int
+    {
+        $code = $e->getCode();
+        if (is_int($code) && $code >= 100 && $code <= 599) {
+            return $code;
+        }
+
+        ScimLog::error(sprintf(
+            'SCIM endpoint caught non-HTTP exception (%s, code=%s): %s',
+            get_class($e),
+            var_export($code, true),
+            $e->getMessage()
+        ));
+        ScimLog::error($e->getTraceAsString());
+
+        return 500;
     }
 
     /**

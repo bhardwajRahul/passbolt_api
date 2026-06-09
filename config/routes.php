@@ -12,6 +12,7 @@
  * @link          https://www.passbolt.com Passbolt(tm)
  * @since         2.0.0
  */
+use App\Middleware\PreventSetCookieOnAvatarsViewMiddleware;
 use Cake\Routing\RouteBuilder;
 use Cake\Routing\Router;
 use Cake\Routing\Route\DashedRoute;
@@ -305,6 +306,9 @@ $routes->scope('/users', function ($routes) {
  * Avatars prefixed routes
  */
 $routes->scope('/avatars', function (RouteBuilder $routes) {
+    $routes->registerMiddleware('preventSetCookie', new PreventSetCookieOnAvatarsViewMiddleware());
+    $routes->applyMiddleware('preventSetCookie');
+
     $routes->connect('/view/{id}/{format}', ['prefix' => 'Avatars', 'controller' => 'AvatarsView', 'action' => 'view'])
         ->setPass(['id', 'format'])
         ->setMethods(['GET']);

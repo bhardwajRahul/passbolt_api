@@ -33,6 +33,7 @@ use Cake\Http\Client;
 use Cake\Http\TestSuite\HttpClientTrait;
 use Cake\ORM\TableRegistry;
 use Cake\Routing\Router;
+use Passbolt\Edition\Test\Factory\EditionOrganizationSettingFactory;
 use Passbolt\SelfRegistration\SelfRegistrationPlugin;
 use Passbolt\SelfRegistration\Test\Lib\SelfRegistrationTestTrait;
 use Passbolt\Subscription\Test\SubscriptionFactory;
@@ -161,6 +162,9 @@ class HealthcheckCommandTest extends AppTestCase
         $this->enableFeaturePlugin(SelfRegistrationPlugin::class);
 
         $this->mockSubscriptionKey();
+        // Seed the edition row so EditionPresentInDatabaseApplicationHealthcheck
+        // passes — its check fails when no row exists (defaulting to CE).
+        EditionOrganizationSettingFactory::make()->pro()->persist();
 
         $this->exec('passbolt healthcheck -d test --application');
 
@@ -355,7 +359,7 @@ class HealthcheckCommandTest extends AppTestCase
     protected function mockSubscriptionKey(): void
     {
         $licenseDevPublicKey = PLUGINS . 'PassboltEe' . DS . 'Subscription' . DS . 'tests' . DS . 'Fixture' . DS . 'gpg' . DS . 'subscription_dev_public.key';
-        Configure::write('passbolt.plugins.subscription.subscriptionKey.public', $licenseDevPublicKey);
+        Configure::write('passbolt.plugins.edition.subscriptionKey.public', $licenseDevPublicKey);
 
         $content = file_get_contents(PLUGINS . 'PassboltEe' . DS . 'Subscription' . DS . 'tests' . DS . 'Fixture' . DS . 'subscription' . DS . 'subscription_dev');
         SubscriptionFactory::make([

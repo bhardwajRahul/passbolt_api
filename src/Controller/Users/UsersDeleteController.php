@@ -217,7 +217,9 @@ class UsersDeleteController extends AppController
                     $findResourcesOptions['contain']['permissions.user.profile'] = true;
                     $findResourcesOptions['contain']['permissions.group'] = true;
                     $resources = $this->Resources->findAllByIds($user->id, $resourcesIds, $findResourcesOptions);
-                    $resources = $this->formatResources($resources->toArray());
+                    /** @var array<\App\Model\Entity\Resource> $resourcesList */
+                    $resourcesList = $resources->toArray();
+                    $resources = $this->formatResources($resourcesList);
                     $body['errors']['resources']['sole_owner'] = $resources;
                     $msg .= ' ' . $errors['id']['soleOwnerOfSharedContent'];
                 }

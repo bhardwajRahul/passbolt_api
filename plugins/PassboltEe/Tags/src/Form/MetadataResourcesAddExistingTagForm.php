@@ -65,7 +65,7 @@ class MetadataResourcesAddExistingTagForm extends Form
     /**
      * @inheritDoc
      */
-    protected function _execute(array $data): bool
+    protected function process(array $data): bool
     {
         return true;
     }
@@ -95,7 +95,7 @@ class MetadataResourcesAddExistingTagForm extends Form
                 'Tags.id' => $tagId,
                 'OR' => [
                     'ResourcesTags.user_id' => $this->uac->getId(),
-                    $query->newExpr()->isNull('ResourcesTags.user_id'),
+                    $query->expr()->isNull('ResourcesTags.user_id'),
                 ],
             ])
             ->first();
