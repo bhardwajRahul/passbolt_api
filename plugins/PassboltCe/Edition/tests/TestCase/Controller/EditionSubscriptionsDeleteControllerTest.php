@@ -100,17 +100,24 @@ class EditionSubscriptionsDeleteControllerTest extends AppIntegrationTestCase
         $this->assertTrue((new EditionGetService())->get()->isPro());
     }
 
-    public function testEditionSubscriptionsDeleteController_Delete_Error_NotFoundNoSubscriptionKey(): void
+    public function testEditionSubscriptionsDeleteController_Delete_Success_WhenSubscriptionRowMissing(): void
     {
-        // PRO edition flag is on, but no subscription row exists.
         (new EditionSetService())->setToPro($this->mockAdminAccessControl());
+        /** @var \App\Model\Entity\User $otherAdmin */
+        $otherAdmin = UserFactory::make()->admin()->active()->persist();
 
-        $this->logInAsAdmin();
+        $operator = $this->logInAsAdmin();
         $this->deleteJson(self::URL);
 
-        $this->assertError(404, 'The subscription key does not exist.');
-        // Edition flag untouched.
-        $this->assertTrue((new EditionGetService())->get()->isPro());
+        $this->assertSuccess();
+        $this->assertSame(0, $this->fetchTable('Passbolt/Subscription.Subscriptions')->find()->count());
+        $this->assertFalse((new EditionGetService())->get()->isPro());
+        $this->assertEmailQueueCount(1);
+        $this->assertEmailIsInQueue([
+            'email' => $otherAdmin->username,
+            'template' => EditionDowngradeEmailRedactor::TEMPLATE,
+        ]);
+        $this->assertEmailWithRecipientIsInNotQueue($operator->username);
     }
 
     public function testEditionSubscriptionsDeleteController_Delete_Error_ConflictAlreadyOnCe(): void

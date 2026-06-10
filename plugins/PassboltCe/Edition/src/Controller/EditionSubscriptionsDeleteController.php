@@ -18,7 +18,6 @@ namespace Passbolt\Edition\Controller;
 
 use App\Controller\AppController;
 use Cake\Http\Exception\ForbiddenException;
-use Cake\Http\Exception\NotFoundException;
 use Passbolt\Edition\Service\EditionDowngradeService;
 
 /**
@@ -29,7 +28,6 @@ class EditionSubscriptionsDeleteController extends AppController
     /**
      * @return void
      * @throws \Cake\Http\Exception\ForbiddenException When the caller is not admin.
-     * @throws \Cake\Http\Exception\NotFoundException When no subscription row exists.
      * @throws \Cake\Http\Exception\ConflictException When the instance is already on CE.
      */
     public function delete(): void
@@ -37,11 +35,6 @@ class EditionSubscriptionsDeleteController extends AppController
         $uac = $this->User->getAccessControl();
         if (!$uac->isAdmin()) {
             throw new ForbiddenException(__('You are not allowed to access this location.'));
-        }
-
-        $subscriptions = $this->fetchTable('Passbolt/Subscription.Subscriptions');
-        if ($subscriptions->find()->count() === 0) {
-            throw new NotFoundException(__('The subscription key does not exist.'));
         }
 
         // Throws ConflictException(409) if already on CE.
