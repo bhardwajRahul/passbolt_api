@@ -1,6 +1,6 @@
-Release song: TBD
+Release song: https://www.youtube.com/watch?v=G9XeQqyog54
 
-## [5.13.0-test.2] - 2026-06-10
+## [5.13.0] - 2026-06-11
 ### Added
 - PB-42980 As an administrator I can upgrade my Passbolt CE instance to a Pro edition from the product
 - PB-42980 As an administrator I can downgrade my Passbolt Pro instance back to CE from the product
