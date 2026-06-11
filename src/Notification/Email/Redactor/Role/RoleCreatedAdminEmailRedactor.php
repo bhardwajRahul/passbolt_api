@@ -143,12 +143,15 @@ class RoleCreatedAdminEmailRedactor implements SubscribedEmailRedactorInterface
      */
     private function getAdministrators(string $operatorId): array
     {
-        return $this->Users
+        /** @var array<\App\Model\Entity\User> $admins */
+        $admins = $this->Users
             ->findAdmins()
             ->find('notDisabled')
             ->find('locale')
             ->contain(['Profiles' => AvatarsTable::addContainAvatar()])
             ->where(['Users.id !=' => $operatorId])
             ->toArray();
+
+        return $admins;
     }
 }

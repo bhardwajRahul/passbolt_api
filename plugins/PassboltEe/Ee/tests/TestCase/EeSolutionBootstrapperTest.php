@@ -16,13 +16,14 @@ declare(strict_types=1);
  */
 namespace Passbolt\Ee\Test\TestCase;
 
-use App\Service\Subscriptions\EditionManager;
 use App\Test\Lib\SolutionBootstrapperTestCase;
 use App\Test\TestCase\BaseSolutionBootstrapperTest;
 use App\Utility\Application\FeaturePluginAwareTrait;
 use Cake\Core\Configure;
 use Cake\Core\PluginCollection;
 use Cake\TestSuite\IntegrationTestTrait;
+use Passbolt\Edition\Model\Dto\EditionDto;
+use Passbolt\Edition\Test\Factory\EditionOrganizationSettingFactory;
 use Passbolt\PasswordExpiry\PasswordExpiryPlugin;
 use Passbolt\PasswordExpiryPolicies\PasswordExpiryPoliciesPlugin;
 use Passbolt\PasswordPoliciesUpdate\PasswordPoliciesUpdatePlugin;
@@ -45,6 +46,7 @@ class EeSolutionBootstrapperTest extends SolutionBootstrapperTestCase
         'Passbolt/Ee',
         'Passbolt/Subscription',
         'Passbolt/JwtAuthentication',
+        'Passbolt/Edition',
         'Passbolt/Metadata',
         'Passbolt/Rbacs',
         'Passbolt/AccountSettings',
@@ -86,7 +88,11 @@ class EeSolutionBootstrapperTest extends SolutionBootstrapperTestCase
     public function setUp(): void
     {
         parent::setUp();
-        Configure::write('passbolt.edition', EditionManager::EDITION_PRO);
+        Configure::write('passbolt.edition', EditionDto::EDITION_PRO);
+        // Set edition to pro by default
+        EditionOrganizationSettingFactory::make()
+            ->setField('value', EditionDto::EDITION_PRO)
+            ->persist();
     }
 
     public function testEeSolutionBootstrapper_Application_Bootstrap(): void
@@ -100,11 +106,6 @@ class EeSolutionBootstrapperTest extends SolutionBootstrapperTestCase
                 'EmailQueue',
             ],
             self::EXPECTED_EE_PLUGINS,
-            [
-                'Bake',
-                'CakephpFixtureFactories',
-                'Cake/TwigView',
-            ]
         );
         $this->assertPluginList($plugins, $expectedPluginList);
         $this->assertPluginListContains($plugins, BaseSolutionBootstrapperTest::EXPECTED_CE_PLUGINS);
@@ -123,10 +124,8 @@ class EeSolutionBootstrapperTest extends SolutionBootstrapperTestCase
             'Passbolt/Ee',
             'Passbolt/Subscription',
             'Passbolt/JwtAuthentication',
+            'Passbolt/Edition',
             'Passbolt/WebInstaller',
-            'Bake',
-            'CakephpFixtureFactories',
-            'Cake/TwigView',
         ];
         $this->assertPluginList($plugins, $expectedPluginList);
     }

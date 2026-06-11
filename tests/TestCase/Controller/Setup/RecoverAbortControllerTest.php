@@ -56,6 +56,7 @@ class RecoverAbortControllerTest extends AppIntegrationTestCase
         $email = EmailQueueFactory::find()->firstOrFail();
         $this->assertTextEquals('AD/setup_recover_abort', $email->template);
         $this->assertEmailInBatchContains($user->profile->first_name . ' cannot complete the account recovery process!');
+        $this->assertEmailInBatchContains('This user lost their private key and/or passphrase and cannot complete the account recovery process. Unfortunately, they will need your help to delete their account and restart from scratch. Please check with them first to confirm.');
     }
 
     public function testRecoverAbortController_Success_EmailDisabled(): void

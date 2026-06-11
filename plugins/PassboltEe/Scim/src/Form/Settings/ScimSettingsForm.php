@@ -133,7 +133,7 @@ class ScimSettingsForm extends Form
      * @param array $data
      * @return bool
      */
-    protected function _execute(array $data): bool
+    protected function process(array $data): bool
     {
         if (isset($data['secret_token'])) {
             /** @var int $cost */

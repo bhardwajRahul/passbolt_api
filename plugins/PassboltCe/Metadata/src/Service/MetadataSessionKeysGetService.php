@@ -32,6 +32,9 @@ class MetadataSessionKeysGetService
         /** @var \Passbolt\Metadata\Model\Table\MetadataSessionKeysTable $metadataSessionKeysTable */
         $metadataSessionKeysTable = $this->fetchTable('Passbolt/Metadata.MetadataSessionKeys');
 
-        return $metadataSessionKeysTable->find()->where(['user_id' => $uac->getId()])->toArray();
+        /** @var array<\Passbolt\Metadata\Model\Entity\MetadataSessionKey> $result */
+        $result = $metadataSessionKeysTable->find()->where(['user_id' => $uac->getId()])->toArray();
+
+        return $result;
     }
 }

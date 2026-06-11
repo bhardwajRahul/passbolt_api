@@ -50,6 +50,7 @@ class PermissionsHealthcheckService extends AbstractHealthcheckService
      */
     public function check(): array
     {
+        /** @var array<\App\Model\Entity\Permission> $records */
         $records = $this->table->find()->all();
 
         foreach ($records as $record) {

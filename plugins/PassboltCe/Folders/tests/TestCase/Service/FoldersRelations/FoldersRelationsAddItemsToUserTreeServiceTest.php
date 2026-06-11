@@ -22,6 +22,7 @@ use App\Test\Factory\UserFactory;
 use Passbolt\Folders\Model\Dto\FolderRelationDto;
 use Passbolt\Folders\Model\Entity\FoldersRelation;
 use Passbolt\Folders\Service\FoldersRelations\FoldersRelationsAddItemsToUserTreeService;
+use Passbolt\Folders\Service\FoldersRelations\FoldersRelationsDetectStronglyConnectedComponentsService;
 use Passbolt\Folders\Test\Factory\FolderFactory;
 use Passbolt\Folders\Test\Factory\FoldersRelationFactory;
 use Passbolt\Folders\Test\Factory\ResourceFactory;
@@ -705,7 +706,7 @@ class FoldersRelationsAddItemsToUserTreeServiceTest extends FoldersTestCase
         $this->assertFolderRelation($folderD->id, FoldersRelation::FOREIGN_MODEL_FOLDER, $userC->id, $folderC->id);
     }
 
-    public function testAddItemsToUserTreeSuccess_OneItem_Folder_HavingParentsAndChildren2_1_CycleNotDetectedWhenReconstructingParent_ParentInOperatorTree_PersonalFolderInvolved()
+    public function testAddItemsToUserTreeSuccess_OneItem_Folder_HavingParentsAndChildren2_1_CycleDetectedWhenReconstructingParent_ParentInOperatorTree_PersonalFolderInvolved()
     {
         // Ada is OWNER of folder A
         // Carol is OWNER of folder A
@@ -724,6 +725,10 @@ class FoldersRelationsAddItemsToUserTreeServiceTest extends FoldersTestCase
         //    |- C (Ada:O, Betty:O)
         //        |- D (Betty:O, Carol:O)
         //            |- A (Ada:O, Carol:O)
+        //
+        // The cycle traverses Bravo (personal to Ada). Before the personal-folder
+        // filter was removed, this cycle went undetected. The repair service now
+        // breaks the D->A edge (lowest sort priority) so Carol's A goes to root.
         [$userA, $userB, $userC] = UserFactory::make(3)->persist();
         /** @var \Passbolt\Folders\Model\Entity\Folder $folderA */
         $folderA = FolderFactory::make()
@@ -760,7 +765,7 @@ class FoldersRelationsAddItemsToUserTreeServiceTest extends FoldersTestCase
         // Folder A.
         $this->assertItemIsInTrees($folderA->id, 2);
         $this->assertFolderRelation($folderA->id, FoldersRelation::FOREIGN_MODEL_FOLDER, $userA->id, FoldersRelation::ROOT);
-        $this->assertFolderRelation($folderA->id, FoldersRelation::FOREIGN_MODEL_FOLDER, $userC->id, $folderD->id);
+        $this->assertFolderRelation($folderA->id, FoldersRelation::FOREIGN_MODEL_FOLDER, $userC->id, FoldersRelation::ROOT);
         // Folder B.
         $this->assertItemIsInTrees($folderB->id, 1);
         $this->assertFolderRelation($folderB->id, FoldersRelation::FOREIGN_MODEL_FOLDER, $userA->id, $folderA->id);
@@ -988,7 +993,7 @@ class FoldersRelationsAddItemsToUserTreeServiceTest extends FoldersTestCase
         $this->assertFolderRelation($folderD->id, FoldersRelation::FOREIGN_MODEL_FOLDER, $userC->id, FoldersRelation::ROOT);
     }
 
-    public function testAddItemsToUserTreeSuccess_OneItem_Folder_HavingParentsAndChildren5_1()
+    public function testAddItemsToUserTreeSuccess_OneItem_Folder_HavingParentsAndChildren5_1_CycleDetectedWhenReconstructingParent_ParentInAnotherUserTree_PersonalFolderInvolved()
     {
         // Ada is OWNER of folder A
         // Carol is OWNER of folder A
@@ -1053,8 +1058,10 @@ class FoldersRelationsAddItemsToUserTreeServiceTest extends FoldersTestCase
         $this->assertFolderRelation($folderC->id, FoldersRelation::FOREIGN_MODEL_FOLDER, $userA->id, $folderB->id);
         $this->assertFolderRelation($folderC->id, FoldersRelation::FOREIGN_MODEL_FOLDER, $userB->id, FoldersRelation::ROOT);
         // Folder D
+        // Cycle traversed personal Bravo; the repair service breaks C->D so
+        // Betty's D goes to root, mirroring the non-_1 variant's outcome.
         $this->assertItemIsInTrees($folderD->id, 2);
-        $this->assertFolderRelation($folderD->id, FoldersRelation::FOREIGN_MODEL_FOLDER, $userB->id, $folderC->id);
+        $this->assertFolderRelation($folderD->id, FoldersRelation::FOREIGN_MODEL_FOLDER, $userB->id, FoldersRelation::ROOT);
         $this->assertFolderRelation($folderD->id, FoldersRelation::FOREIGN_MODEL_FOLDER, $userC->id, FoldersRelation::ROOT);
     }
 
@@ -1133,7 +1140,7 @@ class FoldersRelationsAddItemsToUserTreeServiceTest extends FoldersTestCase
         $this->assertFolderRelation($folderD->id, FoldersRelation::FOREIGN_MODEL_FOLDER, $userC->id, FoldersRelation::ROOT);
     }
 
-    public function testAddItemsToUserTreeSuccess_OneItem_Folder_HavingParentsAndChildren6_1()
+    public function testAddItemsToUserTreeSuccess_OneItem_Folder_HavingParentsAndChildren6_1_CycleDetected_PersonalFolderInvolved()
     {
         // Ada is OWNER of folder A
         // Carol is OWNER of folder A
@@ -1194,13 +1201,19 @@ class FoldersRelationsAddItemsToUserTreeServiceTest extends FoldersTestCase
         $this->assertFolderRelation($folderB->id, FoldersRelation::FOREIGN_MODEL_FOLDER, $userA->id, $folderA->id);
         $this->assertFolderRelation($folderB->id, FoldersRelation::FOREIGN_MODEL_FOLDER, $userB->id, FoldersRelation::ROOT);
         $this->assertFolderRelation($folderB->id, FoldersRelation::FOREIGN_MODEL_FOLDER, $userC->id, $folderA->id);
-        // Folder C
+        // Folder C / D — the cycle traversed personal Charlie. The repair service
+        // breaks one of B->C or C->D (both have equal sort priority — same usage,
+        // neither in the operator/target user tree, and creation timestamps are
+        // tied within the test setup). The exact edge picked is implementation-
+        // dependent, so we assert the invariant that matters: Betty's tree is
+        // cycle-free afterwards and the four folders remain in the expected trees.
         $this->assertItemIsInTrees($folderC->id, 1);
-        $this->assertFolderRelation($folderC->id, FoldersRelation::FOREIGN_MODEL_FOLDER, $userB->id, $folderB->id);
-        // Folder D
         $this->assertItemIsInTrees($folderD->id, 2);
-        $this->assertFolderRelation($folderD->id, FoldersRelation::FOREIGN_MODEL_FOLDER, $userB->id, $folderC->id);
         $this->assertFolderRelation($folderD->id, FoldersRelation::FOREIGN_MODEL_FOLDER, $userC->id, FoldersRelation::ROOT);
+
+        $sccDetector = new FoldersRelationsDetectStronglyConnectedComponentsService();
+        $this->assertEmpty($sccDetector->detectInUserTree($userB->id), "Betty's tree still has a cycle.");
+        $this->assertEmpty($sccDetector->detectInUserTree($userC->id), "Carol's tree still has a cycle.");
     }
 
     public function testAddItemsToUserTreeSuccess_OneItem_Folder_HavingParentsAndChildren7()

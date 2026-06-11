@@ -139,6 +139,7 @@ class GroupUserAddEmailRedactor implements SubscribedEmailRedactorInterface
                 continue;
             }
 
+            /** @var \App\Model\Entity\User|null $recipient */
             $recipient = $recipients->firstMatch(['id' => $group_user->user_id]);
 
             // skip disabled group members

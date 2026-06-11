@@ -168,12 +168,12 @@ trait FoldersFindersTrait
         return $query
             ->where([
                 'Folders.metadata_key_type' => MetadataKey::TYPE_SHARED_KEY,
-                $query->newExpr()->isNotNull('Folders.metadata'),
-                $query->newExpr()->isNotNull('Folders.metadata_key_id'),
+                $query->expr()->isNotNull('Folders.metadata'),
+                $query->expr()->isNotNull('Folders.metadata_key_id'),
             ])
             ->innerJoin(['MetadataKeys' => 'metadata_keys'], [
                 'MetadataKeys.id' => new IdentifierExpression('Folders.metadata_key_id'),
-                $query->newExpr()->isNotNull('MetadataKeys.expired'),
+                $query->expr()->isNotNull('MetadataKeys.expired'),
             ])
             ->disableHydration();
     }
@@ -344,7 +344,7 @@ trait FoldersFindersTrait
     public function findV4(SelectQuery $query): SelectQuery
     {
         return $query->where([
-            $query->newExpr()->isNull('Folders.metadata'),
+            $query->expr()->isNull('Folders.metadata'),
         ]);
     }
 }

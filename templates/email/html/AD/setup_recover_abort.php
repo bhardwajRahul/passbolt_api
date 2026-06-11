@@ -31,8 +31,8 @@ echo $this->element('Email/module/avatar',[
     ])
 ]);
 
-$text = ' ' . __('This user lost their private key and/or passphrase and cannot complete the account recovery process.');
-$text .= __('Unfortunately, they will need your help to delete their account and restart from scratch.');
+$text = ' ' . __('This user lost their private key and/or passphrase and cannot complete the account recovery process.') . ' ';
+$text .= __('Unfortunately, they will need your help to delete their account and restart from scratch.') . ' ';
 $text .= __('Please check with them first to confirm.');
 $text .= '<br/>';
 echo $this->element('Email/module/text', [

@@ -219,8 +219,8 @@ class MetadataKeysTable extends Table
     public function findActive(Query $query, array $options): Query
     {
         return $query->where([
-            $query->newExpr()->isNull('deleted'),
-            $query->newExpr()->isNull('expired'),
+            $query->expr()->isNull('deleted'),
+            $query->expr()->isNull('expired'),
         ]);
     }
 

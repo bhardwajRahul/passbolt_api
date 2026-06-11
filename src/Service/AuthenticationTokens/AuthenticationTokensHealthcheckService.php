@@ -50,6 +50,7 @@ class AuthenticationTokensHealthcheckService extends AbstractHealthcheckService
      */
     public function check(): array
     {
+        /** @var array<\App\Model\Entity\AuthenticationToken> $records */
         $records = $this->AuthenticationTokens
             ->find()
             ->where(['type IN ' => AuthenticationTokensTable::ALLOWED_TYPES])

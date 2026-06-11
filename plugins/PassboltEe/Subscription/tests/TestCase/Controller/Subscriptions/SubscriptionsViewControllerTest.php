@@ -129,7 +129,7 @@ class SubscriptionsViewControllerTest extends SubscriptionControllerTestCase
      */
     public function testSubscriptionsViewControllerError_GpgError()
     {
-        Configure::delete('passbolt.plugins.subscription.subscriptionKey.public');
+        Configure::delete('passbolt.plugins.edition.subscriptionKey.public');
         $this->persistValidSubscription();
         $this->authenticateAs('admin');
         $this->getJson('/ee/subscription/key.json');

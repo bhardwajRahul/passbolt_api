@@ -47,12 +47,14 @@ class InsertRbacsForActionsService
     public function add(array $actionNames): int
     {
         // Find all roles apart from admin & guest (excluding soft deleted roles)
+        /** @var array<\App\Model\Entity\Role> $roles */
         $roles = $this->Roles->find('notDeleted')
             ->select('id')
             ->where(['name NOT IN' => [Role::GUEST, Role::ADMIN]])
-            ->all();
+            ->all()
+            ->toArray();
 
-        if ($roles->isEmpty()) {
+        if (empty($roles)) {
             return 0;
         }
 
@@ -97,10 +99,13 @@ class InsertRbacsForActionsService
             $conditions['Actions.id NOT IN'] = $alreadyExistingRbacActionsIds;
         }
 
-        return $actionsTable
+        /** @var array<\Passbolt\Log\Model\Entity\Action> $actions */
+        $actions = $actionsTable
             ->find()
             ->where($conditions)
             ->all()
             ->toArray();
+
+        return $actions;
     }
 }

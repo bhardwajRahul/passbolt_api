@@ -49,12 +49,14 @@ class MetadataKeyShareDefaultService implements MetadataKeyShareServiceInterface
         // We share all the possible private keys, even if the parent entity is marked as expired
         // As the metadata key can be marked as expired but still in use for some stuffs
         // (resource, folder, comments, tags)
+        /** @var array<\Passbolt\Metadata\Model\Entity\MetadataPrivateKey> $serverMetadataPrivateKeys */
         $serverMetadataPrivateKeys = $metadataPrivateKeysTable->find()
             ->where(['user_id IS' => null])
             ->orderBy(['created' => 'DESC'])
-            ->all();
+            ->all()
+            ->toArray();
 
-        if ($serverMetadataPrivateKeys->isEmpty()) {
+        if (empty($serverMetadataPrivateKeys)) {
             $msg = __('Server metadata private key was not found.') . ' ';
             $msg .= __('Metadata key could not be shared with user id: {0}.', $user->id);
             throw new MetadataKeyShareException($msg);

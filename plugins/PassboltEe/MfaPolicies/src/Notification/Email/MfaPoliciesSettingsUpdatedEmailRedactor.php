@@ -85,6 +85,7 @@ class MfaPoliciesSettingsUpdatedEmailRedactor implements SubscribedEmailRedactor
         /** @var \App\Model\Table\UsersTable $usersTable */
         $usersTable = $this->fetchTable('Users');
         // Get all the active admins to notify them all
+        /** @var array<\App\Model\Entity\User> $admins */
         $admins = $usersTable->findAdmins()
             ->find('notDisabled')
             ->find('locale')

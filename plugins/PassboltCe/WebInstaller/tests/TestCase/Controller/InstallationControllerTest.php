@@ -23,7 +23,6 @@ use Cake\Core\Configure;
 use Cake\Datasource\ConnectionManager;
 use Cake\Validation\Validation;
 use Passbolt\Subscription\Model\Entity\Subscription;
-use Passbolt\Subscription\SubscriptionPlugin;
 use Passbolt\WebInstaller\Form\DatabaseConfigurationForm;
 use Passbolt\WebInstaller\Service\WebInstallerChangeConfigFolderPermissionService;
 use Passbolt\WebInstaller\Test\Lib\WebInstallerIntegrationTestCase;
@@ -36,7 +35,6 @@ class InstallationControllerTest extends WebInstallerIntegrationTestCase
         $this->mockPassboltIsNotconfigured();
         $this->initWebInstallerSession();
         $this->backupConfiguration();
-        $this->enableFeaturePlugin(SubscriptionPlugin::class);
     }
 
     public function tearDown(): void
@@ -297,8 +295,9 @@ UZNFZWTIXO4n0jwpTTOt6DvtqeRyjjw2nK3XUSiJu3izvn0791l4tofy
         $this->assertTrue(Validation::uuid($result['token']));
         $this->assertInstanceOf(Subscription::class, $this->Subscriptions->getOrFail());
 
-        // Ensure that the SMTP Settings were saved in the DB as well as the subscription
-        $this->assertSame(2, OrganizationSettingFactory::count());
+        // Ensure that the SMTP Settings, the subscription, and the edition flag
+        // (set to PRO by importSubscription) were all saved in the DB.
+        $this->assertSame(3, OrganizationSettingFactory::count());
 
         $filePermission = substr(sprintf('%o', fileperms($testConfigFile)), -4);
         $folderPermission = substr(sprintf('%o', fileperms($testConfigDir)), -4);
@@ -343,8 +342,9 @@ UZNFZWTIXO4n0jwpTTOt6DvtqeRyjjw2nK3XUSiJu3izvn0791l4tofy
         $this->get('/install/installation/do_install.json');
 
         $this->assertInstanceOf(Subscription::class, $this->Subscriptions->getOrFail());
-        // Ensure that the SMTP Settings were saved in the DB as well as the subscription
-        $this->assertSame(2, OrganizationSettingFactory::count());
+        // Ensure that the SMTP Settings, the subscription, and the edition flag
+        // (set to PRO by importSubscription) were all saved in the DB.
+        $this->assertSame(3, OrganizationSettingFactory::count());
         /** Configuration assertions */
         $filePermission = substr(sprintf('%o', fileperms($testConfigFile)), -4);
         $folderPermission = substr(sprintf('%o', fileperms($testConfigDir)), -4);

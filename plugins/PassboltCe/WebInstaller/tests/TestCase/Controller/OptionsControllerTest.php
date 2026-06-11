@@ -83,6 +83,23 @@ class OptionsControllerTest extends WebInstallerIntegrationTestCase
         $this->assertRedirectContains('/install/email');
     }
 
+    public function testWebInstallerOptionPostSuccess_RedirectsToSubscriptionWhenAllOptionalStepsAlreadyDone()
+    {
+        // hasSmtp + hasAdmin both true → skip email & account_creation.
+        // Subscription is the next step on every edition (WP 7.4).
+        $this->session(['webinstaller' => [
+            'initialized' => true,
+            'hasAdmin' => true,
+            'hasSmtpSettings' => true,
+        ]]);
+        $this->post('/install/options', [
+            'full_base_url' => 'http://passbolt.dev',
+            'force_ssl' => 0,
+        ]);
+        $this->assertResponseCode(302);
+        $this->assertRedirectContains('/install/subscription');
+    }
+
     public function testWebInstallerOptionPostError_InvalidData()
     {
         $postData = [

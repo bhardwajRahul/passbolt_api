@@ -508,6 +508,7 @@ class UsersTable extends Table implements TableCleanupProviderInterface
 
         // Delete all secrets
         $Secrets = TableRegistry::getTableLocator()->get('Secrets');
+        /** @var array<\App\Model\Entity\Secret> $secretsToDelete */
         $secretsToDelete = $Secrets->find()
             ->select(['id', 'user_id', 'resource_id'])
             ->where(['user_id' => $user->id])
@@ -597,8 +598,10 @@ class UsersTable extends Table implements TableCleanupProviderInterface
         $eventData = ['user' => $user, 'token' => $token];
         if ($control && $control->getId()) {
             $eventData['adminId'] = $control->getId();
+            /** @psalm-suppress InvalidArgument */
             $this->dispatchEvent(static::AFTER_REGISTER_SUCCESS_EVENT_NAME, $eventData, $this);
         } else {
+            /** @psalm-suppress InvalidArgument */
             $this->dispatchEvent(self::AFTER_SELF_REGISTER_SUCCESS_EVENT_NAME, $eventData, $this);
         }
 
@@ -613,6 +616,7 @@ class UsersTable extends Table implements TableCleanupProviderInterface
     {
         $entitiesChanges = new EntitiesChangesDto();
         $Secrets = TableRegistry::getTableLocator()->get('Secrets');
+        /** @var array<\App\Model\Entity\Secret> $secretsToConsiderAsDeleted */
         $secretsToConsiderAsDeleted = $Secrets->find()
             ->select(['id', 'user_id', 'resource_id'])
             ->where(['user_id' => $user->id])
